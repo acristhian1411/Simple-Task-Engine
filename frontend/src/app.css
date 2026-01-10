@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+@layer components {
+	/* Layout Classes */
+	.app-layout {
+		@apply flex h-screen w-full overflow-hidden bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-sans antialiased transition-colors duration-200;
+	}
+	
+	.sidebar {
+		@apply w-64 flex-shrink-0 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-full transition-colors duration-200;
+	}
+	
+	.main-content {
+		@apply flex-1 flex flex-col h-full overflow-hidden relative bg-gray-50 dark:bg-gray-900;
+	}
+
+	/* Card Classes */
+	.board-card {
+		@apply flex flex-col rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:ring-1 hover:ring-indigo-500/10 dark:hover:shadow-none transition-all duration-300 overflow-hidden h-full cursor-pointer;
+	}
+	
+	.task-card {
+		@apply bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-transparent hover:shadow-lg hover:ring-1 hover:ring-indigo-500/10 cursor-pointer transition-all;
+	}
+	
+	.create-board-card {
+		@apply flex flex-col items-center justify-center min-h-[200px] h-full rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 hover:shadow-lg hover:ring-1 hover:ring-indigo-500/10 hover:bg-indigo-500/5 dark:hover:bg-indigo-500/10 transition-all duration-300 cursor-pointer;
+	}
+
+	/* Button Classes */
+	.btn-primary {
+		@apply flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg shadow-md transition-colors;
+	}
+	
+	.btn-secondary {
+		@apply flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-white transition-colors rounded-lg;
+	}
+	
+	.btn-ghost {
+		@apply flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-600 transition-colors;
+	}
+
+	/* Navigation Classes */
+	.nav-item {
+		@apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-600 transition-colors;
+	}
+	
+	.nav-item-active {
+		@apply flex items-center gap-3 px-3 py-2.5 rounded-lg bg-indigo-500/10 dark:bg-gray-800 text-indigo-600 dark:text-white;
+	}
+
+	/* Form Classes */
+	.form-input {
+		@apply block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm text-sm transition-all;
+	}
+	
+	.search-input {
+		@apply block w-full pl-10 pr-3 py-2.5 border-none rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm transition-all;
+	}
+
+	/* Status Classes */
+	.status-badge {
+		@apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium;
+	}
+	
+	.status-todo {
+		@apply bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300;
+	}
+	
+	.status-progress {
+		@apply bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300;
+	}
+	
+	.status-blocked {
+		@apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300;
+	}
+	
+	.status-done {
+		@apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300;
+	}
+
+	/* Progress Classes */
+	.progress-bar {
+		@apply w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden;
+	}
+	
+	.progress-fill {
+		@apply h-full rounded-full transition-all duration-300;
+	}
+
+	/* Avatar Classes */
+	.avatar {
+		@apply rounded-full object-cover;
+	}
+	
+	.avatar-sm {
+		@apply w-6 h-6;
+	}
+	
+	.avatar-md {
+		@apply w-8 h-8;
+	}
+	
+	.avatar-lg {
+		@apply w-10 h-10;
+	}
+	
+	.avatar-group {
+		@apply flex -space-x-2;
+	}
+
+	/* Modal Classes */
+	.modal-backdrop {
+		@apply fixed inset-0 bg-black/60 backdrop-blur-sm z-50;
+	}
+	
+	.modal-drawer {
+		@apply fixed top-0 right-0 h-full w-full md:max-w-2xl bg-gray-50 dark:bg-gray-900 shadow-2xl z-50 flex flex-col border-l border-gray-300 dark:border-gray-600;
+	}
+	
+	.modal-header {
+		@apply h-16 px-6 border-b border-gray-300 dark:border-gray-600 flex items-center justify-between bg-white/50 dark:bg-gray-900/95 backdrop-blur shrink-0;
+	}
+
+	/* Kanban Classes */
+	.kanban-board {
+		@apply flex h-full gap-6 min-w-max pb-2;
+	}
+	
+	.kanban-column {
+		@apply w-80 flex-shrink-0 flex flex-col h-full rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-600/50 shadow-sm;
+	}
+	
+	.kanban-column-header {
+		@apply p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-600/50 bg-white/50 dark:bg-transparent backdrop-blur-sm rounded-t-xl sticky top-0 z-10;
+	}
+	
+	.kanban-column-active {
+		@apply border-t-4 border-t-indigo-600;
+	}
+	
+	.kanban-column-blocked {
+		@apply bg-red-50 dark:bg-red-950/10 border-t-4 border-t-red-500;
+	}
+
+	/* Utility Classes */
+	.custom-scrollbar::-webkit-scrollbar {
+		@apply w-1.5;
+	}
+	
+	.custom-scrollbar::-webkit-scrollbar-track {
+		@apply bg-transparent;
+	}
+	
+	.custom-scrollbar::-webkit-scrollbar-thumb {
+		@apply bg-gray-600 rounded-full;
+	}
+
+	/* Legacy classes for backward compatibility - will be removed in future tasks */
+	.container-page {
+		@apply min-h-screen bg-slate-950 text-slate-100;
+	}
+
+	.card {
+		@apply w-full max-w-md rounded-xl bg-slate-900/60 border border-slate-800 p-6 shadow-lg;
+	}
+
+	.form-label {
+		@apply block text-sm font-medium text-slate-200;
+	}
+
+	.input {
+		@apply mt-1 w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500;
+	}
+
+	.alert-error {
+		@apply rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200;
+	}
+}

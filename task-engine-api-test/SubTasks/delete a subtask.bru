@@ -1,0 +1,11 @@
+meta {
+  name: delete a subtask
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{base_url}}/subtasks/1
+  body: none
+  auth: inherit
+}

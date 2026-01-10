@@ -1,0 +1,21 @@
+meta {
+  name: create subtask
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/subtasks?title=subtask test&task_id=2
+  body: json
+  auth: inherit
+}
+
+params:query {
+  title: subtask test
+  task_id: 2
+}
+
+body:json {
+  title: "subtask test"
+  task_id: 2
+}

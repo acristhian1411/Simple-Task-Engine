@@ -1,0 +1,25 @@
+meta {
+  name: update a task
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{base_url}}/tasks/1?title=Task test1&list_id=1&order=1&status=done
+  body: json
+  auth: inherit
+}
+
+params:query {
+  title: Task test1
+  list_id: 1
+  order: 1
+  status: done
+}
+
+body:json {
+  title: "Task test1"
+  list_id: 1
+  order: 1
+  status: "done"
+}

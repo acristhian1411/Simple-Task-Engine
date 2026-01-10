@@ -1,0 +1,21 @@
+meta {
+  name: update task-dependency
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{base_url}}/task-dependencies/1?task_id=1&depends_on_task_id=3
+  body: json
+  auth: inherit
+}
+
+params:query {
+  task_id: 1
+  depends_on_task_id: 3
+}
+
+body:json {
+  task_id: 1
+  depends_on_task_id: 3
+}

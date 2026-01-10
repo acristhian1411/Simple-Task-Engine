@@ -1,0 +1,11 @@
+meta {
+  name: show a subtask
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/subtasks/1
+  body: none
+  auth: inherit
+}

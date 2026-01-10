@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Panel de Control - KanbanFlow</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Config -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "primary-dark": "#0f65bd",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111a22", // Using the color from the snippet as the dark base
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1c2936", // Slightly lighter than background for cards
+                        "border-light": "#e5e7eb",
+                        "border-dark": "#2d3b4b",
+                        "text-main-light": "#111827",
+                        "text-main-dark": "#ffffff",
+                        "text-sec-light": "#6b7280",
+                        "text-sec-dark": "#92adc9",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for better aesthetic in dark mode */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #2d3b4b;
+            border-radius: 20px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #2d3b4b;
+        }
+        .light .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-display antialiased transition-colors duration-200">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- SIDEBAR -->
+<aside class="w-64 flex-shrink-0 flex flex-col bg-surface-light dark:bg-[#111a22] border-r border-border-light dark:border-[#233648] h-full transition-colors duration-200">
+<div class="p-6 pb-2">
+<div class="flex gap-3 items-center mb-8">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg size-10 shadow-sm" data-alt="Abstract colorful geometric shape logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCzog1g7AwjhlmKjmczfNhbk32yPqG44hf83HghRDsQ41oh5bRgtvWeYHaSO-sazP1sDRA9MKUY2kn2gs4Hnr2TU9UIUmsCtcQIJ55Ys5Snf82H1TDxS7wcZS7hSEChJHGOju-fbLio4_PbnaVGqiNTIe-gSCwmtoBhdMvH43d62Mj7SLfUWg2LjUPOfYysTOzBY-mBlsrX1yiwGC1PvtwlPtHWYLR6GVIoBGoiLzOHeZCFF7nZ3Ua5joqMTSwGDugCSuSQjpK-FVE");'></div>
+<div class="flex flex-col">
+<h1 class="text-text-main-light dark:text-white text-base font-bold leading-none">KanbanFlow</h1>
+<p class="text-text-sec-light dark:text-[#92adc9] text-xs font-medium mt-1">Gestión Pro</p>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sec-light dark:text-[#92adc9] hover:bg-slate-100 dark:hover:bg-[#233648] hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">dashboard</span>
+<p class="text-sm font-medium leading-normal">Panel</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 dark:bg-[#233648] text-primary dark:text-white" href="#">
+<span class="material-symbols-outlined text-[24px] font-variation-fill">view_kanban</span>
+<p class="text-sm font-bold leading-normal">Mis Tableros</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sec-light dark:text-[#92adc9] hover:bg-slate-100 dark:hover:bg-[#233648] hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">group</span>
+<p class="text-sm font-medium leading-normal">Miembros</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sec-light dark:text-[#92adc9] hover:bg-slate-100 dark:hover:bg-[#233648] hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">analytics</span>
+<p class="text-sm font-medium leading-normal">Reportes</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sec-light dark:text-[#92adc9] hover:bg-slate-100 dark:hover:bg-[#233648] hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">settings</span>
+<p class="text-sm font-medium leading-normal">Configuración</p>
+</a>
+</div>
+</div>
+<div class="mt-auto p-6 flex flex-col gap-4">
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary hover:bg-primary-dark transition-colors text-white text-sm font-bold leading-normal tracking-wide shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined mr-2 text-[20px]">add</span>
+<span class="truncate">Crear Tablero</span>
+</button>
+<div class="border-t border-border-light dark:border-[#233648] pt-4">
+<a class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#233648] transition-colors" href="#">
+<div class="w-8 h-8 rounded-full bg-cover bg-center" data-alt="User profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBfj0AMzX5L2kvHqL3L-WDYAhtVnM9_7yZg_mm2HEPv6tezHc2M19Hjpe-v6zKeDBuWbfqtyzc8GHEbjBedXp5OzSH-nz3_dx4bRMaYFA3Ni74B8EXDc7y6TeHf6N385OIuaULnuQRj64iDbDNBbDGUW1YU9i0w3DWMegVeDJ5zyOOWyLQejY8lOxnRW5haUEZrmynKNHSwjU54zVmSZowIDPQMjunaJAhGhR24CCqb7nDiT8RmScTOpX-6ftp_qoYspDmS85eo6-I");'></div>
+<div class="flex flex-col">
+<p class="text-text-main-light dark:text-white text-sm font-medium leading-none">Alex Morgan</p>
+<p class="text-text-sec-light dark:text-[#92adc9] text-xs mt-1">alex@kanbanflow.com</p>
+</div>
+</a>
+</div>
+</div>
+</aside>
+<!-- MAIN CONTENT -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<!-- HEADER SECTION -->
+<header class="w-full px-8 pt-6 pb-2 flex flex-col gap-4 z-10 bg-background-light dark:bg-background-dark">
+<!-- Breadcrumbs -->
+<div class="flex gap-2 items-center text-sm">
+<a class="text-text-sec-light dark:text-[#92adc9] hover:text-primary font-medium transition-colors" href="#">Inicio</a>
+<span class="text-text-sec-light dark:text-[#4b5563] font-medium">/</span>
+<span class="text-text-main-light dark:text-white font-medium">Tableros</span>
+</div>
+<!-- Title & Actions Row -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<h1 class="text-text-main-light dark:text-white text-3xl font-bold tracking-tight">Mis Tableros</h1>
+<div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+<!-- Search Bar -->
+<div class="relative group min-w-[280px]">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-text-sec-light dark:text-[#92adc9] group-focus-within:text-primary transition-colors">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg bg-white dark:bg-[#233648] text-text-main-light dark:text-white placeholder-text-sec-light dark:placeholder-[#92adc9] focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-[#233648] shadow-sm text-sm transition-all" placeholder="Buscar tableros..." type="text"/>
+</div>
+<!-- View Toggles / Filters -->
+<div class="flex bg-white dark:bg-[#1c2936] rounded-lg p-1 shadow-sm h-[42px] items-center border border-border-light dark:border-[#2d3b4b]">
+<button aria-label="Grid View" class="p-1.5 rounded bg-slate-100 dark:bg-[#233648] text-primary shadow-sm">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+</button>
+<button aria-label="List View" class="p-1.5 rounded text-text-sec-light dark:text-[#92adc9] hover:text-primary hover:bg-slate-50 dark:hover:bg-[#233648]/50 transition-colors">
+<span class="material-symbols-outlined text-[20px]">view_list</span>
+</button>
+<div class="w-px h-4 bg-border-light dark:bg-[#2d3b4b] mx-2"></div>
+<button class="flex items-center gap-1.5 px-2 py-1 rounded text-text-sec-light dark:text-[#92adc9] hover:text-primary transition-colors text-sm font-medium">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+<span>Filtrar</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- CONTENT GRID -->
+<div class="flex-1 overflow-y-auto custom-scrollbar px-8 py-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-10">
+<!-- New Board Card -->
+<button class="group flex flex-col items-center justify-center min-h-[200px] h-full rounded-xl border-2 border-dashed border-border-light dark:border-[#2d3b4b] hover:border-primary/50 hover:bg-primary/5 dark:hover:bg-[#1380ec]/10 transition-all duration-300">
+<div class="h-12 w-12 rounded-full bg-primary/10 dark:bg-[#233648] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined text-primary text-[28px]">add</span>
+</div>
+<h3 class="text-text-main-light dark:text-white font-semibold text-lg">Crear Nuevo Tablero</h3>
+<p class="text-text-sec-light dark:text-[#92adc9] text-sm mt-1">Empieza un nuevo proyecto</p>
+</button>
+<!-- Board Card 1 -->
+<div class="group flex flex-col rounded-xl bg-surface-light dark:bg-[#1c2936] border border-border-light dark:border-[#2d3b4b] hover:border-primary/30 dark:hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 dark:hover:shadow-none transition-all duration-300 overflow-hidden h-full">
+<!-- Cover -->
+<div class="h-24 w-full bg-cover bg-center relative" data-alt="Blue abstract gradient header" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA1v2NxMSeJAwo2Bvdzhu6LhIgk9MgcJPdlmYYU3ejTvfk8bIj3UXccQRR2VE47wDnqlWBSZPonoT0dMOjs7Wpm_tq2TRIiBEzPnE-6_qEE52aIJ-P0Q_Q0LPsxjlGaUwCHFBLs5v2xEW1SzJxvvJQgbx-Es4Iq3Nhe4IEmXt3xCnbyJEwNPF02RZhSD7-6fmZ-tTR4cFsJZRClPhwOJ79RxKcuJm3Uf6I1Xxv3crJyJx2NJa08-GcDe650L_ulUja-JqXOdNTkAw8");'>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+</div>
+<div class="p-4 flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">Desarrollo</span>
+<button class="text-text-sec-light dark:text-[#92adc9] hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+<h3 class="text-text-main-light dark:text-white font-bold text-lg mb-1 group-hover:text-primary transition-colors cursor-pointer">Rediseño Web 2024</h3>
+<p class="text-text-sec-light dark:text-[#92adc9] text-sm line-clamp-2 mb-4">Actualización completa de la interfaz de usuario y migracion a React.</p>
+<div class="mt-auto flex flex-col gap-3">
+<!-- Progress -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-xs text-text-sec-light dark:text-[#92adc9]">
+<span>Progreso</span>
+<span>75%</span>
+</div>
+<div class="w-full bg-slate-200 dark:bg-[#111a22] rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<!-- Meta -->
+<div class="flex items-center justify-between border-t border-border-light dark:border-[#2d3b4b] pt-3 mt-1">
+<div class="flex -space-x-2">
+<img alt="Member 1" class="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-[#1c2936] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxTavpyvME1iDDeJkRbCGV6zeHlY8kYX_H01pED3JXnDlLwe73s4RGAqKRUaVTe0QGNeuFSBafr8Rtkgo0VUJx1eWiIwQCqunzNpkGBPckAFsAERDEYgcYz9Io75FRFDfWNhNFME_JSs7saoAM2fxM2-X_TxVwVY_CdJPteGsDOUGa2jnrsBJEbILXxnfVrWVdUVFgZ_ZISL1btbiZt6QEftEaXXdLhukj00nZZVPT1llYLXURKd3B3QSpAWulXxpT9wT2mS-gZE8"/>
+<img alt="Member 2" class="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-[#1c2936] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzxBUqPORNH6sgGmUU7JzRIDt7G2nAxlpqE45eMdXcvjc9fxxOYmOQnmhkmkg1kVs7m9iMU5GoYPMMnRkheFqoJf_xIBcwu5vR79Zzth4ifm2sMl_2WQmmUdEPnug-LohYClWlR3n05YnxUy-z8BqdfsUnSjCUR3d8anbtepoa1cv2RDQsKp0Zuwsd4fq8DEFb2yYneoE7bUNKAg18BtI2N3Dx5Qk8RZ-yuEiLOq1AzaxpC4wMonjhE6oAMnScD_SlQ5Rgnr_UeiY"/>
+<div class="flex items-center justify-center h-6 w-6 rounded-full ring-2 ring-white dark:ring-[#1c2936] bg-slate-100 dark:bg-[#233648] text-[10px] font-medium text-text-sec-light dark:text-[#92adc9]">+2</div>
+</div>
+<div class="flex items-center gap-1 text-text-sec-light dark:text-[#92adc9] text-xs">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>2 días</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Board Card 2 -->
+<div class="group flex flex-col rounded-xl bg-surface-light dark:bg-[#1c2936] border border-border-light dark:border-[#2d3b4b] hover:border-primary/30 dark:hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 dark:hover:shadow-none transition-all duration-300 overflow-hidden h-full">
+<div class="h-24 w-full bg-cover bg-center relative" data-alt="Orange abstract gradient header" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAAI1vq3atb-X8I7VHrljkKetg93aQs2WBNilxtFEx907iieXWZ-s1w3yZloZwQ5NEXmXrcdF6D88lhWWB0yNp1Pxvw0tkgAIuTxpR2j1DkvNJoYfy2m2Q_xDzBDZCx320nNuynBktn95lFnOiDVqoq-dw32yl8RWo3S9zaSTSyNXs6YNdoCRHWjb2QY2LvB8eGWDCj9h2l86KCsbmu65KEqwT71hPT5heucHkskl22AUQByeHQXtqnC65BWWx-eP1DT2ZIAEzMfOI");'></div>
+<div class="p-4 flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">Marketing</span>
+<button class="text-text-sec-light dark:text-[#92adc9] hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+<h3 class="text-text-main-light dark:text-white font-bold text-lg mb-1 group-hover:text-primary transition-colors cursor-pointer">Campaña Q3</h3>
+<p class="text-text-sec-light dark:text-[#92adc9] text-sm line-clamp-2 mb-4">Estrategia de redes sociales y lanzamientos de productos de otoño.</p>
+<div class="mt-auto flex flex-col gap-3">
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-xs text-text-sec-light dark:text-[#92adc9]">
+<span>Progreso</span>
+<span>30%</span>
+</div>
+<div class="w-full bg-slate-200 dark:bg-[#111a22] rounded-full h-1.5">
+<div class="bg-orange-500 h-1.5 rounded-full" style="width: 30%"></div>
+</div>
+</div>
+<div class="flex items-center justify-between border-t border-border-light dark:border-[#2d3b4b] pt-3 mt-1">
+<div class="flex -space-x-2">
+<img alt="Member" class="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-[#1c2936] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAePiqpu4UgqFmyps-oZdlRtMRy9Ycai9XXOPoRLyjUYsDc3d54YblYkK-1GVfVyAVA8LawDwui5HHHNiWtsBmpkcTTZ4u6kKc_qKI6lEV8VR1GSTfTYOKxlv1mQ0inZPtbqphhuAIANqdNBhR2Slpm8UhWKd7SVnqquk3ccgiPxoF5GLQnUj0AkR3C8AG1fMnawX0jpU0Rs5b1QQXChPEWWE6LIDmA_wrOsUfAfcDMu97Va849UyOOBNrD7V1GeA1Yuw6v8k9icvg"/>
+</div>
+<div class="flex items-center gap-1 text-text-sec-light dark:text-[#92adc9] text-xs">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>1 sem</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Board Card 3 -->
+<div class="group flex flex-col rounded-xl bg-surface-light dark:bg-[#1c2936] border border-border-light dark:border-[#2d3b4b] hover:border-primary/30 dark:hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 dark:hover:shadow-none transition-all duration-300 overflow-hidden h-full">
+<div class="h-24 w-full bg-cover bg-center relative" data-alt="Purple abstract gradient header" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAerg4aMD9VQYXKbxXi7BRLArzKuMkcyIq2_3fS-cdSwE992rYF3gv7I0zk8NTu4f5GkCyHNm2yKxBlB5CAq1UeG5ux-kabKuOUoF3L-jc_8mNVl38B6mOZaOdLcptxGgyYcrQoWppDb2tRZ_m2TXXwoTCmwdStAsQ-Hgqo9Ee-zAbhE-T1jNvMyPBatQEXoDeKwOeQLPEJ8Z4CRUP5YWX6bPueBoT-coDISolaedTov7ePt4j7L9ZPXezGozaa7XPYl1AtrF8B2oQ");'></div>
+<div class="p-4 flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">RRHH</span>
+<button class="text-text-sec-light dark:text-[#92adc9] hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+<h3 class="text-text-main-light dark:text-white font-bold text-lg mb-1 group-hover:text-primary transition-colors cursor-pointer">Onboarding 2024</h3>
+<p class="text-text-sec-light dark:text-[#92adc9] text-sm line-clamp-2 mb-4">Pipeline de contratación y recursos para nuevos empleados.</p>
+<div class="mt-auto flex flex-col gap-3">
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-xs text-text-sec-light dark:text-[#92adc9]">
+<span>Progreso</span>
+<span>12%</span>
+</div>
+<div class="w-full bg-slate-200 dark:bg-[#111a22] rounded-full h-1.5">
+<div class="bg-purple-500 h-1.5 rounded-full" style="width: 12%"></div>
+</div>
+</div>
+<div class="flex items-center justify-between border-t border-border-light dark:border-[#2d3b4b] pt-3 mt-1">
+<div class="flex -space-x-2">
+<img alt="Member" class="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-[#1c2936] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAp-EDzGrfoylcLJ6e5mh5DAudaS9F1XKVqup_yGqvf7Rjro7Fx_ujZAYCmXWV9xd29zgOg7oh3VjeDdMW8y9VtCJsp5aNI7DYXLknwZpDHIGXFDJ87-df29Qgux6Ejjs-24GUiPEUvMU1RaMLY-hjv1UUHdNsbqdqHGHsp8xI7lLXA9AI3Cs8X9Ek6CROvajolQxQmt6StM_9NcICbpY-3DvtMIX2BSTfop5n5IMrI9K66PCjoBPDwmPD8OVLiqZ60Bp5WRpSNz_w"/>
+<img alt="Member" class="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-[#1c2936] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdVHnLsCkBWl_LUtUSRmh8PjJXTqujoM40sadG9CARHQ86wumWzDjgUM1kRybNfC_SvhafHguynR7f7j-L6gU7ktl8mOjYQmrp39IL3RjMAErTTEWUX9qK7NzaXVqGkG6ZGXt7TLarWk03I-OOPOcfHf3khehFcIqlirA29AQwTodL_w3_q8yH_GveeR4IYmRZH1pldC8YjuOoH5lmb5ZX_28hPP0X0pDbltNCtdo3Ys5KqAcs1ta3NfviNZl2nMdSG6geGQZhTyI"/>
+<img alt="Member" class="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-[#1c2936] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOCtAWr4Oss-mxiQZGS_nh4QARSbGxe4PIeK4HVvB76u7_4-L9WujCsGoz1D_h13lptDwekQie9Ye_F3HOBGYW21TzopANpSzsqqCRHHs0SmYY-Y8Sk-jZvJBaEEqKeolRUFQV0LmO3AqFLvL7bFD-u4D1dI_3tjb4-Dn3ght6aX18DDn8oJYYCHKwH6IIvlbK9HFwWA0JEWX9-X2WP2WR2aDdaDcPBo5Y8mWRitCo34PH_f9I2BIrX0lx-v1g47Flne7dm9H0giQ"/>
+</div>
+<div class="flex items-center gap-1 text-text-sec-light dark:text-[#92adc9] text-xs">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>Hoy</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Board Card 4 -->
+<div class="group flex flex-col rounded-xl bg-surface-light dark:bg-[#1c2936] border border-border-light dark:border-[#2d3b4b] hover:border-primary/30 dark:hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 dark:hover:shadow-none transition-all duration-300 overflow-hidden h-full">
+<div class="h-24 w-full bg-cover bg-center relative" data-alt="Emerald abstract gradient header" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDm-EzTNmC-ve6Ds4t04_LUaOJcKW0_zUVZk_7eIaF-xy4CuK2G-dihjt9wacMzc8QCigmvBhfYsPvl-jd0ecS4t6V4Uoj14Z-rf8gaN7Zv4ANzJkTiUr3BodGa0aS0suMP_vm6NevkQN8kx5mifNFq-hFCJ7-LR5naDVhxI5ocoapRjNZuhR6r0vgpC9ZHwmByWMgtQk_Bx4BzZomnZwVKqdzBw4-UxS-0FyxtOgotHCKa7mouoXQvOfUtWuUTeWSjoDwJmwTDPyE");'></div>
+<div class="p-4 flex flex-col flex-1">
+<div class="flex justify-between items-start mb-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">Finanzas</span>
+<button class="text-text-sec-light dark:text-[#92adc9] hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+<h3 class="text-text-main-light dark:text-white font-bold text-lg mb-1 group-hover:text-primary transition-colors cursor-pointer">Auditoría Fiscal</h3>
+<p class="text-text-sec-light dark:text-[#92adc9] text-sm line-clamp-2 mb-4">Preparación de documentos y revisión de balances anuales.</p>
+<div class="mt-auto flex flex-col gap-3">
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-xs text-text-sec-light dark:text-[#92adc9]">
+<span>Progreso</span>
+<span>92%</span>
+</div>
+<div class="w-full bg-slate-200 dark:bg-[#111a22] rounded-full h-1.5">
+<div class="bg-emerald-500 h-1.5 rounded-full" style="width: 92%"></div>
+</div>
+</div>
+<div class="flex items-center justify-between border-t border-border-light dark:border-[#2d3b4b] pt-3 mt-1">
+<div class="flex -space-x-2">
+<img alt="Member" class="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-[#1c2936] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB1A_teZLomzePi0xX9Z820Muddd1j4yIUN1x9Mo5cDzmgj1Oxkxnwr6uE_yzBBvW8k-_QjD10fBbJpQelVvTK51OQJIfpCJGXEibcFbMmOaUEa9b6I82ZWHbGUYaZ4Vw1dcLap3zAd2F7TblhYcdAjFL5F6xyBluAcWsG53XMnUw_o8EV3IesFS7uWO5Kaa1LtwPPTNJP5FAJE-xrvVacRXiaRxzu8wa-yh87zhV4Uf9GELtp2SsWH_9Zdyb7gD9zU54G86r8fkw"/>
+<img alt="Member" class="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-[#1c2936] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFLf7xiFkLRtiBArfCPWR7soHKfs1uQy0ZLxQ02IEt10hqt9Q29QfIdnV8YOSLTY3F4FlmmWu8A2BPmE5Q6q8kF3sELTwJYWQkPu8RGkk26dHHRHa5MjovjVJld5Owv6qJMuq0pv8xxP7zWaPWQCEdWG3unHACIUhOxcmUMm7a7rspLSNmGSdBTQssp6Z4c6yuoXIO1bg4D_e1T_liUlca_49xmheBe2l2rZ0KidnJFl3rflIWeQpj4bRlhBUGrwnlzKdEUucyxlM"/>
+</div>
+<div class="flex items-center gap-1 text-text-sec-light dark:text-[#92adc9] text-xs">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>5 días</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

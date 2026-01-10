@@ -1,0 +1,21 @@
+meta {
+  name: create task-dependency
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/task-dependencies?task_id=1&depends_on_task_id=2
+  body: json
+  auth: inherit
+}
+
+params:query {
+  task_id: 1
+  depends_on_task_id: 2
+}
+
+body:json {
+  task_id: 1
+  depends_on_task_id: 2
+}

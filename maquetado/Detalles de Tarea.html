@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Detalles de Tarea - Kanban</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "primary-dark": "#0f6bd0",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1c2630",
+                        "border-light": "#e5e7eb",
+                        "border-dark": "#2d3a4a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .icon-filled { font-variation-settings: 'FILL' 1; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: rgba(156, 163, 175, 0.3); border-radius: 20px; }
+        ::-webkit-scrollbar-thumb:hover { background-color: rgba(156, 163, 175, 0.5); }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 h-screen w-full overflow-hidden font-display">
+<!-- Mock Background (Blurred Kanban Board) -->
+<div class="absolute inset-0 z-0 p-8 grid grid-cols-4 gap-6 opacity-30 pointer-events-none select-none overflow-hidden">
+<div class="flex flex-col gap-4">
+<div class="h-10 w-32 bg-gray-300 dark:bg-surface-dark rounded-lg"></div>
+<div class="h-40 w-full bg-gray-200 dark:bg-surface-dark rounded-xl"></div>
+<div class="h-32 w-full bg-gray-200 dark:bg-surface-dark rounded-xl"></div>
+</div>
+<div class="flex flex-col gap-4">
+<div class="h-10 w-32 bg-gray-300 dark:bg-surface-dark rounded-lg"></div>
+<div class="h-64 w-full bg-gray-200 dark:bg-surface-dark rounded-xl"></div>
+</div>
+<div class="flex flex-col gap-4">
+<div class="h-10 w-32 bg-gray-300 dark:bg-surface-dark rounded-lg"></div>
+<div class="h-24 w-full bg-gray-200 dark:bg-surface-dark rounded-xl"></div>
+<div class="h-24 w-full bg-gray-200 dark:bg-surface-dark rounded-xl"></div>
+</div>
+</div>
+<!-- Backdrop Overlay -->
+<div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-10"></div>
+<!-- Side Panel (Drawer) -->
+<div class="absolute top-0 right-0 h-full w-full md:max-w-2xl bg-background-light dark:bg-background-dark shadow-2xl z-20 flex flex-col border-l border-border-light dark:border-border-dark animate-slide-in">
+<!-- Header -->
+<div class="h-16 px-6 border-b border-border-light dark:border-border-dark flex items-center justify-between bg-surface-light/50 dark:bg-background-dark/95 backdrop-blur shrink-0">
+<div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm font-medium">
+<span class="material-symbols-outlined text-[20px]">view_kanban</span>
+<span>KAN-102</span>
+<span class="text-gray-300 dark:text-gray-600">/</span>
+<span>Diseño</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-surface-dark transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-surface-dark transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+<div class="h-6 w-px bg-gray-300 dark:bg-gray-700 mx-2"></div>
+<button class="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-surface-dark transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-8">
+<div class="max-w-[800px] mx-auto flex flex-col gap-8">
+<!-- Main Task Info -->
+<div class="space-y-6">
+<!-- Title Input -->
+<div class="group relative">
+<textarea class="w-full bg-transparent text-3xl md:text-4xl font-bold text-gray-900 dark:text-white border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 p-0 resize-none overflow-hidden placeholder-gray-400 leading-tight transition-colors" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" placeholder="Escribe el título de la tarea..." rows="1">Diseñar wireframes para la Home</textarea>
+</div>
+<!-- Meta Data Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<!-- Status -->
+<div class="space-y-2">
+<label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Estado</label>
+<div class="relative">
+<button class="flex items-center justify-between w-full sm:w-auto gap-3 px-3 py-2 bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 text-primary dark:text-blue-300 rounded-lg transition-colors group">
+<span class="font-medium flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                                        En Progreso
+                                    </span>
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Assignees -->
+<div class="space-y-2">
+<label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Responsables</label>
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2 overflow-hidden">
+<div class="w-9 h-9 rounded-full border-[3px] border-white dark:border-background-dark bg-gray-200 dark:bg-surface-dark bg-cover bg-center" data-alt="Portrait of a smiling woman" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCCJ1lPSrjg-Yi0y2OVXJSfGrklOaY3UPhRDBEja7JzHHw6vi0FiCotsL-jrhBOa4SNFcOrzUIYPVlvhaW-HD0ZowPoQakTY5Af_9Ff4byeDJzhYFov949BTsiaCRFdlzJtfPeaJDgGIiiOTznSLQVH04ifd-kEeFpvBm1Bcw6CmvV18msWcxwJmiaPToQHUIHIKzmNhf3lBzjshVSbzK_K7QCNLe7U6pExWgUDcWVX0JHHhdxYGgU8U023qDIASmpoosDjZJfo8bE')"></div>
+<div class="w-9 h-9 rounded-full border-[3px] border-white dark:border-background-dark bg-gray-200 dark:bg-surface-dark bg-cover bg-center" data-alt="Portrait of a man with glasses" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBjufy1pRc3HxpqGBjocBTUAJtk-YNe9zyJRquSY5kT45pMkeXitBPYgGzIhxaM92CnnTdqVfFhL2dW-ZRx35SmXhf_M3MH-5JxSLZuiEgcg9OkcGa8Zv5-75_CX1sQ0T2Oypsr9692heEmL9grYQcUTTaFY6nsyY3tVK0sXIt3GiRtBf3husd1CRLbp4b4Ta94xs-ZD4cOti0tNEFFWgby7hPpdo6aaQtBV9x2R0uaMoSI_6U9-3hb5DJyHzvz87BhTLJqvW97Enw')"></div>
+<button class="w-9 h-9 rounded-full border-[3px] border-white dark:border-background-dark bg-gray-100 dark:bg-surface-dark flex items-center justify-center text-gray-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Description Module -->
+<div class="space-y-3">
+<h2 class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+<span class="material-symbols-outlined text-gray-400">description</span>
+                        Descripción
+                    </h2>
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-4 group focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all shadow-sm">
+<div class="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300">
+<p class="mb-2">Crear propuestas de baja fidelidad para la pantalla principal de la aplicación, enfocándose en la jerarquía de la información y la navegación principal.</p>
+<ul class="list-disc pl-4 space-y-1">
+<li>Revisar los user personas</li>
+<li>Incluir sección de "Recientes"</li>
+</ul>
+</div>
+<div class="mt-4 pt-3 border-t border-border-light dark:border-gray-700 flex justify-end opacity-0 group-focus-within:opacity-100 transition-opacity">
+<button class="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors">Guardar</button>
+</div>
+</div>
+</div>
+<!-- Subtasks Module -->
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+<span class="material-symbols-outlined text-gray-400">check_box</span>
+                            Subtareas
+                        </h2>
+<span class="text-xs font-medium text-gray-500 dark:text-gray-400">1/3 Completado</span>
+</div>
+<!-- Progress Bar -->
+<div class="h-2 w-full bg-gray-200 dark:bg-surface-dark rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 33%"></div>
+</div>
+<!-- Task List -->
+<div class="space-y-1">
+<!-- Completed Item -->
+<div class="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-dark/50 group transition-colors cursor-pointer">
+<div class="relative flex items-center mt-0.5">
+<input checked="" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-surface-dark cursor-pointer" type="checkbox"/>
+</div>
+<span class="text-gray-500 line-through decoration-2 decoration-gray-400 dark:text-gray-500 text-sm md:text-base">Investigación de referencias de UI modernas</span>
+</div>
+<!-- Active Item -->
+<div class="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-dark/50 group transition-colors cursor-pointer">
+<div class="relative flex items-center mt-0.5">
+<input class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-surface-dark cursor-pointer" type="checkbox"/>
+</div>
+<span class="text-gray-700 dark:text-gray-200 text-sm md:text-base">Boceto inicial en papel o pizarra</span>
+<div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-gray-400 hover:text-red-500">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Active Item -->
+<div class="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-dark/50 group transition-colors cursor-pointer">
+<div class="relative flex items-center mt-0.5">
+<input class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-surface-dark cursor-pointer" type="checkbox"/>
+</div>
+<span class="text-gray-700 dark:text-gray-200 text-sm md:text-base">Revisión con el equipo de producto</span>
+</div>
+</div>
+<button class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors px-2 py-1">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                        Añadir un elemento
+                    </button>
+</div>
+<!-- Dependencies Module -->
+<div class="space-y-3 pb-8">
+<h2 class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+<span class="material-symbols-outlined text-gray-400">link</span>
+                        Dependencias
+                    </h2>
+<div class="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 rounded-lg p-4">
+<div class="flex items-start gap-3 mb-3">
+<span class="material-symbols-outlined text-yellow-600 dark:text-yellow-500 mt-0.5 icon-filled">warning</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-1">Esta tarea está bloqueada</p>
+<p class="text-xs text-yellow-700 dark:text-yellow-400/80">Debes completar las siguientes tareas antes de continuar.</p>
+</div>
+</div>
+<!-- Dependency Card -->
+<div class="bg-white dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-md p-3 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-xs">
+                                    #84
+                                </div>
+<div>
+<p class="text-sm font-medium text-gray-900 dark:text-white line-clamp-1">Definición de Branding y Paleta de Colores</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="inline-block w-2 h-2 rounded-full bg-orange-400"></span>
+<span class="text-xs text-gray-500">En Revisión</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">open_in_new</span>
+</div>
+</div>
+<button class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors px-2 py-1">
+<span class="material-symbols-outlined text-[20px]">add_link</span>
+                        Añadir dependencia
+                    </button>
+</div>
+</div>
+</div>
+<!-- Sticky Footer (optional actions) -->
+<div class="p-4 border-t border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
+<div class="flex gap-2">
+<div class="relative flex-1">
+<input class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-surface-dark border border-gray-200 dark:border-border-dark rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm dark:text-white shadow-sm" placeholder="Escribe un comentario..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-gray-400">comment</span>
+</div>
+<button class="p-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined icon-filled">send</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Animation CSS -->
+<style>
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .animate-slide-in {
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</body></html>

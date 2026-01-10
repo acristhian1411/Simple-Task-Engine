@@ -1,0 +1,23 @@
+meta {
+  name: update a list
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{base_url}}/lists/1?title=List test1&board_id=1&order=1
+  body: json
+  auth: inherit
+}
+
+params:query {
+  title: List test1
+  board_id: 1
+  order: 1
+}
+
+body:json {
+  title: "List test1"
+  board_id: 1
+  order: 1
+}

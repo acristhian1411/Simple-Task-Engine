@@ -1,0 +1,25 @@
+meta {
+  name: create task
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/tasks?title=task test&list_id=3&order=1&status=todo
+  body: json
+  auth: inherit
+}
+
+params:query {
+  title: task test
+  list_id: 3
+  order: 1
+  status: todo
+}
+
+body:json {
+  title: "task test"
+  list_id: 2
+  order: 1
+  status: "todo"
+}

@@ -1,0 +1,11 @@
+meta {
+  name: get tasks by list
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/lists/3/tasks
+  body: none
+  auth: inherit
+}

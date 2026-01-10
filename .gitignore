@@ -1,0 +1,6 @@
+/frontend/.svelte-kit
+/frontend/node_modules
+/frontend/.pnpm-store
+.env
+/backend/node_modules
+/backend/.env

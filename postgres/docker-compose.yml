@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:16
+    container_name: postgres_trello
+    environment:
+      POSTGRES_DB: trello_db
+      POSTGRES_USER: laravel
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "55432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./conf:/etc/postgresql
+    restart: unless-stopped
+    networks:
+      - trello_net
+networks:
+  trello_net:
+    external: true

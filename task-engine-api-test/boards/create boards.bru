@@ -1,0 +1,21 @@
+meta {
+  name: create boards
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/boards?title=board test&description=Description test
+  body: json
+  auth: inherit
+}
+
+params:query {
+  title: board test
+  description: Description test
+}
+
+body:json {
+  title: "Board test"
+  description: "Description test"
+}

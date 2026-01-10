@@ -1,0 +1,11 @@
+meta {
+  name: get dependencies by task
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/tasks/1/dependencies
+  body: none
+  auth: inherit
+}

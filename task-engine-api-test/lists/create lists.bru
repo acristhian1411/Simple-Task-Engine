@@ -1,0 +1,23 @@
+meta {
+  name: create lists
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/lists?title=list test&board_id=2&order=1
+  body: json
+  auth: inherit
+}
+
+params:query {
+  title: list test
+  board_id: 2
+  order: 1
+}
+
+body:json {
+  title: "list test"
+  board_id: 1
+  order: 1
+}

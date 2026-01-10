@@ -1,0 +1,18 @@
+meta {
+  name: logout
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/auth/logout
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "juan@perez.com",
+    "password": "prueba123"
+  }
+}

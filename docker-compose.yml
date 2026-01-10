@@ -1,0 +1,60 @@
+services:
+  backend-php:
+    build: ./infra/backend
+    container_name: ste_backend_php
+    volumes:
+      - ./backend:/var/www/html
+
+    restart: unless-stopped
+    networks:
+      - trello_net
+      - app_net
+
+  backend-nginx:
+    image: nginx:alpine
+    container_name: ste_backend_nginx
+    volumes:
+      - ./backend:/var/www/html:ro
+      - ./infra/backend/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "18080:80"
+    depends_on:
+      - backend-php
+    restart: unless-stopped
+    networks:
+      - app_net
+
+  frontend:
+    build: ./infra/frontend
+    container_name: ste_frontend
+    env_file:
+      - .env
+    user: "${UID}:${GID}"
+    volumes:
+      - ./frontend:/app
+    environment:
+      - VITE_API_BASE_URL=http://localhost:18080/api
+    ports:
+      - "5173:5173"
+    restart: unless-stopped
+    networks:
+      - app_net
+
+  frontend-init:
+    build: ./infra/frontend
+    container_name: ste_frontend_init
+    env_file:
+      - .env
+    user: "0:0"
+    volumes:
+      - ./frontend:/app
+    command: ["sh", "-lc", "mkdir -p /app && chown -R ${UID}:${GID} /app"]
+    restart: unless-stopped
+    networks:
+      - app_net
+
+networks:
+  trello_net:
+    external: true
+  app_net:
+    driver: bridge

@@ -1,0 +1,21 @@
+meta {
+  name: update a board
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{base_url}}/boards/1?title=Board test1&description=Description test1
+  body: json
+  auth: inherit
+}
+
+params:query {
+  title: Board test1
+  description: Description test1
+}
+
+body:json {
+  title: "Board test1"
+  description: "Description test1"
+}
