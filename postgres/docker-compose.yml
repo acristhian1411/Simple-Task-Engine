@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: laravel
       POSTGRES_PASSWORD: secret
     ports:
-      - "55432:5432"
+      - "45432:5432"
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
       - ./conf:/etc/postgresql

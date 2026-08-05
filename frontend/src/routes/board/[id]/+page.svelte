@@ -6,6 +6,7 @@
   import { getBoards } from "$lib/api/boards.js";
   import { getListsWithTasks } from "$lib/api/lists.js";
   import KanbanColumn from "$lib/components/kanban/KanbanColumn.svelte";
+  import TaskDetails from "$lib/components/TaskDetails.svelte";
 
   let board = null;
   let lists = [];
@@ -80,8 +81,8 @@
 
   function handleTaskClick(event) {
     const { task } = event.detail;
-    // TODO: Open task detail modal
-    console.log("Task clicked:", task);
+    selectedTask = task;
+    showTask = true;
   }
 
   function handleTaskMore(event) {
@@ -93,6 +94,14 @@
   function handleAddTask(columnTitle) {
     // TODO: Open add task modal with column pre-selected
     console.log("Add task to column:", columnTitle);
+  }
+
+  let showTask = false;
+  let selectedTask = null;
+
+  function closeTask() {
+    showTask = false;
+    selectedTask = null;
   }
 
   onMount(loadBoard);
@@ -251,3 +260,5 @@
 >
   <span class="material-symbols-outlined text-[28px]">add</span>
 </button>
+
+<TaskDetails open={showTask} task={selectedTask} on:close={closeTask} />

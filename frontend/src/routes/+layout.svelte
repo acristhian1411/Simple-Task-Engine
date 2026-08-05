@@ -1,58 +1,60 @@
 <script>
-	import favicon from '$lib/assets/favicon.svg';
-	import { Layout } from '$lib/components/layout';
-	import '../app.css';
+  import favicon from "$lib/assets/favicon.svg";
+  import { Layout } from "$lib/components/layout";
+  import "../app.css";
+  import { auth, refreshMe } from "$lib/stores/auth";
+  import { onMount } from "svelte";
+  import { page } from "$app/stores";
 
-	let { children } = $props();
+  // Layout configuration
+  let title = "Mis Tableros";
+  let breadcrumbs = [{ label: "Inicio", href: "/" }, { label: "Tableros" }];
+  let activeNavItem = "boards";
 
-	// Layout configuration
-	let title = 'Mis Tableros';
-	let breadcrumbs = [
-		{ label: 'Inicio', href: '/' },
-		{ label: 'Tableros' }
-	];
-	let activeNavItem = $state('boards');
-	let user = null; // Will use default user from Sidebar component
+  // Event handlers
+  function handleSearch(searchValue) {
+    console.log("Search:", searchValue);
+  }
 
-	// Event handlers
-	function handleSearch(searchValue) {
-		console.log('Search:', searchValue);
-		// TODO: Implement search functionality
-	}
+  function handleHeaderAction(action) {
+    console.log("Header action:", action);
+  }
 
-	function handleHeaderAction(action) {
-		console.log('Header action:', action);
-		// TODO: Implement header actions (view toggles, filters)
-	}
+  function handleNavigation(item) {
+    activeNavItem = item.id;
+  }
 
-	function handleNavigation(item) {
-		console.log('Navigation:', item);
-		// TODO: Implement navigation routing
-		activeNavItem = item.id;
-	}
+  function handleCreateBoard() {
+    console.log("Create board clicked");
+  }
 
-	function handleCreateBoard() {
-		console.log('Create board clicked');
-		// TODO: Implement create board functionality
-	}
+  onMount(async () => {
+    await refreshMe();
+  });
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+  <link rel="icon" href={favicon} />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>
 
-<Layout
-	{title}
-	{breadcrumbs}
-	showSearch={true}
-	headerActions={[]}
-	{activeNavItem}
-	{user}
-	boards={[]}
-	onSearch={handleSearch}
-	onHeaderAction={handleHeaderAction}
-	onNavigation={handleNavigation}
-	onCreateBoard={handleCreateBoard}
->
-	{@render children()}
-</Layout>
+{#if $auth?.user}
+  <Layout
+    {title}
+    {breadcrumbs}
+    showSearch={true}
+    headerActions={[]}
+    {activeNavItem}
+    user={$auth.user}
+    boards={[]}
+    onSearch={handleSearch}
+    onHeaderAction={handleHeaderAction}
+    onNavigation={handleNavigation}
+    onCreateBoard={handleCreateBoard}
+  >
+    <slot />
+  </Layout>
+{:else}
+  <!-- If not authenticated, render pages directly (login/public pages) -->
+  <slot />
+{/if}

@@ -1,16 +1,22 @@
 services:
-  backend-php:
+  back-task:
     build: ./infra/backend
     container_name: ste_backend_php
+    env_file:
+      - .env
+    user: "${UID}:${GID}"
     volumes:
       - ./backend:/var/www/html
-
     restart: unless-stopped
     networks:
-      - trello_net
-      - app_net
+      trello_net:
+        aliases:
+          - backend-php
+      app_net:
+        aliases:
+          - backend-php
 
-  backend-nginx:
+  back-nginx:
     image: nginx:alpine
     container_name: ste_backend_nginx
     volumes:
@@ -19,37 +25,62 @@ services:
     ports:
       - "18080:80"
     depends_on:
-      - backend-php
+      - back-task
     restart: unless-stopped
     networks:
       - app_net
 
-  frontend:
-    build: ./infra/frontend
-    container_name: ste_frontend
+  front-dev:
+    build:
+      context: ./frontend
+      dockerfile: ../infra/frontend/Dockerfile
+    container_name: ste_frontend_dev
     env_file:
       - .env
-    user: "${UID}:${GID}"
     volumes:
       - ./frontend:/app
+      - /app/node_modules
     environment:
       - VITE_API_BASE_URL=http://localhost:18080/api
+    command:
+      ["sh", "-lc", "mkdir -p /app/node_modules && pnpm install && pnpm dev --host 0.0.0.0 --port 5173"]
     ports:
       - "5173:5173"
     restart: unless-stopped
     networks:
       - app_net
 
-  frontend-init:
-    build: ./infra/frontend
-    container_name: ste_frontend_init
+  front-prod:
+    build:
+      context: ./frontend
+      dockerfile: ../infra/frontend/Dockerfile
+      target: prod
+    container_name: ste_frontend_prod
+    env_file:
+      - .env
+    environment:
+      - VITE_API_BASE_URL=http://localhost:18080/api
+    ports:
+      - "4173:4173"
+    restart: unless-stopped
+    networks:
+      - app_net
+
+  backend-init:
+    build: ./infra/backend
+    container_name: ste_backend_init
     env_file:
       - .env
     user: "0:0"
     volumes:
-      - ./frontend:/app
-    command: ["sh", "-lc", "mkdir -p /app && chown -R ${UID}:${GID} /app"]
-    restart: unless-stopped
+      - ./backend:/var/www/html
+    command:
+      [
+        "sh",
+        "-lc",
+        "mkdir -p /var/www/html && chown -R ${UID}:${GID} /var/www/html && composer install --no-interaction --prefer-dist --optimize-autoloader && chown -R ${UID}:${GID} /var/www/html",
+      ]
+    restart: "no"
     networks:
       - app_net
 
