@@ -4,7 +4,9 @@ services:
     container_name: ste_backend_php
     env_file:
       - .env
-    user: "${UID}:${GID}"
+    environment:
+      - APP_UID=${UID}
+      - APP_GID=${GID}
     volumes:
       - ./backend:/var/www/html
     restart: unless-stopped
@@ -43,7 +45,11 @@ services:
     environment:
       - VITE_API_BASE_URL=http://localhost:18080/api
     command:
-      ["sh", "-lc", "mkdir -p /app/node_modules && pnpm install && pnpm dev --host 0.0.0.0 --port 5173"]
+      [
+        "sh",
+        "-lc",
+        "mkdir -p /app/node_modules && pnpm install && pnpm dev --host 0.0.0.0 --port 5173",
+      ]
     ports:
       - "5173:5173"
     restart: unless-stopped
@@ -63,24 +69,6 @@ services:
     ports:
       - "4173:4173"
     restart: unless-stopped
-    networks:
-      - app_net
-
-  backend-init:
-    build: ./infra/backend
-    container_name: ste_backend_init
-    env_file:
-      - .env
-    user: "0:0"
-    volumes:
-      - ./backend:/var/www/html
-    command:
-      [
-        "sh",
-        "-lc",
-        "mkdir -p /var/www/html && chown -R ${UID}:${GID} /var/www/html && composer install --no-interaction --prefer-dist --optimize-autoloader && chown -R ${UID}:${GID} /var/www/html",
-      ]
-    restart: "no"
     networks:
       - app_net
 
