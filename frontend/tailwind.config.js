@@ -6,13 +6,33 @@ export default {
 		extend: {
 			colors: {
 				background: {
-					DEFAULT: '#707e8dff',
-					primary: '#7f9ec6ff',
+					light: '#f8fafc',
+					DEFAULT: '#0f172a',
 					dark: '#0f172a'
+				},
+				surface: {
+					light: '#ffffff',
+					dark: '#111827',
+					border: '#e2e8f0'
+				},
+				border: {
+					light: '#e2e8f0',
+					dark: '#334155'
+				},
+				text: {
+					main: {
+						light: '#0f172a',
+						dark: '#e2e8f0'
+					},
+					sec: {
+						light: '#475569',
+						dark: '#94a3b8'
+					}
 				},
 				primary: {
 					DEFAULT: '#137fec',
-					dark: '#0f65bd'
+					dark: '#0f65bd',
+					light: '#dbeafe'
 				}
 			},
 			fontFamily: {

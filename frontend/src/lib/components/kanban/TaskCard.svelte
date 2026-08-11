@@ -10,42 +10,76 @@
       "group p-4 rounded-lg shadow border cursor-pointer transition-all hover:shadow-md text-slate-900 dark:text-slate-200";
     const statusClasses = {
       default:
-        "bg-white dark:bg-[#0f1724] border-slate-200 dark:border-slate-700/40 hover:border-primary/50 dark:hover:border-primary/50",
+        "bg-white dark:bg-surface-dark border-slate-200 dark:border-border-dark/40 hover:border-primary/50 dark:hover:border-primary/50",
       active:
-        "bg-white dark:bg-[#0f1724] border-slate-200 dark:border-slate-700/40 hover:border-primary/50 dark:hover:border-primary/50 ring-1 ring-primary/20 dark:ring-primary/10",
+        "bg-white dark:bg-surface-dark border-slate-200 dark:border-border-dark/40 hover:border-primary/50 dark:hover:border-primary/50 ring-1 ring-primary/20 dark:ring-primary/10",
       blocked:
-        "bg-red-50 dark:bg-red-900/10 border-l-4 border-l-red-500 border-y border-r border-slate-200 dark:border-slate-700/50 hover:border-r-red-500 text-slate-900 dark:text-red-200",
+        "bg-red-50 dark:bg-red-900/10 border-l-4 border-l-red-500 border-y border-r border-slate-200 dark:border-border-dark/50 hover:border-r-red-500 text-slate-900 dark:text-red-200",
       completed:
-        "bg-slate-50 dark:bg-[#0b1220] border border-slate-200 dark:border-slate-700/40 cursor-pointer transition-all opacity-80 hover:opacity-100 text-slate-700 dark:text-slate-400",
+        "bg-slate-50 dark:bg-surface-dark border border-slate-200 dark:border-border-dark/40 cursor-pointer transition-all opacity-80 hover:opacity-100 text-slate-700 dark:text-slate-400",
     };
     return `${base} ${statusClasses[task.status || "default"]}`;
   }
 
   function getTagColor(tag) {
     const colors = {
-      DISEÑO: "purple",
-      DEV: "blue",
-      BACKEND: "blue",
-      FRONTEND: "blue",
-      QA: "green",
-      COPY: "yellow",
-      CONTENT: "slate",
-      DEVOPS: "teal",
-      ARCH: "blue",
+      DISEÑO: {
+        bg: "bg-purple-100 dark:bg-purple-900/30",
+        text: "text-purple-600 dark:text-purple-300",
+      },
+      DEV: {
+        bg: "bg-blue-100 dark:bg-blue-900/30",
+        text: "text-blue-600 dark:text-blue-300",
+      },
+      BACKEND: {
+        bg: "bg-blue-100 dark:bg-blue-900/30",
+        text: "text-blue-600 dark:text-blue-300",
+      },
+      FRONTEND: {
+        bg: "bg-blue-100 dark:bg-blue-900/30",
+        text: "text-blue-600 dark:text-blue-300",
+      },
+      QA: {
+        bg: "bg-green-100 dark:bg-green-900/30",
+        text: "text-green-600 dark:text-green-300",
+      },
+      COPY: {
+        bg: "bg-yellow-100 dark:bg-yellow-900/30",
+        text: "text-yellow-600 dark:text-yellow-300",
+      },
+      CONTENT: {
+        bg: "bg-slate-100 dark:bg-slate-800",
+        text: "text-slate-600 dark:text-slate-300",
+      },
+      DEVOPS: {
+        bg: "bg-teal-100 dark:bg-teal-900/30",
+        text: "text-teal-600 dark:text-teal-300",
+      },
+      ARCH: {
+        bg: "bg-blue-100 dark:bg-blue-900/30",
+        text: "text-blue-600 dark:text-blue-300",
+      },
     };
-    const color = colors[tag?.toUpperCase()] || "slate";
-    return {
-      bg: `bg-${color}-100 dark:bg-${color}-900/30`,
-      text: `text-${color}-600 dark:text-${color}-300`,
-    };
+    return (
+      colors[tag?.toUpperCase()] || {
+        bg: "bg-slate-100 dark:bg-slate-800",
+        text: "text-slate-600 dark:text-slate-300",
+      }
+    );
   }
 
   function getPriorityBadge(priority) {
     if (!priority || priority.toLowerCase() === "normal") return null;
     const color = priority.toLowerCase() === "alta" ? "red" : "orange";
     return {
-      bg: `bg-${color}-100 dark:bg-${color}-900/30`,
-      text: `text-${color}-600 dark:text-${color}-300`,
+      bg:
+        color === "red"
+          ? "bg-red-100 dark:bg-red-900/30"
+          : "bg-orange-100 dark:bg-orange-900/30",
+      text:
+        color === "red"
+          ? "text-red-600 dark:text-red-300"
+          : "text-orange-600 dark:text-orange-300",
     };
   }
 
@@ -75,6 +109,18 @@
     }
     return colors[Math.abs(hash) % colors.length];
   }
+
+  const avatarColorClasses = {
+    pink: "bg-pink-500",
+    indigo: "bg-indigo-500",
+    orange: "bg-orange-500",
+    teal: "bg-teal-500",
+    blue: "bg-blue-500",
+    green: "bg-green-500",
+    purple: "bg-purple-500",
+    yellow: "bg-yellow-500",
+    slate: "bg-slate-500",
+  };
 
   function formatDate(dateStr) {
     if (!dateStr) return "";
@@ -151,7 +197,7 @@
         style="width: {Math.round(
           (task.subtasks.filter((st) => st.completed).length /
             task.subtasks.length) *
-            100
+            100,
         )}%"
       ></div>
     </div>
@@ -239,7 +285,7 @@
             {:else}
               <div
                 class="size-6 rounded-full bg-{getAvatarColor(
-                  assignee.name || assignee.email
+                  assignee.name || assignee.email,
                 )}-500 flex items-center justify-center text-[10px] text-white font-bold ring-2 ring-white dark:ring-[#1e293b]"
               >
                 {getAvatarInitials(assignee.name || assignee.email)}
@@ -271,7 +317,8 @@
           ></div>
         {:else}
           <div
-            class="size-6 rounded-full bg-{avatarColor}-600 flex items-center justify-center text-[10px] text-white font-bold {task.status ===
+            class="size-6 rounded-full {avatarColorClasses[avatarColor] ||
+              'bg-slate-500'} flex items-center justify-center text-[10px] text-white font-bold {task.status ===
             'completed'
               ? 'grayscale'
               : ''}"

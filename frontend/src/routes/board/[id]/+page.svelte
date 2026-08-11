@@ -137,7 +137,7 @@
 </svelte:head>
 
 <div
-  class="font-[Inter] bg-background-light dark:bg-background-dark text-slate-900 dark:text-white h-screen overflow-hidden flex selection:bg-primary/30"
+  class="font-[Inter] bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark h-screen overflow-hidden flex selection:bg-primary/30"
 >
   <!-- Main Content -->
   <main
@@ -202,9 +202,9 @@
     {#if loading}
       <div class="flex-1 flex items-center justify-center">
         <div
-          class="rounded-xl border border-slate-200 dark:border-surface-border bg-white dark:bg-surface-dark p-6"
+          class="rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-6"
         >
-          <p class="text-sm text-slate-600 dark:text-[#92adc9]">
+          <p class="text-sm text-text-sec-light dark:text-text-sec-dark">
             Cargando tablero...
           </p>
         </div>
@@ -243,7 +243,7 @@
 
           <!-- Add List Button -->
           <div
-            class="w-80 shrink-0 h-14 rounded-xl border border-dashed border-slate-300 dark:border-surface-border hover:border-primary dark:hover:border-primary cursor-pointer flex items-center justify-center gap-2 text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-surface-dark/50 transition-all"
+            class="w-80 shrink-0 h-14 rounded-xl border border-dashed border-border-light dark:border-border-dark hover:border-primary dark:hover:border-primary cursor-pointer flex items-center justify-center gap-2 text-text-sec-light hover:text-primary hover:bg-slate-100 dark:hover:bg-surface-dark/50 transition-all"
           >
             <span class="material-symbols-outlined">add</span>
             <span class="font-medium">Añadir otra lista</span>
