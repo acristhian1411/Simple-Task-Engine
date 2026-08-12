@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
-class ComponentDependencies extends Model
+use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+class ComponentDependencies extends Model implements Auditable
 {
-    //
+    use \OwenIt\Auditing\Auditable;
+    use SoftDeletes;
 }

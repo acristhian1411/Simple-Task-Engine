@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
-class ListModel extends Model
+use OwenIt\Auditing\Contracts\Auditable;
+class ListModel extends Model implements Auditable
 {
     use SoftDeletes;
+    use \OwenIt\Auditing\Auditable;
     protected $table = "lists";
 
     protected $fillable = ["board_id", "title", "order"];

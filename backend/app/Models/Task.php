@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Task extends Model
+class Task extends Model implements Auditable
 {
     use SoftDeletes;
-    
+    use \OwenIt\Auditing\Auditable;
+
     protected $fillable = ["list_id", "title", "description", "status", "order"];
 
     public function list(): BelongsTo
