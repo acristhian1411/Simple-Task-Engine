@@ -28,19 +28,19 @@ ps:
 	$(COMPOSE) ps
 
 shell:
-	$(COMPOSE) exec $(BACK_SERVICE) sh
+	$(COMPOSE) exec --user "$$(id -u):$$(id -g)" $(BACK_SERVICE) sh
 
 composer:
-	$(COMPOSE) exec $(BACK_SERVICE) composer $(CMD)
+	$(COMPOSE) exec --user "$$(id -u):$$(id -g)" $(BACK_SERVICE) composer $(CMD)
 
 artisan:
-	$(COMPOSE) exec $(BACK_SERVICE) php artisan $(CMD)
+	$(COMPOSE) exec --user "$$(id -u):$$(id -g)" $(BACK_SERVICE) php artisan $(CMD)
 
 migrate:
-	$(COMPOSE) exec $(BACK_SERVICE) php artisan migrate --force
+	$(COMPOSE) exec --user "$$(id -u):$$(id -g)" $(BACK_SERVICE) php artisan migrate --force
 
 migrate-fresh:
-	$(COMPOSE) exec $(BACK_SERVICE) php artisan migrate:fresh --force
+	$(COMPOSE) exec --user "$$(id -u):$$(id -g)" $(BACK_SERVICE) php artisan migrate:fresh --force
 
 front-shell:
 	$(COMPOSE) exec $(FRONT_DEV) sh
