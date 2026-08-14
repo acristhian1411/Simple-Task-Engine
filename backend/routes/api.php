@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\ListController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\SubtaskController;
 use App\Http\Controllers\Api\TaskDependencyController;
-
+use App\Http\Controllers\Comments\CommentsController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('tasks/{taskId}/subtasks', [SubtaskController::class, 'indexByTask']);
     Route::apiResource('task-dependencies', TaskDependencyController::class);
     Route::get('tasks/{taskId}/dependencies', [TaskDependencyController::class, 'indexByTask']);
+    Route::apiResource('comments', CommentsController::class);
 });
 // Extra endpoints
 Route::middleware('auth:sanctum')->get('lists-with-tasks', [ListController::class, 'indexWithTasks']);
