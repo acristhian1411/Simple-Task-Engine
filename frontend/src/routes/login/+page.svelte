@@ -12,7 +12,7 @@
 		loading = true;
 		try {
 			await login(email, password);
-			goto('/tableros');
+			goto('/');
 		} catch (e) {
 			error = e?.response?.data?.message ?? e?.message ?? 'Login failed';
 		} finally {

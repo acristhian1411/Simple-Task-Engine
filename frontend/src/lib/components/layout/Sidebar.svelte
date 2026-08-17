@@ -23,7 +23,7 @@
       id: "boards",
       label: "Mis Tableros",
       icon: "view_kanban",
-      href: "/tableros",
+      href: "/",
     },
     { id: "members", label: "Miembros", icon: "group", href: null },
     { id: "reports", label: "Reportes", icon: "analytics", href: null },

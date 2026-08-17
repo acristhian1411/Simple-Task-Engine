@@ -36,7 +36,7 @@
 	}
 </script>
 
-<Modal {show} size="lg" position="center" on:close={close}>
+<Modal open={show} size="lg" position="center" on:close={close}>
 	<div class="p-6">
 		<div class="flex items-center justify-between mb-4">
 			<h2 class="text-xl font-bold text-gray-900 dark:text-white">Crear nuevo tablero</h2>
