@@ -46,4 +46,62 @@ class TaskService
     {
         $task->delete();
     }
+
+    public function attachComponent(Task $task, int $componentId): void
+    {
+        $task->components()->syncWithoutDetaching([$componentId]);
+    }
+
+    public function detachComponent(Task $task, int $componentId): void
+    {
+        $task->components()->detach($componentId);
+    }
+
+    public function syncComponents(Task $task, array $componentIds): void
+    {
+        $task->components()->sync($componentIds);
+    }
+
+    public function attachBug(Task $task, int $bugId, string $relationType = 'related'): void
+    {
+        if (!in_array($relationType, ['fixes', 'blocked_by', 'related'], true)) {
+            throw new \InvalidArgumentException('Tipo de relación inválido.');
+        }
+        $task->bugs()->syncWithoutDetaching([
+            $bugId => ['relation_type' => $relationType],
+        ]);
+    }
+
+    public function detachBug(Task $task, int $bugId): void
+    {
+        $task->bugs()->detach($bugId);
+    }
+
+    public function syncBugs(Task $task, array $bugIds): void
+    {
+        $current = $task->bugs()->get();
+        $sync = [];
+        foreach ($current as $bug) {
+            $sync[$bug->id] = ['relation_type' => $bug->pivot->relation_type];
+        }
+        foreach ($bugIds as $bugId) {
+            $bugId = (int) $bugId;
+            if (!isset($sync[$bugId])) {
+                $sync[$bugId] = ['relation_type' => 'related'];
+            }
+        }
+        $task->bugs()->sync($sync);
+    }
+
+    public function blockedBy(Task $task): Collection
+    {
+        return Task::whereIn('id', function ($query) use ($task) {
+            $query->select('depends_on_task_id')
+                ->from('task_dependencies')
+                ->where('task_id', $task->id)
+                ->whereNull('deleted_at');
+        })
+            ->where('status', '!=', 'done')
+            ->get();
+    }
 }

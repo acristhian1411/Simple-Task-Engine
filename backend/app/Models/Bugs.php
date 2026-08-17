@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 class Bugs extends Model implements Auditable
 {
     use \OwenIt\Auditing\Auditable;
@@ -34,6 +36,23 @@ class Bugs extends Model implements Auditable
     public function reportedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reported_by_id');
+    }
+
+    public function tasks(): BelongsToMany
+    {
+        return $this->belongsToMany(Task::class, 'task_bug')
+            ->withPivot('relation_type')
+            ->whereNull('tasks.deleted_at');
+    }
+
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comments::class, 'commentable');
+    }
+
+    public function recordings(): MorphMany
+    {
+        return $this->morphMany(Recordings::class, 'recordable');
     }
 
 }

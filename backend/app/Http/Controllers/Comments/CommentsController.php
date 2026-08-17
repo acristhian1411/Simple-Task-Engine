@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\CommentService;
+use App\Models\Bugs;
+use App\Models\Components;
+use App\Models\Task;
+use App\Models\TestCases;
 
 class CommentsController extends Controller
 {
@@ -73,6 +77,23 @@ class CommentsController extends Controller
             return response()->json(null, 204);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function forModel(string $type, int $id)
+    {
+        try {
+            $model = match ($type) {
+                'task', 'tasks' => Task::findOrFail($id),
+                'bug', 'bugs' => Bugs::findOrFail($id),
+                'test-case', 'test-cases', 'test_case' => TestCases::findOrFail($id),
+                'component', 'components' => Components::findOrFail($id),
+                default => throw new \InvalidArgumentException("Tipo no soportado: {$type}"),
+            };
+            $data = $this->service->forModel($model);
+            return response()->json($data);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
         }
     }
 }

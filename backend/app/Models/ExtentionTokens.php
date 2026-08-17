@@ -16,6 +16,7 @@ class ExtentionTokens extends Model implements Auditable
         'token',
         'user_id',
         'token_hash',
+        'label',
         'last_used_at',
         'revoked_at',
     ];

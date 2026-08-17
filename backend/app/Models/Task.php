@@ -5,7 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Task extends Model implements Auditable
@@ -33,5 +35,28 @@ class Task extends Model implements Auditable
     public function blockers(): HasMany
     {
         return $this->hasMany(TaskDependency::class, "depends_on_task_id");
+    }
+
+    public function components(): BelongsToMany
+    {
+        return $this->belongsToMany(Components::class, 'task_component')
+            ->whereNull('components.deleted_at');
+    }
+
+    public function bugs(): BelongsToMany
+    {
+        return $this->belongsToMany(Bugs::class, 'task_bug')
+            ->withPivot('relation_type')
+            ->whereNull('bugs.deleted_at');
+    }
+
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comments::class, 'commentable');
+    }
+
+    public function recordings(): MorphMany
+    {
+        return $this->morphMany(Recordings::class, 'recordable');
     }
 }

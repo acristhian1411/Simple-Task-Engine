@@ -6,6 +6,7 @@ use App\Models\Comments;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class CommentService
 {
@@ -66,5 +67,14 @@ class CommentService
     public function delete(Comments $Comments): void
     {
         $Comments->delete();
+    }
+
+    public function forModel(Model $model): Collection
+    {
+        return Comments::with('user')
+            ->where('commentable_type', $model->getMorphClass())
+            ->where('commentable_id', $model->getKey())
+            ->latest()
+            ->get();
     }
 }
