@@ -1,7 +1,8 @@
 <script>
   import { onMount } from "svelte";
   import { getBoardsWithLists } from "$lib/api/boards.js";
-  import { auth, refreshMe } from "$lib/stores/auth.js";
+  import { refreshMe } from "$lib/stores/auth.js";
+  import { createBoardOpen } from "$lib/stores/ui.js";
   import { goto } from "$app/navigation";
   import BoardGrid from "$lib/components/board/BoardGrid.svelte";
 
@@ -22,16 +23,14 @@
       const res = await getBoardsWithLists();
       boards = res?.data ?? res;
     } catch (e) {
-      error =
-        e?.response?.data?.message ?? e?.message ?? "Error loading boards";
+      error = e?.response?.data?.message ?? e?.message ?? "Error cargando tableros";
     } finally {
       loading = false;
     }
   }
 
   function handleCreateBoard() {
-    // TODO: Implement create board modal or navigation
-    console.log("Create board functionality to be implemented");
+    createBoardOpen.set(true);
   }
 
   onMount(loadBoards);
@@ -45,16 +44,6 @@
   />
 </svelte:head>
 
-<!-- HEADER SECTION -->
-<header
-  class="w-full px-8 pt-6 pb-2 flex flex-col gap-4 z-10 bg-background-light dark:bg-background-dark"
->
-  <!-- Breadcrumbs -->
-
-  <!-- Title & Actions Row -->
-</header>
-
-<!-- CONTENT GRID -->
 <BoardGrid
   {boards}
   {loading}

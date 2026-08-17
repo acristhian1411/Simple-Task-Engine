@@ -1,4 +1,5 @@
 <script>
+  import { goto } from "$app/navigation";
   /**
    * Sidebar component for navigation and user profile
    * @param {string} activeItem - Current active navigation item
@@ -22,15 +23,15 @@
       id: "boards",
       label: "Mis Tableros",
       icon: "view_kanban",
-      href: "/boards",
+      href: "/tableros",
     },
-    { id: "members", label: "Miembros", icon: "group", href: "/members" },
-    { id: "reports", label: "Reportes", icon: "analytics", href: "/reports" },
+    { id: "members", label: "Miembros", icon: "group", href: null },
+    { id: "reports", label: "Reportes", icon: "analytics", href: null },
     {
       id: "settings",
       label: "Configuración",
       icon: "settings",
-      href: "/settings",
+      href: null,
     },
   ];
 
@@ -46,6 +47,9 @@
 
   function handleNavClick(item) {
     onNavigate(item);
+    if (item.href) {
+      goto(item.href);
+    }
   }
 
   function handleCreateBoard() {

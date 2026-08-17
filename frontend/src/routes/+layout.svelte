@@ -3,13 +3,22 @@
   import { Layout } from "$lib/components/layout";
   import "../app.css";
   import { auth, refreshMe } from "$lib/stores/auth";
+  import { createBoardOpen } from "$lib/stores/ui";
+  import CreateBoardModal from "$lib/components/board/CreateBoardModal.svelte";
   import { onMount } from "svelte";
   import { page } from "$app/stores";
 
   // Layout configuration
   let title = "Mis Tableros";
   let breadcrumbs = [{ label: "Inicio", href: "/" }, { label: "Tableros" }];
-  let activeNavItem = "boards";
+
+  // Navigation activation based on current path
+  $: pathname = $page.url.pathname;
+  $: activeNavItem = pathname.startsWith("/board")
+    ? "boards"
+    : pathname === "/"
+      ? "dashboard"
+      : "boards";
 
   // Event handlers
   function handleSearch(searchValue) {
@@ -20,12 +29,12 @@
     console.log("Header action:", action);
   }
 
-  function handleNavigation(item) {
-    activeNavItem = item.id;
+  function handleCreateBoard() {
+    createBoardOpen.set(true);
   }
 
-  function handleCreateBoard() {
-    console.log("Create board clicked");
+  function closeCreateBoard() {
+    createBoardOpen.set(false);
   }
 
   onMount(async () => {
@@ -49,11 +58,11 @@
     boards={[]}
     onSearch={handleSearch}
     onHeaderAction={handleHeaderAction}
-    onNavigation={handleNavigation}
     onCreateBoard={handleCreateBoard}
   >
     <slot />
   </Layout>
+  <CreateBoardModal show={$createBoardOpen} on:close={closeCreateBoard} />
 {:else}
   <!-- If not authenticated, render pages directly (login/public pages) -->
   <slot />
