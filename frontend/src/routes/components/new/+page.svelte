@@ -3,17 +3,22 @@
   import { goto } from "$app/navigation";
   import { ArrowLeft, Save } from "lucide-svelte";
   import { refreshMe } from "$lib/stores/auth.js";
-  import { createComponent } from "$lib/api/components.js";
+  import { createComponent, getComponents } from "$lib/api/components.js";
 
   let loading = $state(true);
   let error = $state("");
   let submitting = $state(false);
-  let form = $state({ name: "", description: "" });
+  let components = $state([]);
+  let form = $state({ name: "", type: "", description: "", parent_id: "" });
+
+  const typeOptions = ["module", "controller", "model", "view", "function", "service", "other"];
 
   onMount(async () => {
     try {
       const me = await refreshMe();
       if (!me) return goto("/login");
+      const res = await getComponents({ per_page: 100 });
+      components = res?.data ?? res ?? [];
     } catch (e) {
       error = e?.response?.data?.error ?? e?.message;
     } finally {
@@ -29,8 +34,14 @@
     submitting = true;
     error = "";
     try {
-      await createComponent({ name: form.name, description: form.description || null });
-      goto("/components");
+      const created = await createComponent({
+        name: form.name,
+        type: form.type || null,
+        description: form.description || null,
+        parent_id: form.parent_id ? Number(form.parent_id) : null,
+      });
+      const data = created?.data ?? created;
+      goto(data?.id ? `/components/${data.id}` : "/components");
     } catch (e) {
       error = e?.response?.data?.error ?? e?.message ?? "Error al guardar";
     } finally {
@@ -60,6 +71,27 @@
       <div class="space-y-2">
         <label for="name" class="block text-sm font-medium">Nombre del componente</label>
         <input type="text" id="name" required placeholder="ej. Autenticación, Procesamiento de pagos" bind:value={form.name} class="form-input" />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+          <label for="type" class="block text-sm font-medium">Tipo</label>
+          <select id="type" bind:value={form.type} class="form-input">
+            <option value="">Sin tipo</option>
+            {#each typeOptions as t}
+              <option value={t}>{t}</option>
+            {/each}
+          </select>
+        </div>
+        <div class="space-y-2">
+          <label for="parent_id" class="block text-sm font-medium">Componente padre</label>
+          <select id="parent_id" bind:value={form.parent_id} class="form-input">
+            <option value="">Sin padre</option>
+            {#each components as c}
+              <option value={c.id}>{c.name} (#{c.id})</option>
+            {/each}
+          </select>
+        </div>
       </div>
 
       <div class="space-y-2">

@@ -27,6 +27,8 @@
     },
     { id: "bugs", label: "Bugs", icon: "bug_report", href: "/bugs" },
     { id: "components", label: "Componentes", icon: "category", href: "/components" },
+    { id: "explorer", label: "Explorador", icon: "account_tree", href: "/components/explorer" },
+    { id: "impact", label: "Impacto", icon: "hub", href: "/components/impact" },
     { id: "tests", label: "Test Cases", icon: "science", href: "/tests" },
     { id: "members", label: "Miembros", icon: "group", href: null },
     { id: "reports", label: "Reportes", icon: "analytics", href: null },

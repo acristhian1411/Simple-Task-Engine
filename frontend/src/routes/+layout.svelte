@@ -14,17 +14,21 @@
 
   // Navigation activation based on current path
   $: pathname = $page.url.pathname;
-  $: activeNavItem = pathname.startsWith("/board")
-    ? "boards"
-    : pathname.startsWith("/bugs")
-      ? "bugs"
-      : pathname.startsWith("/components")
-        ? "components"
-        : pathname.startsWith("/tests")
-          ? "tests"
-          : pathname === "/"
-            ? "dashboard"
-            : "boards";
+  $: activeNavItem = pathname.startsWith("/components/explorer")
+    ? "explorer"
+    : pathname.startsWith("/components/impact")
+      ? "impact"
+      : pathname.startsWith("/board")
+        ? "boards"
+        : pathname.startsWith("/bugs")
+          ? "bugs"
+          : pathname.startsWith("/components")
+            ? "components"
+            : pathname.startsWith("/tests")
+              ? "tests"
+              : pathname === "/"
+                ? "dashboard"
+                : "boards";
 
   // Event handlers
   function handleSearch(searchValue) {
