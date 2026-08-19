@@ -37,7 +37,7 @@ class BugService
 
     public function listWithRelations(array $filters = []): Collection
     {
-        $query = Bugs::with('testCase', 'testStep', 'reportedBy');
+        $query = Bugs::with('testCase.component', 'testStep', 'reportedBy');
         if (isset($filters['test_case_id'])) {
             $query->where('test_case_id', $filters['test_case_id']);
         }
