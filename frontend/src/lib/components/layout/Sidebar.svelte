@@ -4,16 +4,12 @@
    * Sidebar component for navigation and user profile
    * @param {string} activeItem - Current active navigation item
    * @param {Object|null} user - User information object
-   * @param {Array} boards - Array of favorite boards for quick access
    * @param {boolean} collapsed - Whether sidebar is collapsed (mobile)
-   * @param {Function} onCreateBoard - Callback for create board action
    * @param {Function} onNavigate - Callback for navigation
    */
   export let activeItem = "boards";
   export let user = null;
-  export const boards = [];
   export let collapsed = false;
-  export let onCreateBoard = () => {};
   export let onNavigate = () => {};
 
   // Navigation items configuration
@@ -26,12 +22,42 @@
       href: "/",
     },
     { id: "bugs", label: "Bugs", icon: "bug_report", href: "/bugs" },
-    { id: "components", label: "Componentes", icon: "category", href: "/components" },
-    { id: "explorer", label: "Explorador", icon: "account_tree", href: "/components/explorer" },
-    { id: "impact", label: "Impacto", icon: "hub", href: "/components/impact" },
-    { id: "tests", label: "Test Cases", icon: "science", href: "/tests" },
-    { id: "members", label: "Miembros", icon: "group", href: null },
-    { id: "reports", label: "Reportes", icon: "analytics", href: null },
+    {
+      id: "components",
+      label: "Componentes",
+      icon: "category",
+      href: "/components",
+    },
+    {
+      id: "explorer",
+      label: "Explorador",
+      icon: "account_tree",
+      href: "/components/explorer",
+    },
+    {
+      id: "impact",
+      label: "Impacto",
+      icon: "hub",
+      href: "/components/impact",
+    },
+    {
+      id: "tests",
+      label: "Test Cases",
+      icon: "science",
+      href: "/tests",
+    },
+    {
+      id: "members",
+      label: "Miembros",
+      icon: "group",
+      href: null,
+    },
+    {
+      id: "reports",
+      label: "Reportes",
+      icon: "analytics",
+      href: null,
+    },
     {
       id: "settings",
       label: "Configuración",
@@ -55,10 +81,6 @@
     if (item.href) {
       goto(item.href);
     }
-  }
-
-  function handleCreateBoard() {
-    onCreateBoard();
   }
 </script>
 
@@ -119,12 +141,6 @@
 
   <!-- Bottom Section -->
   <div class="mt-auto p-6 flex flex-col gap-4">
-    <!-- Create Board Button -->
-    <button class="btn-primary" on:click={handleCreateBoard} type="button">
-      <span class="material-symbols-outlined mr-2 text-[20px]">add</span>
-      <span class="truncate">Crear Tablero</span>
-    </button>
-
     <!-- User Profile -->
     <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
       <button

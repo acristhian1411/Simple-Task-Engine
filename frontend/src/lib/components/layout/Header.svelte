@@ -7,7 +7,6 @@
 	 * @param {Array} actions - Header action buttons
 	 * @param {Function} onSearch - Search callback
 	 * @param {Function} onActionClick - Action button callback
-	 * @param {Function} onMobileMenuToggle - Mobile menu toggle callback
 	 */
 	export let title = '';
 	export let breadcrumbs = [];
@@ -15,7 +14,6 @@
 	export let actions = [];
 	export let onSearch = () => {};
 	export let onActionClick = () => {};
-	export let onMobileMenuToggle = () => {};
 
 	let searchValue = '';
 
@@ -53,10 +51,6 @@
 	function handleActionClick(action) {
 		onActionClick(action);
 	}
-
-	function handleMobileMenuToggle() {
-		onMobileMenuToggle();
-	}
 </script>
 
 <!-- Material Symbols CSS -->
@@ -88,20 +82,7 @@
 
 	<!-- Title & Actions Row -->
 	<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-		<!-- Mobile Menu Button & Title -->
-		<div class="flex items-center gap-4">
-			<!-- Mobile Menu Toggle (visible only on small screens) -->
-			<button 
-				class="lg:hidden text-gray-600 dark:text-white p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-				on:click={handleMobileMenuToggle}
-				type="button"
-				aria-label="Toggle mobile menu"
-			>
-				<span class="material-symbols-outlined">menu</span>
-			</button>
-
-			<h1 class="text-gray-900 dark:text-white text-3xl font-bold tracking-tight">{title}</h1>
-		</div>
+		<h1 class="text-gray-900 dark:text-white text-3xl font-bold tracking-tight">{title}</h1>
 
 		<div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
 			<!-- Search Bar -->

@@ -8,10 +8,6 @@
   import { onMount } from "svelte";
   import { page } from "$app/stores";
 
-  // Layout configuration
-  let title = "Mis Tableros";
-  let breadcrumbs = [{ label: "Inicio", href: "/" }, { label: "Tableros" }];
-
   // Navigation activation based on current path
   $: pathname = $page.url.pathname;
   $: activeNavItem = pathname.startsWith("/components/explorer")
@@ -30,19 +26,6 @@
                 ? "dashboard"
                 : "boards";
 
-  // Event handlers
-  function handleSearch(searchValue) {
-    console.log("Search:", searchValue);
-  }
-
-  function handleHeaderAction(action) {
-    console.log("Header action:", action);
-  }
-
-  function handleCreateBoard() {
-    createBoardOpen.set(true);
-  }
-
   function closeCreateBoard() {
     createBoardOpen.set(false);
   }
@@ -58,18 +41,7 @@
 </svelte:head>
 
 {#if $auth?.user}
-  <Layout
-    {title}
-    {breadcrumbs}
-    showSearch={true}
-    headerActions={[]}
-    {activeNavItem}
-    user={$auth.user}
-    boards={[]}
-    onSearch={handleSearch}
-    onHeaderAction={handleHeaderAction}
-    onCreateBoard={handleCreateBoard}
-  >
+  <Layout {activeNavItem} user={$auth.user}>
     <slot />
   </Layout>
   <CreateBoardModal show={$createBoardOpen} on:close={closeCreateBoard} />
