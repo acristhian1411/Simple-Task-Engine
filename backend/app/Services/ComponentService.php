@@ -29,7 +29,12 @@ class ComponentService
 
     public function listWithRelations(array $filters = []): Collection
     {
-        $query = Components::with('parent');
+        $query = Components::with('parent')
+            ->withCount([
+                'testCases',
+                'dependencies',
+                'criticalDependencies',
+            ]);
         if (isset($filters['type'])) {
             $query->where('type', $filters['type']);
         }
@@ -43,7 +48,14 @@ class ComponentService
                     ->orWhere('description', 'ILIKE', "%$s%");
             });
         }
-        return $query->latest()->get();
+        return $query->latest()->get()->map(function (Components $component) {
+            $component->parent_name = $component->parent?->name;
+            $component->dependency_count = $component->dependencies_count;
+            $component->critical_dependency_count = $component->critical_dependencies_count;
+            unset($component->dependencies_count, $component->critical_dependencies_count);
+
+            return $component;
+        })->values();
     }
 
     public function create(array $data): Components
@@ -111,6 +123,48 @@ class ComponentService
         return $component->dependents()
             ->wherePivot('criticality', 'critical')
             ->get();
+    }
+
+    public function impact(Components $root): array
+    {
+        $rows = [];
+        $visited = [(int) $root->id => true];
+
+        $walk = function (int $parentId, int $depth) use (&$walk, &$rows, &$visited) {
+            $links = ComponentDependencies::query()
+                ->where('depends_on_id', $parentId)
+                ->whereNull('deleted_at')
+                ->with('component')
+                ->get();
+
+            foreach ($links as $link) {
+                $child = $link->component;
+                if (!$child) {
+                    continue;
+                }
+                $childId = (int) $child->id;
+                if (isset($visited[$childId])) {
+                    continue;
+                }
+                $visited[$childId] = true;
+
+                $rows[] = [
+                    'id' => $childId,
+                    'name' => $child->name,
+                    'type' => $child->type,
+                    'description' => $child->description,
+                    'criticality' => $link->criticality,
+                    'depth' => $depth,
+                    'tree_parent_id' => $parentId,
+                ];
+
+                $walk($childId, $depth + 1);
+            }
+        };
+
+        $walk((int) $root->id, 1);
+
+        return $rows;
     }
 
     public function attachDependency(Components $component, Components $dependsOn, string $criticality = 'optional'): ComponentDependencies

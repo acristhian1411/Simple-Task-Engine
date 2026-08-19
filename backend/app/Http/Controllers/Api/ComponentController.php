@@ -124,6 +124,16 @@ class ComponentController extends ApiController
         }
     }
 
+    public function impact(int $id)
+    {
+        try {
+            $component = $this->service->findOrFail($id);
+            return response()->json(['data' => $this->service->impact($component)]);
+        } catch (\Throwable $e) {
+            return $this->respondException($e);
+        }
+    }
+
     public function attachDependency(Request $request, int $id)
     {
         try {

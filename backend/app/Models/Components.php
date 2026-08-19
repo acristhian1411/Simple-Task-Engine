@@ -49,6 +49,13 @@ class Components extends Model implements Auditable
             ->withPivot('criticality');
     }
 
+    public function criticalDependencies(): BelongsToMany
+    {
+        return $this->belongsToMany(Components::class, 'component_dependencies', 'component_id', 'depends_on_id')
+            ->withPivot('criticality')
+            ->wherePivot('criticality', 'critical');
+    }
+
     public function dependents(): BelongsToMany
     {
         return $this->belongsToMany(Components::class, 'component_dependencies', 'depends_on_id', 'component_id')

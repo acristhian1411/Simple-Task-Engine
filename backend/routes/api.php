@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('components/{componentId}/dependencies', [ComponentController::class, 'dependencies']);
     Route::get('components/{componentId}/dependents', [ComponentController::class, 'dependents']);
     Route::get('components/{componentId}/critical-dependents', [ComponentController::class, 'criticalDependents']);
+    Route::get('components/{componentId}/impact', [ComponentController::class, 'impact']);
     Route::get('components/{componentId}/tasks', [ComponentController::class, 'tasks']);
     Route::get('components/{componentId}/test-cases', [ComponentController::class, 'testCases']);
     Route::post('components/{componentId}/dependencies', [ComponentController::class, 'attachDependency']);
