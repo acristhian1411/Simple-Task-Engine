@@ -25,6 +25,9 @@
       icon: "view_kanban",
       href: "/",
     },
+    { id: "bugs", label: "Bugs", icon: "bug_report", href: "/bugs" },
+    { id: "components", label: "Componentes", icon: "category", href: "/components" },
+    { id: "tests", label: "Test Cases", icon: "science", href: "/tests" },
     { id: "members", label: "Miembros", icon: "group", href: null },
     { id: "reports", label: "Reportes", icon: "analytics", href: null },
     {

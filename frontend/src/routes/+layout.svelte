@@ -16,9 +16,15 @@
   $: pathname = $page.url.pathname;
   $: activeNavItem = pathname.startsWith("/board")
     ? "boards"
-    : pathname === "/"
-      ? "dashboard"
-      : "boards";
+    : pathname.startsWith("/bugs")
+      ? "bugs"
+      : pathname.startsWith("/components")
+        ? "components"
+        : pathname.startsWith("/tests")
+          ? "tests"
+          : pathname === "/"
+            ? "dashboard"
+            : "boards";
 
   // Event handlers
   function handleSearch(searchValue) {
