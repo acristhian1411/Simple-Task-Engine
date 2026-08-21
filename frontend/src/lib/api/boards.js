@@ -1,8 +1,8 @@
-import { http } from './http.js';
+import { http, unwrapList } from './http.js';
 
 export async function getBoards(params = {}) {
 	const res = await http.get('/boards', { params });
-	return res.data;
+	return unwrapList(res);
 }
 
 export async function getBoard(id) {
@@ -17,5 +17,5 @@ export async function createBoard(data) {
 
 export async function getBoardsWithLists(params = {}) {
 	const res = await http.get('/boards-with-lists', { params });
-	return res.data;
+	return unwrapList(res);
 }

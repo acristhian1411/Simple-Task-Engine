@@ -1,15 +1,24 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { dndzone } from "svelte-dnd-action";
   import TaskCard from "./TaskCard.svelte";
 
   export let title = "";
   export let tasks = [];
+  export let listId = null;
   export let status = "default"; // default, active, blocked, completed
   export let color = "default"; // default, primary, red, green
-  export let onAddTask = () => {};
-  export let onTaskClick = () => {};
 
   const dispatch = createEventDispatcher();
+
+  // Array local para el dndzone: evita mutar el array del store y permite sync controlado
+  let localTasks = [];
+  let dragging = false;
+
+  // Sincroniza desde la prop SOLO cuando no hay drag en curso
+  $: if (!dragging) {
+    localTasks = tasks;
+  }
 
   function getHeaderClasses() {
     const base =
@@ -87,6 +96,18 @@
     };
     return `${base} ${statusClasses[status]}`;
   }
+
+  function handleConsider(e) {
+    dragging = true;
+    localTasks = e.detail.items;
+    dispatch("consider", { listId, detail: e.detail });
+  }
+
+  function handleFinalize(e) {
+    localTasks = e.detail.items;
+    dragging = false;
+    dispatch("finalize", { listId, detail: e.detail });
+  }
 </script>
 
 <div class={getColumnClasses()}>
@@ -94,16 +115,25 @@
   <div class={getHeaderClasses()}>
     <div class="flex items-center gap-2">
       <h3 class={getTitleClasses()}>{title}</h3>
-      <span class={getBadgeClasses()}>{tasks.length}</span>
+      <span class={getBadgeClasses()}>{localTasks.length}</span>
     </div>
-    <button class={getIconClasses()} on:click={() => dispatch("addTask")}>
+    <button
+      class={getIconClasses()}
+      on:click={() => dispatch("addTask")}
+      aria-label="Agregar tarjeta"
+    >
       <span class="material-symbols-outlined text-[20px]">{getIcon()}</span>
     </button>
   </div>
 
   <!-- Cards Container -->
-  <div class="flex-1 overflow-y-auto p-3 flex flex-col gap-3 custom-scrollbar">
-    {#each tasks as task (task.id)}
+  <div
+    class="flex-1 overflow-y-auto p-3 flex flex-col gap-3 custom-scrollbar"
+    use:dndzone={{ items: localTasks, type: "board" }}
+    on:consider={handleConsider}
+    on:finalize={handleFinalize}
+  >
+    {#each localTasks as task (task.id)}
       <TaskCard
         {task}
         on:click={() => dispatch("taskClick", { task })}
@@ -115,7 +145,7 @@
   <!-- Add Task Button -->
   <button
     class="m-2 p-2 flex items-center justify-center gap-2 text-slate-500 hover:bg-slate-200 dark:hover:bg-[#233648] hover:text-slate-700 dark:hover:text-white rounded-lg transition-colors text-sm font-medium"
-    on:click={onAddTask}
+    on:click={() => dispatch("addTask")}
   >
     <span class="material-symbols-outlined text-[20px]">add</span>
     Añadir Tarjeta

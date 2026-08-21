@@ -195,11 +195,46 @@
       <div
         class="h-full bg-primary rounded-full transition-all"
         style="width: {Math.round(
-          (task.subtasks.filter((st) => st.completed).length /
+          (task.subtasks.filter((st) => st.is_completed).length /
             task.subtasks.length) *
             100,
         )}%"
       ></div>
+    </div>
+  {/if}
+
+  <!-- Component & Bug Badges -->
+  {#if (task.components && task.components.length) || (task.bugs && task.bugs.length)}
+    <div class="flex flex-wrap items-center gap-1.5 mb-3">
+      {#if task.components && task.components.length}
+        {#each task.components as comp (comp.id)}
+          <span
+            class="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300"
+            title={comp.name || `#${comp.id}`}
+          >
+            <span class="material-symbols-outlined text-[11px]">widgets</span
+            >{comp.name || `#${comp.id}`}
+          </span>
+        {/each}
+      {/if}
+      {#if task.bugs && task.bugs.length}
+        {#each task.bugs.slice(0, 2) as bug (bug.id)}
+          <span
+            class="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300"
+            title={bug.title || `Bug #${bug.id}`}
+          >
+            <span class="material-symbols-outlined text-[11px]">bug_report</span
+            >{bug.title || `#${bug.id}`}
+          </span>
+        {/each}
+        {#if task.bugs.length > 2}
+          <span
+            class="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300"
+          >
+            +{task.bugs.length - 2}
+          </span>
+        {/if}
+      {/if}
     </div>
   {/if}
 
@@ -236,7 +271,7 @@
       {#if task.subtasks && task.subtasks.length > 0}
         <div class="flex items-center gap-1 text-xs">
           <span class="material-symbols-outlined text-[16px]">check_box</span>
-          {task.subtasks.filter((st) => st.completed).length}/{task.subtasks
+          {task.subtasks.filter((st) => st.is_completed).length}/{task.subtasks
             .length}
         </div>
       {/if}

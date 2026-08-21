@@ -24,8 +24,8 @@
         goto("/login");
         return;
       }
-      const res = await getBoardsWithLists();
-      boards = res?.data ?? res;
+      const res = await getBoardsWithLists({ per_page: 100 });
+      boards = res;
     } catch (e) {
       error = e?.response?.data?.message ?? e?.message ?? "Error cargando tableros";
     } finally {

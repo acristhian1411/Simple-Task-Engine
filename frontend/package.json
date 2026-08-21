@@ -22,6 +22,7 @@
 		"@xyflow/svelte": "^1.6.3",
 		"axios": "^1.13.2",
 		"lucide-svelte": "^0.375.0",
+		"svelte-dnd-action": "^0.9.78",
 		"tailwindcss": "^4.1.18"
 	}
 }
