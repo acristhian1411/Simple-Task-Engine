@@ -24,7 +24,10 @@ class ListService
 
     public function listWithTasks(array $filters = [])
     {
-        $query = ListModel::with('tasks');
+        $query = ListModel::with([
+            'tasks.components',
+            'tasks.bugs',
+        ]);
         if (isset($filters['board_id'])) {
             $query->where('board_id', $filters['board_id']);
         }

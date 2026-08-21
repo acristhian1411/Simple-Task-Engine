@@ -34,7 +34,7 @@ class Components extends Model implements Auditable
 
     public function tasks(): BelongsToMany
     {
-        return $this->belongsToMany(Task::class, 'task_component')
+        return $this->belongsToMany(Task::class, 'task_component', 'component_id', 'task_id')
             ->whereNull('tasks.deleted_at');
     }
 

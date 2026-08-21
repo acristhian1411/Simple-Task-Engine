@@ -40,7 +40,7 @@ class Bugs extends Model implements Auditable
 
     public function tasks(): BelongsToMany
     {
-        return $this->belongsToMany(Task::class, 'task_bug')
+        return $this->belongsToMany(Task::class, 'task_bug', 'bug_id', 'task_id')
             ->withPivot('relation_type')
             ->whereNull('tasks.deleted_at');
     }
