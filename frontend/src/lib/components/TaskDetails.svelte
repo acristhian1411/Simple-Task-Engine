@@ -415,7 +415,7 @@
 <Modal {open} size="xl" position="right" on:close={close}>
   {#if task}
     <div
-      class="h-full w-full flex flex-col bg-background-light dark:bg-background-dark"
+      class="h-dvh w-full flex flex-col bg-background-light dark:bg-background-dark"
     >
       <!-- Header -->
       <div
@@ -438,7 +438,7 @@
       </div>
 
       <!-- Body -->
-      <div class="flex-1 overflow-y-auto p-6">
+      <div class="flex-1 min-h-0 overflow-y-auto p-6">
         <div class="max-w-[800px] mx-auto flex flex-col gap-8">
           {#if saveError}
             <div
