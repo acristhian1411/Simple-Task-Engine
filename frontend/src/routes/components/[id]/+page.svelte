@@ -28,6 +28,7 @@
     attachComponentDependency,
     detachComponentDependency,
   } from "$lib/api/components.js";
+  import Comments from "$lib/components/Comments.svelte";
 
   let loading = $state(true);
   let error = $state("");
@@ -406,6 +407,8 @@
         {/each}
       </div>
     </div>
+
+    <Comments refId={component.id} refTable="components" />
   {/if}
 </div>
 

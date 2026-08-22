@@ -23,6 +23,7 @@
   import { getComponents } from "$lib/api/components.js";
   import { getBugs } from "$lib/api/bugs.js";
   import { unwrapList } from "$lib/api/http.js";
+  import Comments from "$lib/components/Comments.svelte";
 
   export let open = false;
   export let task = null;
@@ -937,6 +938,8 @@
               </div>
             </div>
           </div>
+
+          <Comments refId={task.id} refTable="tasks" />
         </div>
       </div>
     </div>

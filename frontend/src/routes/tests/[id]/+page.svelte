@@ -5,6 +5,7 @@
   import { refreshMe } from "$lib/stores/auth.js";
   import { getTestCase, updateTestCase, deleteTestCase, getTestSteps, getActors } from "$lib/api/test-cases.js";
   import { getComponents } from "$lib/api/components.js";
+  import Comments from "$lib/components/Comments.svelte";
 
   let loading = $state(true);
   let error = $state("");
@@ -302,5 +303,6 @@
         </button>
       </div>
     </form>
+    <Comments refId={testCase.id} refTable="test-cases" />
   {/if}
 </div>

@@ -6,6 +6,7 @@
   import { getBug, updateBug, deleteBug } from "$lib/api/bugs.js";
   import { getComponents } from "$lib/api/components.js";
   import { getTestCases } from "$lib/api/test-cases.js";
+  import Comments from "$lib/components/Comments.svelte";
 
   let loading = $state(true);
   let error = $state("");
@@ -179,5 +180,6 @@
         </button>
       </div>
     </form>
+    <Comments refId={bug.id} refTable="bugs" />
   {/if}
 </div>
