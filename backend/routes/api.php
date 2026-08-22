@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Audits\AuditController;
 use App\Http\Controllers\Api\BoardController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ListController;
@@ -29,6 +30,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'me']);
 
+    Route::group(['prefix' => 'audits'], function (): void {
+        Route::get('/auditable/{auditableId}', [AuditController::class, 'getAuditByAuditableId']);
+    });
     Route::apiResource('boards', BoardController::class);
     Route::apiResource('lists', ListController::class);
     Route::apiResource('tasks', TaskController::class);
