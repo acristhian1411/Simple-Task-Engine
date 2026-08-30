@@ -5,6 +5,7 @@
   import { auth, refreshMe } from "$lib/stores/auth";
   import { createBoardOpen } from "$lib/stores/ui";
   import CreateBoardModal from "$lib/components/board/CreateBoardModal.svelte";
+  import AuditSidebar from "$lib/components/AuditSidebar.svelte";
   import { onMount } from "svelte";
   import { page } from "$app/stores";
 
@@ -45,6 +46,7 @@
     <slot />
   </Layout>
   <CreateBoardModal show={$createBoardOpen} on:close={closeCreateBoard} />
+  <AuditSidebar />
 {:else}
   <!-- If not authenticated, render pages directly (login/public pages) -->
   <slot />

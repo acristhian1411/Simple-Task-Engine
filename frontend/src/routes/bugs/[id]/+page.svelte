@@ -1,8 +1,9 @@
 <script>
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import { ArrowLeft, Save, Trash2 } from "lucide-svelte";
+  import { ArrowLeft, Save, Trash2, History } from "lucide-svelte";
   import { refreshMe } from "$lib/stores/auth.js";
+  import { openAuditSidebar } from "$lib/stores/auditSidebar.svelte.js";
   import { getBug, updateBug, deleteBug } from "$lib/api/bugs.js";
   import { getComponents } from "$lib/api/components.js";
   import { getTestCases } from "$lib/api/test-cases.js";
@@ -96,16 +97,25 @@
         </a>
         <h1 class="text-2xl font-bold text-text-main-light dark:text-text-main-dark">Editar Bug</h1>
       </div>
-      <button
-        type="button"
-        onclick={handleDelete}
-        class="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg font-medium transition-colors border border-red-500/20"
-      >
-        <Trash2 size={18} />
-        <span>Eliminar</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          onclick={() => openAuditSidebar(bug.id, "Bugs")}
+          class="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-text-main-light dark:text-text-main-dark rounded-lg font-medium transition-colors border border-border-light dark:border-border-dark"
+        >
+          <History size={18} />
+          <span>Historial</span>
+        </button>
+        <button
+          type="button"
+          onclick={handleDelete}
+          class="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg font-medium transition-colors border border-red-500/20"
+        >
+          <Trash2 size={18} />
+          <span>Eliminar</span>
+        </button>
+      </div>
     </div>
-
     <form
       onsubmit={(e) => {
         e.preventDefault();

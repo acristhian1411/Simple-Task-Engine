@@ -13,8 +13,10 @@
     Link2,
     Network,
     GitBranch,
+    History,
   } from "lucide-svelte";
   import { refreshMe } from "$lib/stores/auth.js";
+  import { openAuditSidebar } from "$lib/stores/auditSidebar.svelte.js";
   import Modal from "$lib/components/ui/Modal.svelte";
   import ComponentGraph from "$lib/components/flow/ComponentGraph.svelte";
   import {
@@ -215,6 +217,14 @@
             title="Ver grafo de dependientes"
           >
             <Network size={20} />
+          </button>
+          <button
+            type="button"
+            onclick={() => openAuditSidebar(component.id, "Components")}
+            class="p-2 text-text-sec-light dark:text-text-sec-dark hover:text-indigo-500 hover:bg-indigo-500/10 rounded-lg transition-colors"
+            title="Historial de auditoría"
+          >
+            <History size={20} />
           </button>
           <button
             type="button"

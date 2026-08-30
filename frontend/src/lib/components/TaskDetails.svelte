@@ -24,6 +24,7 @@
   import { getBugs } from "$lib/api/bugs.js";
   import { unwrapList } from "$lib/api/http.js";
   import Comments from "$lib/components/Comments.svelte";
+  import { openAuditSidebar } from "$lib/stores/auditSidebar.svelte.js";
 
   export let open = false;
   export let task = null;
@@ -432,6 +433,14 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <button
+            class="p-2"
+            on:click={() => openAuditSidebar(task.id, "Task")}
+            aria-label="Historial de auditoría"
+            title="Historial de auditoría"
+          >
+            <span class="material-symbols-outlined">history</span>
+          </button>
           <button class="p-2" on:click={close} aria-label="Cerrar">
             <span class="material-symbols-outlined">close</span>
           </button>
