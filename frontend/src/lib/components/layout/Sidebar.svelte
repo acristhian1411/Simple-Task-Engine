@@ -19,7 +19,7 @@
       id: "boards",
       label: "Mis Tableros",
       icon: "view_kanban",
-      href: "/",
+      href: "/boards",
     },
     { id: "bugs", label: "Bugs", icon: "bug_report", href: "/bugs" },
     {

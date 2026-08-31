@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\SubtaskController;
 use App\Http\Controllers\Api\TaskDependencyController;
 use App\Http\Controllers\Api\ComponentController;
 use App\Http\Controllers\Api\ComponentDependencyController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\BugController;
 use App\Http\Controllers\Api\ExtentionTokenController;
 use App\Http\Controllers\Api\TestCaseController;
@@ -106,6 +107,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('test-steps', TestStepController::class);
     Route::apiResource('test-case-actors', TestCaseActorController::class);
 });
+
+// Dashboard
+Route::middleware('auth:sanctum')->get('dashboard', [DashboardController::class, 'index']);
 
 // Extra endpoints
 Route::middleware('auth:sanctum')->get('lists-with-tasks', [ListController::class, 'indexWithTasks']);
