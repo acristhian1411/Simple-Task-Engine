@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Task;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
 
 class TaskService
 {
@@ -38,8 +39,33 @@ class TaskService
 
     public function update(Task $task, array $data): Task
     {
+        if ($this->isDoneStatus($data['status'] ?? null) && !$this->isDoneStatus($task->status)) {
+            $this->assertCompletable($task);
+        }
+
         $task->update($data);
         return $task;
+    }
+
+    /**
+     * Rechaza la transición a "done" si existen dependencias pendientes.
+     */
+    public function assertCompletable(Task $task): void
+    {
+        $blockers = $this->blockedBy($task);
+
+        if ($blockers->isNotEmpty()) {
+            $names = $blockers->pluck('title')->implode('", "');
+
+            throw ValidationException::withMessages([
+                'status' => ["No se puede completar la tarea: depende de \"{$names}\"."],
+            ]);
+        }
+    }
+
+    protected function isDoneStatus(?string $status): bool
+    {
+        return $status !== null && strtolower(trim($status)) === 'done';
     }
 
     public function delete(Task $task): void
