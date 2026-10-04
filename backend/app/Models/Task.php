@@ -15,7 +15,15 @@ class Task extends Model implements Auditable
     use SoftDeletes;
     use \OwenIt\Auditing\Auditable;
 
-    protected $fillable = ["list_id", "title", "description", "status", "order"];
+    protected $fillable = [
+        "list_id",
+        "title",
+        "description",
+        "status",
+        "order",
+        "component_id",
+        "assigned_to",
+    ];
 
     public function list(): BelongsTo
     {
