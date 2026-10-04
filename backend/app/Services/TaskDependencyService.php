@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\TaskDependency;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
 
 class TaskDependencyService
 {
@@ -21,7 +22,47 @@ class TaskDependencyService
 
     public function create(array $data): TaskDependency
     {
+        $this->assertNoCycle((int) $data['task_id'], (int) $data['depends_on_task_id']);
+
         return TaskDependency::create($data);
+    }
+
+    /**
+     * Rechaza dependencias que generen un ciclo en el grafo de tareas.
+     * Al crear la arista `taskId -> dependsOnId`, se recorre el grafo desde
+     * `dependsOnId` siguiendo sus dependencias: si se alcanza `taskId`,
+     * agregar la arista cerraría un ciclo.
+     */
+    public function assertNoCycle(int $taskId, int $dependsOnId): void
+    {
+        if ($taskId === $dependsOnId) {
+            throw ValidationException::withMessages([
+                'depends_on_task_id' => ['Una tarea no puede depender de sí misma.'],
+            ]);
+        }
+
+        $adjacency = [];
+        foreach (TaskDependency::select('task_id', 'depends_on_task_id')->get() as $dep) {
+            $adjacency[$dep->task_id][] = $dep->depends_on_task_id;
+        }
+
+        $visited = [$dependsOnId => true];
+        $stack = [$dependsOnId];
+
+        while (!empty($stack)) {
+            $current = array_pop($stack);
+            foreach ($adjacency[$current] ?? [] as $next) {
+                if ($next === $taskId) {
+                    throw ValidationException::withMessages([
+                        'depends_on_task_id' => ['La dependencia generaría un ciclo en el grafo de tareas.'],
+                    ]);
+                }
+                if (!isset($visited[$next])) {
+                    $visited[$next] = true;
+                    $stack[] = $next;
+                }
+            }
+        }
     }
 
     public function findOrFail(int $id): TaskDependency
