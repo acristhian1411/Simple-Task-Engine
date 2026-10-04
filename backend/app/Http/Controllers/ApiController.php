@@ -23,6 +23,15 @@ class ApiController extends Controller
      */
     protected function respondException(\Throwable $e, int $code = 500)
     {
+        // Errores de validación de dominio (ej. dependencias circulares o tareas bloqueadas)
+        if ($e instanceof \Illuminate\Validation\ValidationException) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'code' => 422,
+                'errors' => $e->errors(),
+            ], 422);
+        }
+
         $message = $e->getMessage();
 
         // If it's a model not found exception, return 404
