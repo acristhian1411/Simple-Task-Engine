@@ -25,13 +25,13 @@
       "p-4 flex items-center justify-between border-b backdrop-blur-sm rounded-t-xl sticky top-0 z-10";
     const statusClasses = {
       default:
-        "border-slate-200 dark:border-border-dark/50 bg-white/60 dark:bg-surface-dark",
+        "border-slate-200 dark:border-border-dark/50 bg-slate-100 dark:bg-surface-dark",
       active:
-        "border-slate-200 dark:border-border-dark/50 bg-white/60 dark:bg-surface-dark ring-1 ring-primary/20 dark:ring-primary/10",
+        "border-slate-200 dark:border-border-dark/50 bg-slate-100 dark:bg-surface-dark ring-1 ring-primary/20 dark:ring-primary/10",
       blocked:
         "border-red-100 dark:border-red-900/20 bg-red-50 dark:bg-red-950/5",
       completed:
-        "border-slate-200 dark:border-border-dark/50 bg-white/60 dark:bg-surface-dark",
+        "border-slate-200 dark:border-border-dark/50 bg-slate-100 dark:bg-surface-dark",
     };
     return `${base} ${statusClasses[status]}`;
   }
@@ -40,7 +40,7 @@
     const base = "w-80 shrink-0 flex flex-col h-full rounded-xl shadow-sm";
     const statusClasses = {
       default:
-        "bg-slate-50 dark:bg-surface-dark border border-slate-200 dark:border-border-dark/50",
+        "bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark/50",
       active:
         "bg-slate-100 dark:bg-surface-dark border-t-4 border-t-primary border-x border-b border-x-slate-200 dark:border-x-border-dark/50 border-b-slate-200 dark:border-b-border-dark/50",
       blocked:
