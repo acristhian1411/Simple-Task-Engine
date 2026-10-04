@@ -1,3 +1,4 @@
+name: trello
 services:
   db:
     image: postgres:16
@@ -9,11 +10,15 @@ services:
     ports:
       - "45432:5432"
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - postgres_trello_data:/var/lib/postgresql/data
       - ./conf:/etc/postgresql
     restart: unless-stopped
     networks:
       - trello_net
+
+volumes:
+  postgres_trello_data:
+
 networks:
   trello_net:
     external: true

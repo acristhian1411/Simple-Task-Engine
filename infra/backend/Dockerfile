@@ -18,7 +18,12 @@ RUN apk add --no-cache \
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Entrypoint que alinea storage/bootstrap-cache al UID/GID del host y ajusta el pool de php-fpm
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 WORKDIR /var/www/html
 
 EXPOSE 9000
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]
