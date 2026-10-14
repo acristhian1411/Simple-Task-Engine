@@ -74,6 +74,7 @@ services:
 
 networks:
   trello_net:
-    driver: bridge
+    name: trello_net
+    external: true
   app_net:
     driver: bridge

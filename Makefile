@@ -5,7 +5,7 @@ NGINX_SERVICE = back-nginx
 FRONT_DEV     = front-dev
 FRONT_PROD    = front-prod
 
-.PHONY: build up down restart logs ps shell composer artisan migrate migrate-fresh front-shell front-install front-build nginx-logs
+.PHONY: build up down restart logs ps shell composer artisan migrate migrate-fresh import-use-cases front-shell front-install front-build nginx-logs
 
 build:
 	$(COMPOSE) build
@@ -41,6 +41,12 @@ migrate:
 
 migrate-fresh:
 	$(COMPOSE) exec --user "$$(id -u):$$(id -g)" $(BACK_SERVICE) php artisan migrate:fresh --force
+
+import-use-cases:
+	@test -f "$(SQLITE_FILE)" || { echo "Set SQLITE_FILE to a readable SQLite database file"; exit 1; }
+	$(COMPOSE) run --rm --no-deps --entrypoint php --user "$$(id -u):$$(id -g)" \
+		--volume "$(abspath $(SQLITE_FILE)):/tmp/use_cases.sqlite:ro" \
+		$(BACK_SERVICE) artisan use-cases:import /tmp/use_cases.sqlite $(if $(DRY_RUN),--dry-run,)
 
 front-shell:
 	$(COMPOSE) exec $(FRONT_DEV) sh

@@ -43,6 +43,16 @@ return [
             'transaction_mode' => 'DEFERRED',
         ],
 
+        'use_cases_import' => [
+            'driver' => 'sqlite',
+            'database' => env('USE_CASES_SQLITE_PATH', database_path('use_cases.sqlite')),
+            'prefix' => '',
+            'foreign_key_constraints' => false,
+            'options' => extension_loaded('pdo_sqlite') ? [
+                PDO::SQLITE_ATTR_OPEN_FLAGS => PDO::SQLITE_OPEN_READONLY,
+            ] : [],
+        ],
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),

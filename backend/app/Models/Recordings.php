@@ -24,6 +24,7 @@ class Recordings extends Model implements Auditable
         'recordable_id',
         'recorded_by_id',
         'finished_at',
+        'canceled_at',
     ];
 
     public function recordable(): MorphTo

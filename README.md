@@ -134,6 +134,7 @@ forma parte de este `docker-compose.yml`.
 | `make artisan CMD="make:model Bug -m"`       | Corre un comando de `php artisan` dentro de `back-task`                            |
 | `make migrate`                               | Corre `php artisan migrate --force`                                                |
 | `make migrate-fresh`                         | Corre `php artisan migrate:fresh --force` (borra y recrea todo — usar con cuidado) |
+| `make import-use-cases SQLITE_FILE=...`      | Importa datos estructurados desde un archivo SQLite de use_cases                   |
 | `make init`                                  | Corre el servicio `backend-init` (composer install + permisos)                     |
 | `make front-shell`                           | Abre una shell dentro del contenedor `front-dev`                                   |
 | `make front-install`                         | Corre `pnpm install` dentro de `front-dev`                                         |
@@ -151,6 +152,19 @@ make composer CMD="require spatie/laravel-activitylog"
 # Ver el estado de los contenedores
 make ps
 ```
+
+### Importar Use Cases
+
+Después de reconstruir la imagen y correr `make migrate`, el archivo SQLite puede importarse sin copiarlo al contenedor:
+
+```bash
+make build
+make migrate
+make import-use-cases SQLITE_FILE=../use_cases/sqlite.db DRY_RUN=1
+make import-use-cases SQLITE_FILE=../use_cases/sqlite.db
+```
+
+El modo `DRY_RUN=1` valida y revierte la transacción. La importación conserva IDs de origen mediante una tabla de correspondencias y puede repetirse con el mismo `source-key`. Migra tablas, comentarios, auditorías y metadatos de grabaciones; no copia videos ni logs. Las auditorías que apunten a casos o bugs ya eliminados se omiten y se reportan por ID. Los tokens de extensión importados quedan revocados y las contraseñas de usuarios migrados deben asignarse/restablecerse administrativamente.
 
 ## Migraciones
 
