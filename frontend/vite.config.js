@@ -6,5 +6,8 @@ export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	ssr: {
 		noExternal: ['@xyflow/svelte', '@xyflow/system']
+	},
+	server: {
+		allowedHosts: ['tareas.daemon-lab.duckdns.org']
 	}
 });
