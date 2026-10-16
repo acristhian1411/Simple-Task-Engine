@@ -17,7 +17,10 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://tareas.daemon-lab.duckdns.org'],
+    'allowed_origins' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', env('CORS_ALLOWED_ORIGINS', 'https://tareas.daemon-lab.duckdns.org')),
+    ))),
 
     'allowed_origins_patterns' => [],
 

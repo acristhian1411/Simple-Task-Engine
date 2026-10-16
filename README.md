@@ -62,8 +62,8 @@ Identidad (users, extension_tokens)
 | Servicio       | Descripción                                                                 | Puerto  |
 | -------------- | --------------------------------------------------------------------------- | ------- |
 | `back-task`    | PHP-FPM con la app Laravel                                                  | interno |
-| `back-nginx`   | Nginx sirviendo la API                                                      | `18080` |
-| `front-dev`    | SvelteKit en modo desarrollo (Vite)                                         | `5173`  |
+| `back-nginx`   | Nginx sirviendo la API                                                      | `18081` |
+| `front-dev`    | SvelteKit en modo desarrollo (Vite)                                         | `5174`  |
 | `front-prod`   | SvelteKit compilado para producción                                         | `4173`  |
 | `backend-init` | Job de una sola corrida: instala dependencias de Composer y ajusta permisos | —       |
 
@@ -115,8 +115,9 @@ forma parte de este `docker-compose.yml`.
    make migrate
    ```
 
-7. La API queda disponible en `http://localhost:18080/api` y el frontend
-   de desarrollo en `http://localhost:5173`.
+7. La API queda disponible en `http://localhost:18081/api` y el frontend
+   de desarrollo en `http://localhost:5174`. El frontend compilado queda en
+   `http://localhost:4173`.
 
 ## Uso del Makefile
 

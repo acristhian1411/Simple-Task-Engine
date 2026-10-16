@@ -8,6 +8,6 @@ export default defineConfig({
 		noExternal: ['@xyflow/svelte', '@xyflow/system']
 	},
 	server: {
-		allowedHosts: ['tareas.daemon-lab.duckdns.org']
+		allowedHosts: ['tareas.daemon-lab.duckdns.org', 'localhost']
 	}
 });
