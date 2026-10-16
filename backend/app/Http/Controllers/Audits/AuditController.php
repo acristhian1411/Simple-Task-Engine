@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Audits;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
-use App\Http\Services\Audits\AuditService;
+use App\Services\Audits\AuditService;
 class AuditController extends ApiController
 {
     protected AuditService $auditService;

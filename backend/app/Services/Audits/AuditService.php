@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Services\Audits;
+namespace App\Services\Audits;
 use App\Models\Audit;
 use Illuminate\Database\Eloquent\Collection;
 class AuditService
