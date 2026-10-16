@@ -39,8 +39,9 @@
   $: selectedTask =
     selectedTaskId == null
       ? null
-      : lists.flatMap((l) => l.tasks || []).find((t) => t.id === selectedTaskId) ||
-        null;
+      : lists
+          .flatMap((l) => l.tasks || [])
+          .find((t) => t.id === selectedTaskId) || null;
 
   async function loadBoard() {
     const me = await refreshMe();
@@ -190,7 +191,8 @@
             {board?.title || "Tablero"}
           </h2>
           <p class="text-slate-300 text-sm mt-1 max-w-xl">
-            {board?.description || "Gestioná tus tareas en este tablero Kanban."}
+            {board?.description ||
+              "Gestioná tus tareas en este tablero Kanban."}
           </p>
         </div>
       </div>
@@ -228,7 +230,7 @@
               placeholder="Introduce el nombre de la lista..."
               bind:value={newListTitle}
               on:keydown={(e) => e.key === "Enter" && submitAddList()}
-              class="w-full px-3 py-2 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              class="w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
             />
             {#if addListError}
               <p class="mt-2 text-xs text-red-500">{addListError}</p>
@@ -312,7 +314,7 @@
                 placeholder="Introduce el nombre de la lista..."
                 bind:value={newListTitle}
                 on:keydown={(e) => e.key === "Enter" && submitAddList()}
-                class="w-full px-3 py-2 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                class="w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
               />
               {#if addListError}
                 <p class="mt-2 text-xs text-red-500">{addListError}</p>
@@ -393,7 +395,7 @@
           >
           <select
             bind:value={taskListId}
-            class="mt-1 w-full px-3 py-2 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            class="mt-1 w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
           >
             {#each lists as list (list.id)}
               <option value={list.id}>{list.title}</option>
@@ -410,7 +412,7 @@
             placeholder="Título de la tarjeta"
             bind:value={newTaskTitle}
             on:keydown={(e) => e.key === "Enter" && submitAddTask()}
-            class="mt-1 w-full px-3 py-2 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            class="mt-1 w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
         <div>
@@ -422,7 +424,7 @@
             placeholder="Descripción (opcional)"
             bind:value={newTaskDescription}
             rows="3"
-            class="mt-1 w-full px-3 py-2 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+            class="mt-1 w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
           ></textarea>
         </div>
         {#if addTaskError}

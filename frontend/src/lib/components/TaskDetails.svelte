@@ -78,8 +78,7 @@
     const q = depSearch.trim().toLowerCase();
     if (!q) return true;
     return (
-      (t.title || "").toLowerCase().includes(q) ||
-      String(t.id).includes(q)
+      (t.title || "").toLowerCase().includes(q) || String(t.id).includes(q)
     );
   });
 
@@ -87,7 +86,6 @@
   $: depSelectedTask = dependencyTaskId
     ? allTasks.find((x) => String(x.id) === String(dependencyTaskId)) || null
     : null;
-
 
   $: if (open && task && task.id !== loadedTaskId) {
     loadedTaskId = task.id;
@@ -310,7 +308,9 @@
   }
 
   function depTargetTitle(dep) {
-    const t = allTasks.find((x) => String(x.id) === String(dep.depends_on_task_id));
+    const t = allTasks.find(
+      (x) => String(x.id) === String(dep.depends_on_task_id),
+    );
     return t ? t.title : `Tarea #${dep.depends_on_task_id}`;
   }
 
@@ -466,7 +466,7 @@
                   type="text"
                   bind:value={titleDraft}
                   on:keydown={(e) => e.key === "Enter" && saveTitle()}
-                  class="w-full px-3 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  class="w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <div class="flex gap-2">
                   <button
@@ -495,7 +495,8 @@
                   on:click={startEditTitle}
                   aria-label="Editar título"
                 >
-                  <span class="material-symbols-outlined text-[18px]">edit</span>
+                  <span class="material-symbols-outlined text-[18px]">edit</span
+                  >
                 </button>
               </div>
             {/if}
@@ -516,7 +517,7 @@
                   <textarea
                     bind:value={descDraft}
                     rows="4"
-                    class="w-full px-3 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                    class="w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
                   ></textarea>
                   <div class="flex gap-2">
                     <button
@@ -623,7 +624,7 @@
                     placeholder="Nombre de la subtarea"
                     bind:value={newSubtaskTitle}
                     on:keydown={(e) => e.key === "Enter" && submitSubtask()}
-                    class="w-full px-3 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    class="w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   {#if subtaskError}
                     <p class="text-xs text-red-500">{subtaskError}</p>
@@ -702,9 +703,7 @@
                   </div>
                 {/each}
               {:else}
-                <div class="text-sm text-gray-500 italic">
-                  Sin dependencias
-                </div>
+                <div class="text-sm text-gray-500 italic">Sin dependencias</div>
               {/if}
 
               <div class="flex flex-col gap-2 pt-1">
@@ -741,7 +740,7 @@
                             on:blur={onDepSearchBlur}
                             on:keydown={onDepSearchKeydown}
                             placeholder="Buscar tarea por título o #id..."
-                            class="w-full px-3 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                            class="w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                           />
                           {#if showDepResults}
                             <div
@@ -765,7 +764,9 @@
                                   </button>
                                 {/each}
                               {:else}
-                                <div class="px-3 py-2 text-sm text-gray-500 italic">
+                                <div
+                                  class="px-3 py-2 text-sm text-gray-500 italic"
+                                >
                                   Sin resultados
                                 </div>
                               {/if}
@@ -839,7 +840,7 @@
               <div class="flex items-center gap-2 pt-1">
                 <select
                   bind:value={selectedComponentId}
-                  class="flex-1 px-3 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  class="flex-1 px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                   <option value="">Seleccionar componente...</option>
                   {#each componentsOptions as c (c.id)}
@@ -865,14 +866,13 @@
             <h2
               class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
             >
-              <span class="material-symbols-outlined text-gray-400">bug_report</span
+              <span class="material-symbols-outlined text-gray-400"
+                >bug_report</span
               >Bugs
             </h2>
             <div class="mt-3 space-y-2">
               {#if loadingDetails}
-                <div class="text-sm text-gray-500 italic">
-                  Cargando bugs...
-                </div>
+                <div class="text-sm text-gray-500 italic">Cargando bugs...</div>
               {:else if taskBugs.length}
                 {#each taskBugs as bug (bug.id)}
                   <div
@@ -887,8 +887,9 @@
                         >
                       </span>
                       <div class="min-w-0">
-                        <p class="text-sm font-medium truncate"
-                          >{bug.title || `Bug #${bug.id}`}</p>
+                        <p class="text-sm font-medium truncate">
+                          {bug.title || `Bug #${bug.id}`}
+                        </p>
                         <p class="text-xs text-gray-500">
                           {bugRelationLabel(bug.pivot?.relation_type)}
                           {#if bug.severity}· {bug.severity}{/if}
@@ -915,7 +916,7 @@
                 <div class="flex items-center gap-2">
                   <select
                     bind:value={selectedBugId}
-                    class="flex-1 px-3 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    class="flex-1 px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   >
                     <option value="">Seleccionar bug...</option>
                     {#each bugsOptions as b (b.id)}
@@ -927,7 +928,7 @@
                   </select>
                   <select
                     bind:value={bugRelation}
-                    class="px-3 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    class="px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   >
                     <option value="related">Relacionado</option>
                     <option value="fixes">Corrige</option>
