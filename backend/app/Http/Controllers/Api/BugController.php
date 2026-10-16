@@ -12,7 +12,9 @@ use Illuminate\Http\Request;
 
 class BugController extends ApiController
 {
-    public function __construct(private BugService $service) {}
+    public function __construct(private BugService $service)
+    {
+    }
 
     public function index(Request $request)
     {
@@ -22,6 +24,7 @@ class BugController extends ApiController
                 'test_step_id' => $request->query('test_step_id'),
                 'status' => $request->query('status'),
                 'severity' => $request->query('severity'),
+                'component_id' => $request->query('component_id'),
                 'search' => $request->query('search'),
             ]);
             return $this->showAll($data);

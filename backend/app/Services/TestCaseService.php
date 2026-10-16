@@ -22,7 +22,10 @@ class TestCaseService
             $s = $filters['search'];
             $query->where(function ($q) use ($s) {
                 $q->where('title', 'ILIKE', "%$s%")
-                    ->orWhere('description', 'ILIKE', "%$s%");
+                    ->orWhere('description', 'ILIKE', "%$s%")
+                    ->orWhereHas('component', function ($componentQuery) use ($s) {
+                        $componentQuery->where('name', 'ILIKE', "%$s%");
+                    });
             });
         }
         return $query->latest()->get();
@@ -41,7 +44,10 @@ class TestCaseService
             $s = $filters['search'];
             $query->where(function ($q) use ($s) {
                 $q->where('title', 'ILIKE', "%$s%")
-                    ->orWhere('description', 'ILIKE', "%$s%");
+                    ->orWhere('description', 'ILIKE', "%$s%")
+                    ->orWhereHas('component', function ($componentQuery) use ($s) {
+                        $componentQuery->where('name', 'ILIKE', "%$s%");
+                    });
             });
         }
         return $query->latest()->get();
@@ -70,9 +76,11 @@ class TestCaseService
 
     public function listWithSteps(array $filters = []): Collection
     {
-        $query = TestCases::with(['testSteps' => function ($q) {
-            $q->orderBy('step_number');
-        }]);
+        $query = TestCases::with([
+            'testSteps' => function ($q) {
+                $q->orderBy('step_number');
+            }
+        ]);
         if (isset($filters['component_id'])) {
             $query->where('component_id', $filters['component_id']);
         }

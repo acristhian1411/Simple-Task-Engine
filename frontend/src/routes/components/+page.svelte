@@ -1,45 +1,80 @@
 <script>
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import { Plus, Search, Network, BarChart3, Folder, Pencil, Trash2, Eye } from "lucide-svelte";
+  import {
+    Plus,
+    Search,
+    Network,
+    BarChart3,
+    Folder,
+    Pencil,
+    Trash2,
+    Eye,
+  } from "lucide-svelte";
   import { refreshMe } from "$lib/stores/auth.js";
-  import { getComponents, deleteComponent } from "$lib/api/components.js";
+  import {
+    getAllComponents,
+    getComponents,
+    deleteComponent,
+  } from "$lib/api/components.js";
+  import Pagination from "$lib/components/ui/Pagination.svelte";
 
   let components = $state([]);
+  let allComponents = $state([]);
   let loading = $state(true);
   let error = $state("");
+  let pagination = $state({
+    current_page: 1,
+    last_page: 1,
+    per_page: 10,
+    total: 0,
+  });
 
   let filters = $state({ name: "", type: "", parent_id: "", criticality: "" });
+  let appliedFilters = $state({
+    name: "",
+    type: "",
+    parent_id: "",
+    criticality: "",
+  });
 
   let knownTypes = $derived(
-    Array.from(new Set(components.map((c) => c.type).filter(Boolean))).sort(),
+    Array.from(
+      new Set(allComponents.map((c) => c.type).filter(Boolean)),
+    ).sort(),
   );
 
-  let filtered = $derived(
-    components.filter((c) => {
-      const matchesName = !filters.name || c.name.toLowerCase().includes(filters.name.toLowerCase());
-      const matchesType = !filters.type || c.type === filters.type;
-      const matchesParent =
-        filters.parent_id === "" || String(c.parent_id) === String(filters.parent_id);
-      const matchesCritical =
-        filters.criticality === "" ||
-        (filters.criticality === "critical"
-          ? (c.critical_dependency_count ?? 0) > 0
-          : (c.critical_dependency_count ?? 0) === 0);
-      return matchesName && matchesType && matchesParent && matchesCritical;
-    }),
-  );
-
-  async function load() {
+  async function load(page = 1, recoverEmptyPage = true) {
     loading = true;
     error = "";
     try {
-      const me = await refreshMe();
-      if (!me) return goto("/login");
-      const res = await getComponents({ per_page: 100 });
-      components = res?.data ?? res ?? [];
+      const response = await getComponents({
+        page,
+        per_page: pagination.per_page,
+        search: appliedFilters.name.trim() || undefined,
+        type: appliedFilters.type || undefined,
+        parent_id: appliedFilters.parent_id || undefined,
+        criticality: appliedFilters.criticality || undefined,
+      });
+      const rows = response?.data ?? response ?? [];
+
+      if (rows.length === 0 && page > 1 && recoverEmptyPage) {
+        const previousPage = response?.last_page
+          ? Math.min(page - 1, response.last_page)
+          : page - 1;
+        return await load(Math.max(1, previousPage), false);
+      }
+
+      components = rows;
+      pagination = {
+        current_page: Number(response?.current_page ?? page),
+        last_page: Number(response?.last_page ?? 1),
+        per_page: Number(response?.per_page ?? pagination.per_page),
+        total: Number(response?.total ?? rows.length),
+      };
     } catch (e) {
-      error = e?.response?.data?.error ?? e?.message ?? "Error cargando componentes";
+      error =
+        e?.response?.data?.error ?? e?.message ?? "Error cargando componentes";
     } finally {
       loading = false;
     }
@@ -49,23 +84,39 @@
     if (!confirm(`¿Eliminar el componente "${component.name}"?`)) return;
     try {
       await deleteComponent(component.id);
-      components = components.filter((c) => c.id !== component.id);
+      await load(pagination.current_page);
     } catch (e) {
       alert(e?.response?.data?.error ?? e?.message ?? "Error al eliminar");
     }
   }
 
   function applyFilters() {
-    // filters are reactive via $derived; this is a no-op to keep the button semantic
+    appliedFilters = { ...filters };
+    load(1);
   }
 
-  onMount(load);
+  onMount(async () => {
+    try {
+      const me = await refreshMe();
+      if (!me) return goto("/login");
+      allComponents = await getAllComponents();
+      await load(1);
+    } catch (e) {
+      error =
+        e?.response?.data?.error ?? e?.message ?? "Error cargando componentes";
+      loading = false;
+    }
+  });
 </script>
 
 <div class="p-6 space-y-6">
   <div class="flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-text-main-light dark:text-text-main-dark">Componentes</h1>
+      <h1
+        class="text-2xl font-bold text-text-main-light dark:text-text-main-dark"
+      >
+        Componentes
+      </h1>
       <p class="text-text-sec-light dark:text-text-sec-dark text-sm mt-1">
         Gestioná los componentes del sistema, sus dependencias y test cases
       </p>
@@ -95,9 +146,11 @@
     </div>
   </div>
 
-  <div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-4">
+  <div
+    class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-4"
+  >
     <div class="flex flex-wrap items-center gap-3">
-      <div class="relative flex-1 min-w-[200px]">
+      <div class="relative flex-1 min-w-50">
         <Search
           size={18}
           class="absolute left-3 top-1/2 -translate-y-1/2 text-text-sec-light dark:text-text-sec-dark pointer-events-none"
@@ -127,22 +180,36 @@
         bind:value={filters.parent_id}
         class="form-input w-32"
       />
-      <button type="button" onclick={applyFilters} class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">
+      <button
+        type="button"
+        onclick={applyFilters}
+        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+      >
         Buscar
       </button>
     </div>
   </div>
 
   {#if loading}
-    <p class="text-sm text-text-sec-light dark:text-text-sec-dark">Cargando componentes...</p>
+    <p class="text-sm text-text-sec-light dark:text-text-sec-dark">
+      Cargando componentes...
+    </p>
   {:else if error}
-    <div class="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">{error}</div>
+    <div
+      class="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200"
+    >
+      {error}
+    </div>
   {:else}
-    <div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden">
+    <div
+      class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl overflow-hidden"
+    >
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="text-left text-text-sec-light dark:text-text-sec-dark border-b border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-900/50">
+            <tr
+              class="text-left text-text-sec-light dark:text-text-sec-dark border-b border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-900/50"
+            >
               <th class="px-4 py-3 font-medium">ID</th>
               <th class="px-4 py-3 font-medium">Nombre</th>
               <th class="px-4 py-3 font-medium">Tipo</th>
@@ -154,30 +221,52 @@
             </tr>
           </thead>
           <tbody>
-            {#each filtered as component}
-              <tr class="border-b border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                <td class="px-4 py-3 text-text-sec-light dark:text-text-sec-dark">{component.id}</td>
+            {#each components as component}
+              <tr
+                class="border-b border-border-light dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+              >
+                <td
+                  class="px-4 py-3 text-text-sec-light dark:text-text-sec-dark"
+                  >{component.id}</td
+                >
                 <td class="px-4 py-3">
-                  <a href="/components/{component.id}" class="flex items-center gap-2 font-semibold text-text-main-light dark:text-text-main-dark hover:text-indigo-500 group">
+                  <a
+                    href="/components/{component.id}"
+                    class="flex items-center gap-2 font-semibold text-text-main-light dark:text-text-main-dark hover:text-indigo-500 group"
+                  >
                     <Folder size={16} class="text-indigo-500" />
                     <span class="group-hover:underline">{component.name}</span>
                   </a>
                 </td>
                 <td class="px-4 py-3">
-                  <span class="status-badge status-todo">{component.type || "—"}</span>
+                  <span class="status-badge status-todo"
+                    >{component.type || "—"}</span
+                  >
                 </td>
-                <td class="px-4 py-3 text-text-sec-light dark:text-text-sec-dark">
+                <td
+                  class="px-4 py-3 text-text-sec-light dark:text-text-sec-dark"
+                >
                   {component.parent_name || "-"}
                 </td>
-                <td class="px-4 py-3 text-center text-text-main-light dark:text-text-main-dark">{component.dependency_count ?? 0}</td>
+                <td
+                  class="px-4 py-3 text-center text-text-main-light dark:text-text-main-dark"
+                  >{component.dependency_count ?? 0}</td
+                >
                 <td class="px-4 py-3 text-center">
                   {#if (component.critical_dependency_count ?? 0) > 0}
-                    <span class="status-badge status-blocked">{component.critical_dependency_count}</span>
+                    <span class="status-badge status-blocked"
+                      >{component.critical_dependency_count}</span
+                    >
                   {:else}
-                    <span class="text-text-sec-light dark:text-text-sec-dark">0</span>
+                    <span class="text-text-sec-light dark:text-text-sec-dark"
+                      >0</span
+                    >
                   {/if}
                 </td>
-                <td class="px-4 py-3 text-center text-text-sec-light dark:text-text-sec-dark">{component.test_cases_count ?? 0}</td>
+                <td
+                  class="px-4 py-3 text-center text-text-sec-light dark:text-text-sec-dark"
+                  >{component.test_cases_count ?? 0}</td
+                >
                 <td class="px-4 py-3">
                   <div class="flex items-center justify-end gap-1">
                     <a
@@ -201,11 +290,23 @@
             {:else}
               <tr>
                 <td colspan="8" class="px-4 py-12 text-center">
-                  <div class="flex flex-col items-center justify-center text-center">
-                    <Folder size={28} class="text-text-sec-light dark:text-text-sec-dark mb-3" />
-                    <p class="text-text-main-light dark:text-text-main-dark font-medium">No hay componentes</p>
-                    <p class="text-sm text-text-sec-light dark:text-text-sec-dark mt-1">
-                      Empezá creando tu primer componente para organizar tus test cases.
+                  <div
+                    class="flex flex-col items-center justify-center text-center"
+                  >
+                    <Folder
+                      size={28}
+                      class="text-text-sec-light dark:text-text-sec-dark mb-3"
+                    />
+                    <p
+                      class="text-text-main-light dark:text-text-main-dark font-medium"
+                    >
+                      No hay componentes
+                    </p>
+                    <p
+                      class="text-sm text-text-sec-light dark:text-text-sec-dark mt-1"
+                    >
+                      Empezá creando tu primer componente para organizar tus
+                      test cases.
                     </p>
                   </div>
                 </td>
@@ -215,5 +316,16 @@
         </table>
       </div>
     </div>
+    <Pagination
+      currentPage={pagination.current_page}
+      lastPage={pagination.last_page}
+      perPage={pagination.per_page}
+      total={pagination.total}
+      onPageChange={(page) => load(page)}
+      onPerPageChange={(perPage) => {
+        pagination = { ...pagination, per_page: perPage };
+        load(1);
+      }}
+    />
   {/if}
 </div>

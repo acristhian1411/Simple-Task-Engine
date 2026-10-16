@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 
 class ComponentController extends ApiController
 {
-    public function __construct(private ComponentService $service) {}
+    public function __construct(private ComponentService $service)
+    {
+    }
 
     public function index(Request $request)
     {
@@ -19,6 +21,7 @@ class ComponentController extends ApiController
             $data = $this->service->listWithRelations([
                 'type' => $request->query('type'),
                 'parent_id' => $request->query('parent_id'),
+                'criticality' => $request->query('criticality'),
                 'search' => $request->query('search'),
             ]);
             return $this->showAll($data);

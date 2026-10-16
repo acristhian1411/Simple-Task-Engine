@@ -4,17 +4,25 @@
   import { Bug, Plus, Search } from "lucide-svelte";
   import { refreshMe } from "$lib/stores/auth.js";
   import { getBugs } from "$lib/api/bugs.js";
-  import { getComponents } from "$lib/api/components.js";
+  import { getAllComponents } from "$lib/api/components.js";
+  import Pagination from "$lib/components/ui/Pagination.svelte";
 
   let bugs = $state([]);
   let components = $state([]);
   let loading = $state(true);
   let error = $state("");
+  let pagination = $state({
+    current_page: 1,
+    last_page: 1,
+    per_page: 10,
+    total: 0,
+  });
 
   let searchTerm = $state("");
   let selectedStatus = $state("all");
   let selectedSeverity = $state("all");
   let selectedComponent = $state("all");
+  let searchTimer;
 
   const statusMap = {
     open: { label: "Abierto", cls: "status-todo" },
@@ -30,38 +38,35 @@
     critical: { label: "Crítica", cls: "bg-red-500/10 text-red-300" },
   };
 
-  let filteredBugs = $derived(
-    bugs.filter((bug) => {
-      const matchesSearch =
-        bug.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (bug.description || "")
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
-      const matchesStatus =
-        selectedStatus === "all" || bug.status === selectedStatus;
-      const matchesSeverity =
-        selectedSeverity === "all" || bug.severity === selectedSeverity;
-      const bugComponentName =
-        bug.test_case?.component?.name ?? bug.component_name ?? "";
-      const matchesComponent =
-        selectedComponent === "all" ||
-        bugComponentName === selectedComponent;
-      return matchesSearch && matchesStatus && matchesSeverity && matchesComponent;
-    }),
-  );
-
-  async function load() {
+  async function load(page = 1, recoverEmptyPage = true) {
     loading = true;
     error = "";
     try {
-      const me = await refreshMe();
-      if (!me) return goto("/login");
-      const [bugsRes, compRes] = await Promise.all([
-        getBugs(),
-        getComponents({ per_page: 100 }),
-      ]);
-      bugs = bugsRes?.data ?? bugsRes ?? [];
-      components = compRes?.data ?? compRes ?? [];
+      const response = await getBugs({
+        page,
+        per_page: pagination.per_page,
+        search: searchTerm.trim() || undefined,
+        status: selectedStatus === "all" ? undefined : selectedStatus,
+        severity: selectedSeverity === "all" ? undefined : selectedSeverity,
+        component_id:
+          selectedComponent === "all" ? undefined : selectedComponent,
+      });
+      const rows = response?.data ?? response ?? [];
+
+      if (rows.length === 0 && page > 1 && recoverEmptyPage) {
+        const previousPage = response?.last_page
+          ? Math.min(page - 1, response.last_page)
+          : page - 1;
+        return await load(Math.max(1, previousPage), false);
+      }
+
+      bugs = rows;
+      pagination = {
+        current_page: Number(response?.current_page ?? page),
+        last_page: Number(response?.last_page ?? 1),
+        per_page: Number(response?.per_page ?? pagination.per_page),
+        total: Number(response?.total ?? rows.length),
+      };
     } catch (e) {
       error = e?.response?.data?.error ?? e?.message ?? "Error cargando bugs";
     } finally {
@@ -69,24 +74,42 @@
     }
   }
 
+  function scheduleSearch() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => load(1), 300);
+  }
+
   async function handleDelete(bug) {
     if (!confirm(`¿Eliminar el bug "${bug.title}"?`)) return;
     try {
       const { deleteBug } = await import("$lib/api/bugs.js");
       await deleteBug(bug.id);
-      bugs = bugs.filter((b) => b.id !== bug.id);
+      await load(pagination.current_page);
     } catch (e) {
       alert(e?.response?.data?.error ?? e?.message ?? "Error al eliminar");
     }
   }
 
-  onMount(load);
+  onMount(async () => {
+    try {
+      const me = await refreshMe();
+      if (!me) return goto("/login");
+      components = await getAllComponents();
+      await load(1);
+    } catch (e) {
+      error =
+        e?.response?.data?.error ?? e?.message ?? "Error cargando componentes";
+      loading = false;
+    }
+  });
 </script>
 
 <div class="p-6 space-y-6">
   <div class="flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-text-main-light dark:text-text-main-dark">
+      <h1
+        class="text-2xl font-bold text-text-main-light dark:text-text-main-dark"
+      >
         Bugs
       </h1>
       <p class="text-text-sec-light dark:text-text-sec-dark text-sm mt-1">
@@ -111,6 +134,7 @@
       <input
         type="text"
         bind:value={searchTerm}
+        oninput={scheduleSearch}
         placeholder="Buscar bugs..."
         class="search-input"
         style="padding-left: 2.5rem"
@@ -118,44 +142,57 @@
     </div>
     <select
       bind:value={selectedStatus}
+      onchange={() => load(1)}
       class="form-input"
     >
       <option value="all">Todos los estados</option>
       {#each Object.entries(statusMap) as [value, meta]}
-        <option value={value}>{meta.label}</option>
+        <option {value}>{meta.label}</option>
       {/each}
     </select>
     <select
       bind:value={selectedSeverity}
+      onchange={() => load(1)}
       class="form-input"
     >
       <option value="all">Todas las severidades</option>
       {#each Object.entries(severityMap) as [value, meta]}
-        <option value={value}>{meta.label}</option>
+        <option {value}>{meta.label}</option>
       {/each}
     </select>
     <select
       bind:value={selectedComponent}
+      onchange={() => load(1)}
       class="form-input"
     >
       <option value="all">Todos los componentes</option>
       {#each components as component}
-        <option value={component.name}>{component.name}</option>
+        <option value={component.id}>{component.name}</option>
       {/each}
     </select>
   </div>
 
   {#if loading}
-    <div class="text-sm text-text-sec-light dark:text-text-sec-dark">Cargando bugs...</div>
+    <div class="text-sm text-text-sec-light dark:text-text-sec-dark">
+      Cargando bugs...
+    </div>
   {:else if error}
-    <div class="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+    <div
+      class="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200"
+    >
       {error}
     </div>
   {:else}
     <div class="grid gap-3">
-      {#each filteredBugs as bug}
-        {@const sm = statusMap[bug.status] ?? { label: bug.status, cls: "status-todo" }}
-        {@const vm = severityMap[bug.severity] ?? { label: bug.severity, cls: "bg-slate-500/10 text-slate-300" }}
+      {#each bugs as bug}
+        {@const sm = statusMap[bug.status] ?? {
+          label: bug.status,
+          cls: "status-todo",
+        }}
+        {@const vm = severityMap[bug.severity] ?? {
+          label: bug.severity,
+          cls: "bg-slate-500/10 text-slate-300",
+        }}
         <div
           class="p-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl space-y-3"
         >
@@ -163,9 +200,15 @@
             <div class="space-y-1">
               <div class="flex items-center gap-2">
                 <Bug size={16} class="text-red-400" />
-                <h3 class="font-semibold text-text-main-light dark:text-text-main-dark">{bug.title}</h3>
+                <h3
+                  class="font-semibold text-text-main-light dark:text-text-main-dark"
+                >
+                  {bug.title}
+                </h3>
               </div>
-              <p class="text-sm text-text-sec-light dark:text-text-sec-dark">{bug.description}</p>
+              <p class="text-sm text-text-sec-light dark:text-text-sec-dark">
+                {bug.description}
+              </p>
             </div>
             <div class="flex flex-wrap gap-2">
               <span class="status-badge {sm.cls}">{sm.label}</span>
@@ -183,7 +226,9 @@
                 <span>Componente: {bug.test_case.component.name}</span>
               {/if}
               {#if bug.created_at}
-                <span>Creado: {new Date(bug.created_at).toLocaleDateString()}</span>
+                <span
+                  >Creado: {new Date(bug.created_at).toLocaleDateString()}</span
+                >
               {/if}
             </div>
             <div class="flex items-center gap-2">
@@ -205,13 +250,29 @@
         <div
           class="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-border-light dark:border-border-dark rounded-xl"
         >
-          <Bug size={24} class="text-text-sec-light dark:text-text-sec-dark mb-3" />
-          <p class="text-text-main-light dark:text-text-main-dark font-medium">No hay bugs</p>
+          <Bug
+            size={24}
+            class="text-text-sec-light dark:text-text-sec-dark mb-3"
+          />
+          <p class="text-text-main-light dark:text-text-main-dark font-medium">
+            No hay bugs
+          </p>
           <p class="text-sm text-text-sec-light dark:text-text-sec-dark mt-1">
             Reportá un nuevo bug para empezar a seguirlo.
           </p>
         </div>
       {/each}
     </div>
+    <Pagination
+      currentPage={pagination.current_page}
+      lastPage={pagination.last_page}
+      perPage={pagination.per_page}
+      total={pagination.total}
+      onPageChange={(page) => load(page)}
+      onPerPageChange={(perPage) => {
+        pagination = { ...pagination, per_page: perPage };
+        load(1);
+      }}
+    />
   {/if}
 </div>

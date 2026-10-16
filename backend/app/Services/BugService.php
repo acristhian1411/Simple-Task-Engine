@@ -19,6 +19,11 @@ class BugService
         if (isset($filters['test_step_id'])) {
             $query->where('test_step_id', $filters['test_step_id']);
         }
+        if (isset($filters['component_id'])) {
+            $query->whereHas('testCase', function ($query) use ($filters) {
+                $query->where('component_id', $filters['component_id']);
+            });
+        }
         if (isset($filters['status'])) {
             $query->where('status', $filters['status']);
         }
@@ -43,6 +48,11 @@ class BugService
         }
         if (isset($filters['test_step_id'])) {
             $query->where('test_step_id', $filters['test_step_id']);
+        }
+        if (isset($filters['component_id'])) {
+            $query->whereHas('testCase', function ($query) use ($filters) {
+                $query->where('component_id', $filters['component_id']);
+            });
         }
         if (isset($filters['status'])) {
             $query->where('status', $filters['status']);

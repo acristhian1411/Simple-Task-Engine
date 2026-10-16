@@ -17,6 +17,13 @@ class ComponentService
         if (isset($filters['parent_id'])) {
             $query->where('parent_id', $filters['parent_id']);
         }
+        if (isset($filters['criticality'])) {
+            if ($filters['criticality'] === 'critical') {
+                $query->whereHas('criticalDependencies');
+            } elseif ($filters['criticality'] === 'optional') {
+                $query->whereDoesntHave('criticalDependencies');
+            }
+        }
         if (isset($filters['search'])) {
             $s = $filters['search'];
             $query->where(function ($q) use ($s) {
@@ -40,6 +47,13 @@ class ComponentService
         }
         if (isset($filters['parent_id'])) {
             $query->where('parent_id', $filters['parent_id']);
+        }
+        if (isset($filters['criticality'])) {
+            if ($filters['criticality'] === 'critical') {
+                $query->whereHas('criticalDependencies');
+            } elseif ($filters['criticality'] === 'optional') {
+                $query->whereDoesntHave('criticalDependencies');
+            }
         }
         if (isset($filters['search'])) {
             $s = $filters['search'];
