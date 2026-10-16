@@ -25,13 +25,13 @@
       "p-4 flex items-center justify-between border-b backdrop-blur-sm rounded-t-xl sticky top-0 z-10";
     const statusClasses = {
       default:
-        "border-slate-200 dark:border-border-dark/50 bg-slate-100 dark:bg-surface-dark",
+        "border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800",
       active:
-        "border-slate-200 dark:border-border-dark/50 bg-slate-100 dark:bg-surface-dark ring-1 ring-primary/20 dark:ring-primary/10",
+        "border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 ring-1 ring-primary/20 dark:ring-primary/10",
       blocked:
         "border-red-100 dark:border-red-900/20 bg-red-50 dark:bg-red-950/5",
       completed:
-        "border-slate-200 dark:border-border-dark/50 bg-slate-100 dark:bg-surface-dark",
+        "border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800",
     };
     return `${base} ${statusClasses[status]}`;
   }
@@ -40,13 +40,13 @@
     const base = "w-80 shrink-0 flex flex-col h-full rounded-xl shadow-sm";
     const statusClasses = {
       default:
-        "bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark/50",
+        "bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700",
       active:
-        "bg-slate-100 dark:bg-surface-dark border-t-4 border-t-primary border-x border-b border-x-slate-200 dark:border-x-border-dark/50 border-b-slate-200 dark:border-b-border-dark/50",
+        "bg-slate-100 dark:bg-slate-800 border-t-4 border-t-primary border-x border-b border-x-slate-200 dark:border-x-slate-700 border-b-slate-200 dark:border-b-slate-700",
       blocked:
         "bg-red-50 dark:bg-red-950/10 border-t-4 border-t-red-500 border-x border-b border-x-red-100 dark:border-x-red-900/20 border-b-red-100 dark:border-b-red-900/20",
       completed:
-        "bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark/50 opacity-80 hover:opacity-100 transition-opacity",
+        "bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 opacity-80 hover:opacity-100 transition-opacity",
     };
     return `${base} ${statusClasses[status]}`;
   }
@@ -55,7 +55,7 @@
     const base = "text-xs px-2 py-0.5 rounded-full font-bold";
     const colorClasses = {
       default:
-        "bg-slate-200 dark:bg-surface-dark text-slate-600 dark:text-slate-300",
+        "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
       primary: "bg-primary/20 text-primary dark:text-blue-300",
       red: "bg-red-200 dark:bg-red-900/40 text-red-800 dark:text-red-200",
       green:

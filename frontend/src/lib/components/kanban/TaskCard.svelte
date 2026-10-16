@@ -10,13 +10,13 @@
       "group p-4 rounded-lg shadow border cursor-pointer transition-all hover:shadow-md text-slate-900 dark:text-slate-200";
     const statusClasses = {
       default:
-        "bg-white dark:bg-surface-dark border-slate-200 dark:border-border-dark/40 hover:border-primary/50 dark:hover:border-primary/50",
+        "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-primary/50 dark:hover:border-primary/50",
       active:
-        "bg-white dark:bg-surface-dark border-slate-200 dark:border-border-dark/40 hover:border-primary/50 dark:hover:border-primary/50 ring-1 ring-primary/20 dark:ring-primary/10",
+        "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-primary/50 dark:hover:border-primary/50 ring-1 ring-primary/20 dark:ring-primary/10",
       blocked:
         "bg-red-50 dark:bg-red-900/10 border-l-4 border-l-red-500 border-y border-r border-slate-200 dark:border-border-dark/50 hover:border-r-red-500 text-slate-900 dark:text-red-200",
       completed:
-        "bg-slate-50 dark:bg-surface-dark border border-slate-200 dark:border-border-dark/40 cursor-pointer transition-all opacity-80 hover:opacity-100 text-slate-700 dark:text-slate-400",
+        "bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 cursor-pointer transition-all opacity-80 hover:opacity-100 text-slate-700 dark:text-slate-400",
     };
     return `${base} ${statusClasses[task.status || "default"]}`;
   }
