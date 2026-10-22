@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Tailwind v4 no lee tailwind.config.js solo: sin esto no existen los colores del tema (border-dark, surface, primary...) */
+@config "../tailwind.config.js";
 
 @layer components {
 	/* Layout Classes */
