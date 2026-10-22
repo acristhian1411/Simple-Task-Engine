@@ -29,11 +29,11 @@
 </script>
 
 <div class="app-layout">
-	<!-- Desktop Sidebar -->
-	<Sidebar 
-		{activeNavItem}
+	<!-- Desktop Sidebar (oculto en pantallas chicas, ahí se usa el menú móvil) -->
+	<Sidebar
+		activeItem={activeNavItem}
 		{user}
-		collapsed={false}
+		collapsed={true}
 		onNavigate={handleNavigation}
 	/>
 
@@ -53,8 +53,8 @@
 		<div 
 			class="fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out {$sidebarOpen ? 'translate-x-0' : '-translate-x-full'}"
 		>
-			<Sidebar 
-				{activeNavItem}
+			<Sidebar
+				activeItem={activeNavItem}
 				{user}
 				collapsed={false}
 				onNavigate={handleNavigation}
@@ -64,15 +64,18 @@
 
 	<!-- Main Content Area -->
 	<main class="main-content">
-		<!-- Mobile Menu Toggle (always available, view-specific headers are rendered by pages) -->
-		<button 
-			class="lg:hidden fixed top-4 left-4 z-30 p-2 text-gray-600 dark:text-white bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-			on:click={toggleMobileMenu}
-			type="button"
-			aria-label="Toggle mobile menu"
-		>
-			<span class="material-symbols-outlined">menu</span>
-		</button>
+		<!-- Barra superior en pantallas chicas: ocupa su propio espacio para no tapar el contenido de la página -->
+		<div class="lg:hidden shrink-0 flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+			<button
+				class="p-2 text-gray-600 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+				on:click={toggleMobileMenu}
+				type="button"
+				aria-label="Abrir menú"
+			>
+				<span class="material-symbols-outlined">menu</span>
+			</button>
+			<span class="text-sm font-bold text-gray-900 dark:text-white">Maius Kanban</span>
+		</div>
 
 		<!-- Page Content -->
 		<div class="flex-1 overflow-y-auto custom-scrollbar">
