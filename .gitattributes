@@ -1,0 +1,5 @@
+# Todo lo que corre dentro de contenedores Linux va con finales de línea LF,
+# aunque el repo se clone en Windows con core.autocrlf=true.
+# (backend/ ya lo fuerza en su propio .gitattributes)
+*.sh     text eol=lf
+infra/** text eol=lf
