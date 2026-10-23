@@ -62,7 +62,8 @@
   let loadingDetails = false;
   let loadedTaskId = null;
 
-  const lists = $boardStore.lists;
+  // Reactivo: el modal se monta antes de que cargue el tablero, así que hay que seguir los cambios del store
+  $: lists = $boardStore.lists;
 
   $: allTasks = lists.flatMap((l) =>
     (l.tasks || []).map((t) => ({
@@ -240,6 +241,7 @@
       return;
     }
     dependencyError = "";
+    dependencyBusy = true;
     try {
       const res = await createDependency({
         task_id: task.id,
