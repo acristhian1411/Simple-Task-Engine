@@ -134,7 +134,10 @@ function createBoardStore() {
       }
     }
 
-    const newStatus = isDoneList(toList.title) ? 'done' : task.status || 'todo';
+    // Si sale de una lista "done" deja de estar completada (si no, seguiría sin bloquear a sus dependientes)
+    const newStatus = isDoneList(toList.title)
+      ? 'done'
+      : task.status && task.status !== 'done' ? task.status : 'todo';
     const newOrder = items.findIndex((t) => String(t.id) === String(draggedId));
     if (newOrder < 0) return;
     try {
