@@ -166,6 +166,26 @@
 <div class="flex flex-col h-full min-h-0">
   <!-- Board Header with Context -->
   <div class="px-6 py-4 shrink-0">
+    <!-- Breadcrumbs (mismo estilo que el Header de /boards) -->
+    <nav aria-label="Ruta" class="flex gap-2 items-center text-sm mb-3">
+      <a
+        href="/"
+        class="text-gray-600 dark:text-gray-400 hover:text-indigo-600 font-medium transition-colors"
+        >Inicio</a
+      >
+      <span class="text-gray-500 font-medium">/</span>
+      <a
+        href="/boards"
+        class="text-gray-600 dark:text-gray-400 hover:text-indigo-600 font-medium transition-colors"
+        >Tableros</a
+      >
+      <span class="text-gray-500 font-medium">/</span>
+      <span
+        class="text-gray-900 dark:text-white font-medium truncate"
+        aria-current="page">{board?.title || "Tablero"}</span
+      >
+    </nav>
+
     <div
       class="relative rounded-xl overflow-hidden min-h-[120px] bg-surface-dark flex items-end shadow-lg group"
     >
