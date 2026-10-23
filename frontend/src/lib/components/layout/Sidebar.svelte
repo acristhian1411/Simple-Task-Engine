@@ -1,5 +1,6 @@
 <script>
   import { goto } from "$app/navigation";
+  import { logout } from "$lib/stores/auth.js";
   /**
    * Sidebar component for navigation and user profile
    * @param {string} activeItem - Current active navigation item
@@ -82,6 +83,21 @@
       goto(item.href);
     }
   }
+
+  let loggingOut = false;
+
+  async function handleLogout() {
+    if (loggingOut) return;
+    loggingOut = true;
+    try {
+      await logout();
+    } catch {
+      // Aunque falle la llamada a la API, el token local ya se borró: igual vamos al login
+    } finally {
+      loggingOut = false;
+      goto("/login");
+    }
+  }
 </script>
 
 <!-- Material Symbols CSS -->
@@ -143,10 +159,7 @@
   <div class="mt-auto p-6 flex flex-col gap-4">
     <!-- User Profile -->
     <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-      <button
-        class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left"
-        type="button"
-      >
+      <div class="flex items-center gap-3 px-2 py-2">
         <div
           class="w-8 h-8 rounded-full bg-cover bg-center"
           style="background-image: url('{currentUser.avatar}')"
@@ -162,7 +175,17 @@
             {currentUser.email}
           </p>
         </div>
-      </button>
+        <button
+          class="p-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+          on:click={handleLogout}
+          disabled={loggingOut}
+          type="button"
+          aria-label="Cerrar sesión"
+          title="Cerrar sesión"
+        >
+          <span class="material-symbols-outlined text-[20px]">logout</span>
+        </button>
+      </div>
     </div>
   </div>
 </aside>
