@@ -4,11 +4,18 @@ namespace App\Services;
 
 use App\Models\Board;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 class BoardService
 {
+    /**
+     * Listas con las que arranca todo tablero nuevo. Los títulos coinciden con los
+     * estilos de columna del front y "Hecho" es la que cuenta como lista terminada.
+     */
+    private const DEFAULT_LISTS = ['Por Hacer', 'En Progreso', 'Hecho'];
+
     public function list(array $filters = []): Collection
     {
         $query = Board::query();
@@ -45,7 +52,14 @@ class BoardService
     {
         $userId = Auth::id();
         $data['user_id'] = $userId;
-        return Board::create($data);
+
+        return DB::transaction(function () use ($data) {
+            $board = Board::create($data);
+            foreach (self::DEFAULT_LISTS as $order => $title) {
+                $board->lists()->create(['title' => $title, 'order' => $order]);
+            }
+            return $board;
+        });
     }
 
     public function findOrFail(int $id): Board
