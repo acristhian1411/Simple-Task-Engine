@@ -7,6 +7,7 @@
 	export let error = '';
 	export let searchQuery = '';
 	export let onCreateBoard = null;
+	export let onDeleteBoard = null;
 
 	// Filter boards based on search query
 	$: filteredBoards = boards.filter(board => {
@@ -107,7 +108,7 @@
 
 			<!-- Board Cards -->
 			{#each filteredBoards as board (board.id)}
-				<BoardCard {board} onClick={handleBoardClick} />
+				<BoardCard {board} onClick={handleBoardClick} onDelete={onDeleteBoard} />
 			{/each}
 
 			<!-- Empty State when no boards match search -->

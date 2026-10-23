@@ -15,6 +15,11 @@ export async function createBoard(data) {
 	return res.data;
 }
 
+export async function deleteBoard(id) {
+	const res = await http.delete(`/boards/${id}`);
+	return res.data;
+}
+
 export async function getBoardsWithLists(params = {}) {
 	const res = await http.get('/boards-with-lists', { params });
 	return unwrapList(res);

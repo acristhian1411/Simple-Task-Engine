@@ -73,5 +73,7 @@
     {error}
     {searchQuery}
     onCreateBoard={handleCreateBoard}
+    onDeleteBoard={(deleted) =>
+      (boards = boards.filter((b) => b.id !== deleted.id))}
   />
 </div>

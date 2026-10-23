@@ -1,6 +1,12 @@
 <script>
+  import { deleteBoard } from "$lib/api/boards.js";
+
   export let board = {};
   export let onClick = null;
+  export let onDelete = null;
+
+  let menuOpen = false;
+  let deleting = false;
 
   // Calculate progress based on lists and tasks if available
   function calculateProgress(board) {
@@ -93,10 +99,37 @@
       onClick(board);
     }
   }
+
+  function toggleMenu() {
+    menuOpen = !menuOpen;
+  }
+
+  async function handleDelete() {
+    menuOpen = false;
+    const ok = confirm(
+      `¿Eliminar el tablero "${board.title}"? Dejará de verse junto con sus listas y tareas.`,
+    );
+    if (!ok) return;
+
+    deleting = true;
+    try {
+      await deleteBoard(board.id);
+      onDelete?.(board);
+    } catch (e) {
+      alert(
+        e?.response?.data?.error ?? e?.message ?? "No se pudo eliminar el tablero",
+      );
+    } finally {
+      deleting = false;
+    }
+  }
 </script>
 
+<!-- Cierra el menú al hacer clic en cualquier otro lado -->
+<svelte:window on:click={() => (menuOpen = false)} />
+
 <div
-  class="board-card"
+  class="board-card group {deleting ? 'opacity-50 pointer-events-none' : ''}"
   on:click={handleClick}
   on:keydown={(e) => e.key === "Enter" && handleClick()}
   role="button"
@@ -115,12 +148,39 @@
   <div class="p-4 flex flex-col flex-1">
     <!-- Category and Menu -->
     <div class="flex justify-between items-start mb-2">
-      <button
-        class="text-text-sec-light dark:text-text-sec-dark hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
-        on:click|stopPropagation={() => {}}
-      >
-        <span class="material-symbols-outlined text-[20px]">more_horiz</span>
-      </button>
+      <div class="relative">
+        <button
+          class="text-text-sec-light dark:text-text-sec-dark hover:text-white focus:opacity-100 group-hover:opacity-100 transition-opacity {menuOpen
+            ? 'opacity-100'
+            : 'opacity-0'}"
+          on:click|stopPropagation={toggleMenu}
+          on:keydown|stopPropagation
+          type="button"
+          aria-label="Opciones del tablero"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+        >
+          <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+        </button>
+
+        {#if menuOpen}
+          <div
+            class="absolute left-0 top-full mt-1 z-20 min-w-40 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-lg py-1"
+            role="menu"
+          >
+            <button
+              class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              on:click|stopPropagation={handleDelete}
+              on:keydown|stopPropagation
+              type="button"
+              role="menuitem"
+            >
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+              Eliminar tablero
+            </button>
+          </div>
+        {/if}
+      </div>
     </div>
 
     <!-- Title and Description -->
