@@ -5,7 +5,15 @@
 
   const dispatch = createEventDispatcher();
 
-  function getCardClasses() {
+  // Las tareas usan todo / in_progress / done; los estilos de la tarjeta usan otros nombres
+  const visualStatusByTaskStatus = {
+    todo: "default",
+    in_progress: "active",
+    done: "completed",
+  };
+  $: visualStatus = visualStatusByTaskStatus[task.status] || "default";
+
+  function getCardClasses(status) {
     const base =
       "group p-4 rounded-lg shadow border cursor-pointer transition-all hover:shadow-md text-slate-900 dark:text-slate-200";
     const statusClasses = {
@@ -18,7 +26,7 @@
       completed:
         "bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 cursor-pointer transition-all opacity-80 hover:opacity-100 text-slate-700 dark:text-slate-400",
     };
-    return `${base} ${statusClasses[task.status || "default"]}`;
+    return `${base} ${statusClasses[status]}`;
   }
 
   function getTagColor(tag) {
@@ -140,7 +148,7 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class={getCardClasses()} on:click={() => dispatch("click", { task })}>
+<div class={getCardClasses(visualStatus)} on:click={() => dispatch("click", { task })}>
   <!-- Task Header -->
   <div class="flex justify-between items-start mb-2">
     <div class="flex gap-2">
@@ -170,7 +178,7 @@
 
   <!-- Task Title -->
   <h4
-    class="text-slate-800 dark:text-white font-medium text-sm mb-3 leading-snug {task.status ===
+    class="text-slate-800 dark:text-white font-medium text-sm mb-3 leading-snug {visualStatus ===
     'completed'
       ? 'line-through text-slate-600 dark:text-slate-300'
       : ''}"
@@ -294,7 +302,7 @@
       {/if}
 
       <!-- Completed Status -->
-      {#if task.status === "completed"}
+      {#if visualStatus === "completed"}
         <div
           class="flex items-center gap-1 text-xs font-bold text-green-600 dark:text-green-500"
         >
@@ -339,7 +347,7 @@
         <!-- Single assignee -->
         {#if task.assignee ? task.assignee.avatar : task.assignees[0]?.avatar}
           <div
-            class="size-6 rounded-full bg-cover bg-center {task.status ===
+            class="size-6 rounded-full bg-cover bg-center {visualStatus ===
             'completed'
               ? 'grayscale'
               : ''}"
@@ -353,7 +361,7 @@
         {:else}
           <div
             class="size-6 rounded-full {avatarColorClasses[avatarColor] ||
-              'bg-slate-500'} flex items-center justify-center text-[10px] text-white font-bold {task.status ===
+              'bg-slate-500'} flex items-center justify-center text-[10px] text-white font-bold {visualStatus ===
             'completed'
               ? 'grayscale'
               : ''}"
