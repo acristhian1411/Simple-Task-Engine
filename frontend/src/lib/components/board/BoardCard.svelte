@@ -150,7 +150,7 @@
     <div class="flex justify-between items-start mb-2">
       <div class="relative">
         <button
-          class="text-text-sec-light dark:text-text-sec-dark hover:text-white focus:opacity-100 group-hover:opacity-100 transition-opacity {menuOpen
+          class="cursor-pointer text-text-sec-light dark:text-text-sec-dark hover:text-white focus:opacity-100 group-hover:opacity-100 transition-opacity {menuOpen
             ? 'opacity-100'
             : 'opacity-0'}"
           on:click|stopPropagation={toggleMenu}
@@ -169,7 +169,7 @@
             role="menu"
           >
             <button
-              class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              class="w-full cursor-pointer flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
               on:click|stopPropagation={handleDelete}
               on:keydown|stopPropagation
               type="button"
