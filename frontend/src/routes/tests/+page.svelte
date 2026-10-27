@@ -96,8 +96,11 @@
         Todos los test cases del sistema
       </p>
     </div>
+    <!-- Si hay un componente filtrado, el nuevo test case arranca con ese módulo -->
     <a
-      href="/tests/new"
+      href={selectedComponent === "all"
+        ? "/tests/new"
+        : `/tests/new?componentId=${selectedComponent}&returnTo=${encodeURIComponent("/tests")}`}
       class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
     >
       <Plus size={18} />

@@ -4,7 +4,8 @@
   import { ArrowLeft, Save, Plus, Trash2 } from "lucide-svelte";
   import { refreshMe } from "$lib/stores/auth.js";
   import { createTestCase } from "$lib/api/test-cases.js";
-  import { getComponents } from "$lib/api/components.js";
+  import { getAllComponents } from "$lib/api/components.js";
+  import { getReturnTo } from "$lib/utils/returnTo.js";
 
   let components = $state([]);
   let loading = $state(true);
@@ -21,6 +22,8 @@
   });
 
   let selectedComponentId = $state("");
+  // Página a la que se vuelve al guardar o con la flecha (el componente o la lista de origen)
+  let returnTo = $state("/tests");
   let steps = $state([{ step_number: 1, action: "", expected: "", type: "normal" }]);
   let actors = $state([{ actor_name: "" }]);
 
@@ -41,11 +44,18 @@
     try {
       const me = await refreshMe();
       if (!me) return goto("/login");
-      const res = await getComponents({ per_page: 100 });
-      components = res?.data ?? res ?? [];
+      // Todos los componentes, para que el módulo de origen siempre esté en la lista
+      components = await getAllComponents();
+      // Si venimos desde un módulo (?componentId=X), lo dejamos preseleccionado.
+      // Se convierte a número porque las opciones del select usan el id numérico.
       const params = new URLSearchParams(window.location.search);
-      const compId = params.get("componentId");
-      if (compId) selectedComponentId = compId;
+      const compId = Number(params.get("componentId"));
+      if (compId && components.some((c) => c.id === compId)) {
+        selectedComponentId = compId;
+      }
+      returnTo = getReturnTo(
+        selectedComponentId ? `/components/${selectedComponentId}` : "/tests",
+      );
     } catch (e) {
       error = e?.response?.data?.error ?? e?.message ?? "Error cargando datos";
     } finally {
@@ -79,7 +89,7 @@
       if (testCaseId && (hasSteps || hasActors)) {
         await submitParts(testCaseId, hasSteps, hasActors);
       }
-      goto(testCaseId ? `/tests/${testCaseId}` : "/tests");
+      goto(returnTo);
     } catch (e) {
       error = e?.response?.data?.error ?? e?.message ?? "Error al guardar";
     } finally {
@@ -113,7 +123,7 @@
 <div class="max-w-4xl mx-auto p-6 space-y-6">
   <div class="flex items-center gap-4">
     <a
-      href={selectedComponentId ? `/components/${selectedComponentId}` : "/tests"}
+      href={returnTo}
       class="p-2 text-text-sec-light dark:text-text-sec-dark hover:text-text-main-light dark:hover:text-text-main-dark hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
     >
       <ArrowLeft size={20} />

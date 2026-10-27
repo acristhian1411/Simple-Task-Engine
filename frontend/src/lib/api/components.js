@@ -40,8 +40,8 @@ export async function deleteComponent(id) {
   return res.data;
 }
 
-export async function getComponentTestCases(id) {
-  const res = await http.get(`/components/${id}/test-cases`);
+export async function getComponentTestCases(id, params = {}) {
+  const res = await http.get(`/components/${id}/test-cases`, { params });
   return res.data;
 }
 

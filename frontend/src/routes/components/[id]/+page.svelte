@@ -18,6 +18,8 @@
   import { refreshMe } from "$lib/stores/auth.js";
   import { openAuditSidebar } from "$lib/stores/auditSidebar.svelte.js";
   import Modal from "$lib/components/ui/Modal.svelte";
+  import Pagination from "$lib/components/ui/Pagination.svelte";
+  import { unwrapList } from "$lib/api/http.js";
   import ComponentGraph from "$lib/components/flow/ComponentGraph.svelte";
   import {
     getComponent,
@@ -37,6 +39,12 @@
   let submitting = $state(false);
   let component = $state(null);
   let testCases = $state([]);
+  let testCasesPagination = $state({
+    current_page: 1,
+    last_page: 1,
+    per_page: 10,
+    total: 0,
+  });
   let allComponents = $state([]);
   let children = $state([]);
   let dependencies = $state([]);
@@ -70,13 +78,13 @@
       const id = window.location.pathname.split("/").filter(Boolean).pop();
       const [compRes, tcRes, allRes, childRes, depRes] = await Promise.all([
         getComponent(id),
-        getComponentTestCases(id),
+        getComponentTestCases(id, { page: 1, per_page: testCasesPagination.per_page }),
         getComponents({ per_page: 100 }),
         getComponentChildren(id),
         getComponentDependencies(id),
       ]);
       component = compRes?.data ?? compRes;
-      testCases = tcRes?.data ?? tcRes ?? [];
+      setTestCasesPage(tcRes, 1);
       allComponents = allRes?.data ?? allRes ?? [];
       children = childRes?.data ?? childRes ?? [];
       dependencies = Array.isArray(depRes) ? depRes : depRes?.data ?? [];
@@ -84,6 +92,30 @@
       error = e?.response?.data?.error ?? e?.message ?? "Error cargando componente";
     } finally {
       loading = false;
+    }
+  }
+
+  // Guarda la página de test cases que devolvió la API (paginada, igual que la lista general)
+  function setTestCasesPage(response, page) {
+    const rows = unwrapList(response);
+    testCases = rows;
+    testCasesPagination = {
+      current_page: Number(response?.current_page ?? page),
+      last_page: Number(response?.last_page ?? 1),
+      per_page: Number(response?.per_page ?? testCasesPagination.per_page),
+      total: Number(response?.total ?? rows.length),
+    };
+  }
+
+  async function loadTestCases(page = 1) {
+    try {
+      const response = await getComponentTestCases(component.id, {
+        page,
+        per_page: testCasesPagination.per_page,
+      });
+      setTestCasesPage(response, page);
+    } catch (e) {
+      error = e?.response?.data?.error ?? e?.message ?? "Error cargando test cases";
     }
   }
 
@@ -373,7 +405,7 @@
         <h2 class="text-xl font-semibold text-text-main-light dark:text-text-main-dark flex items-center gap-2">
           <FlaskConical size={20} class="text-indigo-500" />
           Test Cases
-          <span class="text-sm font-normal text-text-sec-light dark:text-text-sec-dark">({testCases.length})</span>
+          <span class="text-sm font-normal text-text-sec-light dark:text-text-sec-dark">({testCasesPagination.total})</span>
         </h2>
         <a
           href="/tests/new?componentId={component.id}"
@@ -388,7 +420,7 @@
         {#each testCases as testCase}
           {@const sm = statusMap[testCase.status] ?? { label: testCase.status || "Sin probar", cls: "status-todo" }}
           <a
-            href="/tests/{testCase.id}"
+            href="/tests/{testCase.id}?returnTo={encodeURIComponent(`/components/${component.id}`)}"
             class="group flex items-center justify-between p-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl hover:border-indigo-500/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200"
           >
             <div class="flex items-center gap-4">
@@ -416,6 +448,20 @@
           </div>
         {/each}
       </div>
+
+      {#if testCasesPagination.total > 0}
+        <Pagination
+          currentPage={testCasesPagination.current_page}
+          lastPage={testCasesPagination.last_page}
+          perPage={testCasesPagination.per_page}
+          total={testCasesPagination.total}
+          onPageChange={(page) => loadTestCases(page)}
+          onPerPageChange={(perPage) => {
+            testCasesPagination = { ...testCasesPagination, per_page: perPage };
+            loadTestCases(1);
+          }}
+        />
+      {/if}
     </div>
 
     <Comments refId={component.id} refTable="components" />

@@ -5,8 +5,9 @@
   import { refreshMe } from "$lib/stores/auth.js";
   import { openAuditSidebar } from "$lib/stores/auditSidebar.svelte.js";
   import { getTestCase, updateTestCase, deleteTestCase, getTestSteps, getActors } from "$lib/api/test-cases.js";
-  import { getComponents } from "$lib/api/components.js";
+  import { getAllComponents } from "$lib/api/components.js";
   import Comments from "$lib/components/Comments.svelte";
+  import { getReturnTo } from "$lib/utils/returnTo.js";
 
   let loading = $state(true);
   let error = $state("");
@@ -17,6 +18,8 @@
   let steps = $state([]);
   let actors = $state([]);
   let selectedComponentId = $state("");
+  // Página a la que se vuelve al guardar, borrar o con la flecha (el componente o la lista de origen)
+  let returnTo = $state("/tests");
 
   function addStep() {
     steps = [...steps, { step_number: steps.length + 1, action: "", expected: "", type: "normal" }];
@@ -37,15 +40,16 @@
     try {
       const me = await refreshMe();
       if (!me) return goto("/login");
+      returnTo = getReturnTo("/tests");
       const id = window.location.pathname.split("/").filter(Boolean).pop();
       const [tcRes, compRes, stepsRes, actorsRes] = await Promise.all([
         getTestCase(id),
-        getComponents({ per_page: 100 }),
+        getAllComponents(),
         getTestSteps(id),
         getActors(id),
       ]);
       testCase = tcRes?.data ?? tcRes;
-      components = compRes?.data ?? compRes ?? [];
+      components = compRes;
       steps = stepsRes?.data ?? stepsRes ?? [];
       actors = actorsRes?.data ?? actorsRes ?? [];
       selectedComponentId = testCase?.component_id ?? "";
@@ -96,7 +100,7 @@
           await http.post(`/test-cases/${testCase.id}/actors`, { actor_name: a.actor_name });
         }
       }
-      goto("/tests");
+      goto(returnTo);
     } catch (e) {
       error = e?.response?.data?.error ?? e?.message ?? "Error al guardar";
     } finally {
@@ -108,7 +112,7 @@
     if (!confirm(`¿Eliminar el test case "${testCase.title}"?`)) return;
     try {
       await deleteTestCase(testCase.id);
-      goto("/tests");
+      goto(returnTo);
     } catch (e) {
       error = e?.response?.data?.error ?? e?.message ?? "Error al eliminar";
     }
@@ -126,7 +130,7 @@
     <div class="flex items-center justify-between gap-4">
       <div class="flex items-center gap-4">
         <a
-          href={selectedComponentId ? `/components/${selectedComponentId}` : "/tests"}
+          href={returnTo}
           class="p-2 text-text-sec-light dark:text-text-sec-dark hover:text-text-main-light dark:hover:text-text-main-dark hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
         >
           <ArrowLeft size={20} />
