@@ -24,3 +24,18 @@ export async function getBoardsWithLists(params = {}) {
 	const res = await http.get('/boards-with-lists', { params });
 	return unwrapList(res);
 }
+
+export async function getBoardMembers(id) {
+	const res = await http.get(`/boards/${id}/members`);
+	return unwrapList(res);
+}
+
+export async function addBoardMember(id, email) {
+	const res = await http.post(`/boards/${id}/members`, { email });
+	return unwrapList(res);
+}
+
+export async function removeBoardMember(id, userId) {
+	const res = await http.delete(`/boards/${id}/members/${userId}`);
+	return unwrapList(res);
+}

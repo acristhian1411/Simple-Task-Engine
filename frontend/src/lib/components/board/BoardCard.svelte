@@ -27,13 +27,13 @@
     return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   }
 
-  // Get team members from board data (placeholder for now)
-  function getTeamMembers(board) {
-    // This would come from actual board member data in a real implementation
-    return [
-      { id: 1, name: "Member 1", avatar: "https://via.placeholder.com/32" },
-      { id: 2, name: "Member 2", avatar: "https://via.placeholder.com/32" },
-    ];
+  // Miembros reales del tablero (dueño + invitados)
+  function getInitials(name = "") {
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+      return parts[0][0] + parts[parts.length - 1][0];
+    }
+    return (parts[0] || "").substring(0, 2).toUpperCase();
   }
 
   // Get category color based on board title or category
@@ -89,7 +89,7 @@
   }
 
   $: progress = calculateProgress(board);
-  $: teamMembers = getTeamMembers(board);
+  $: teamMembers = [board.owner, ...(board.members || [])].filter(Boolean);
   $: categoryColor = getCategoryColor(board);
   $: categoryName = getCategoryName(board);
   $: relativeTime = getRelativeTime(board);
@@ -219,11 +219,12 @@
         <!-- Team Members -->
         <div class="avatar-group">
           {#each teamMembers.slice(0, 2) as member (member.id)}
-            <img
-              alt={member.name}
-              class="avatar avatar-sm ring-2 ring-white dark:ring-surface-dark object-cover"
-              src={member.avatar}
-            />
+            <div
+              class="avatar avatar-sm ring-2 ring-white dark:ring-surface-dark bg-indigo-500 text-white flex items-center justify-center text-[10px] font-bold"
+              title={member.name || member.email}
+            >
+              {getInitials(member.name || member.email)}
+            </div>
           {/each}
           {#if teamMembers.length > 2}
             <div

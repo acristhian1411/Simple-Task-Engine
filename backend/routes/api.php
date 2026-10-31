@@ -35,6 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/auditable/{auditableId}', [AuditController::class, 'getAuditByAuditableId']);
     });
     Route::apiResource('boards', BoardController::class);
+    Route::get('boards/{id}/members', [BoardController::class, 'members']);
+    Route::post('boards/{id}/members', [BoardController::class, 'addMember']);
+    Route::delete('boards/{id}/members/{userId}', [BoardController::class, 'removeMember']);
     Route::apiResource('lists', ListController::class);
     Route::apiResource('tasks', TaskController::class);
     Route::get('lists/{listId}/tasks', [TaskController::class, 'indexByList']);

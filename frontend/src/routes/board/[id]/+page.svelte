@@ -4,9 +4,11 @@
   import { goto } from "$app/navigation";
   import { dndzone } from "svelte-dnd-action";
   import { refreshMe } from "$lib/stores/auth.js";
+  import { auth } from "$lib/stores/auth.js";
   import { boardStore } from "$lib/stores/board.js";
   import KanbanColumn from "$lib/components/kanban/KanbanColumn.svelte";
   import TaskDetails from "$lib/components/TaskDetails.svelte";
+  import ShareBoardModal from "$lib/components/board/ShareBoardModal.svelte";
 
   $: board = $boardStore.board;
   $: lists = $boardStore.lists;
@@ -15,6 +17,10 @@
 
   let showTask = false;
   let selectedTaskId = null;
+  let shareOpen = false;
+
+  // Solo el dueño administra los miembros del tablero
+  $: isOwner = !!board && $auth.user?.id === board.user_id;
 
   // Array local para el dndzone de listas: mismo patrón que las columnas
   let localLists = [];
@@ -240,6 +246,16 @@
               "Gestioná tus tareas en este tablero Kanban."}
           </p>
         </div>
+        {#if isOwner}
+          <button
+            class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium backdrop-blur transition-colors"
+            type="button"
+            on:click={() => (shareOpen = true)}
+          >
+            <span class="material-symbols-outlined text-[18px]">group_add</span>
+            Compartir
+          </button>
+        {/if}
       </div>
     </div>
   </div>
@@ -503,3 +519,9 @@
 {/if}
 
 <TaskDetails open={showTask} task={selectedTask} on:close={closeTask} />
+
+<ShareBoardModal
+  show={shareOpen}
+  {board}
+  on:close={() => (shareOpen = false)}
+/>
