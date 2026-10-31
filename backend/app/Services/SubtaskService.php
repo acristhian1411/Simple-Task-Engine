@@ -7,11 +7,19 @@ use Illuminate\Database\Eloquent\Collection;
 
 class SubtaskService
 {
+    public function __construct(private BoardAccessService $access) {}
+
     public function list(array $filters = []): Collection
     {
         $query = Subtask::query();
         if (isset($filters['task_id'])) {
             $query->where('task_id', $filters['task_id']);
+        }
+        if (isset($filters['user_id'])) {
+            $query->whereHas(
+                'task.list.board',
+                fn ($q) => $this->access->scopeAccessible($q, (int) $filters['user_id'])
+            );
         }
         if (isset($filters['is_completed'])) {
             $query->where('is_completed', (bool) $filters['is_completed']);

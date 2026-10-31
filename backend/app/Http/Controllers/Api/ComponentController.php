@@ -8,6 +8,7 @@ use App\Http\Requests\Component\UpdateComponentRequest;
 use App\Models\Components;
 use App\Services\ComponentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ComponentController extends ApiController
 {
@@ -169,7 +170,7 @@ class ComponentController extends ApiController
     {
         try {
             $component = $this->service->findOrFail($id);
-            return $this->showAll($this->service->tasks($component));
+            return $this->showAll($this->service->tasks($component, Auth::id()));
         } catch (\Throwable $e) {
             return $this->respondException($e);
         }

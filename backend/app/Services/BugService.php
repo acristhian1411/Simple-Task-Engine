@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Collection;
 
 class BugService
 {
+    public function __construct(private BoardAccessService $access) {}
+
     public function list(array $filters = []): Collection
     {
         $query = Bugs::query();
@@ -137,9 +139,16 @@ class BugService
         $bug->tasks()->detach($task->id);
     }
 
-    public function tasks(Bugs $bug): Collection
+    public function tasks(Bugs $bug, ?int $userId = null): Collection
     {
-        return $bug->tasks()->get();
+        $query = $bug->tasks();
+        if ($userId !== null) {
+            $query->whereHas(
+                'list.board',
+                fn ($q) => $this->access->scopeAccessible($q, $userId)
+            );
+        }
+        return $query->get();
     }
 
     public function attachRecording(Bugs $bug, Recordings $recording): Recordings
