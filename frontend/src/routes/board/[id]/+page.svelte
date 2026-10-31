@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
+  import { dndzone } from "svelte-dnd-action";
   import { refreshMe } from "$lib/stores/auth.js";
   import { boardStore } from "$lib/stores/board.js";
   import KanbanColumn from "$lib/components/kanban/KanbanColumn.svelte";
@@ -14,6 +15,14 @@
 
   let showTask = false;
   let selectedTaskId = null;
+
+  // Array local para el dndzone de listas: mismo patrón que las columnas
+  let localLists = [];
+  let listsDragging = false;
+
+  $: if (!listsDragging) {
+    localLists = lists;
+  }
 
   // Add-list inline form state
   let addingList = false;
@@ -112,6 +121,22 @@
       await boardStore.handleFinalize(listId, detail);
     } catch (err) {
       alert(err?.message ?? "No se pudo mover la tarjeta");
+    }
+  }
+
+  function handleListsConsider(e) {
+    listsDragging = true;
+    localLists = e.detail.items;
+    boardStore.handleListsConsider(e.detail);
+  }
+
+  async function handleListsFinalize(e) {
+    localLists = e.detail.items;
+    listsDragging = false;
+    try {
+      await boardStore.handleListsFinalize(e.detail);
+    } catch (err) {
+      alert(err?.message ?? "No se pudo reordenar la lista");
     }
   }
 
@@ -303,25 +328,32 @@
       class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden px-6 pb-6 custom-scrollbar"
     >
       <div class="flex h-full gap-6 min-w-max pb-2">
-        {#each lists as list (list.id)}
-          {@const columnState = columnStates[list.title] || {
-            status: "default",
-            color: "default",
-          }}
+        <div
+          class="flex h-full gap-6"
+          use:dndzone={{ items: localLists, type: "list" }}
+          on:consider={handleListsConsider}
+          on:finalize={handleListsFinalize}
+        >
+          {#each localLists as list (list.id)}
+            {@const columnState = columnStates[list.title] || {
+              status: "default",
+              color: "default",
+            }}
 
-          <KanbanColumn
-            title={list.title}
-            listId={list.id}
-            tasks={list.tasks || []}
-            status={columnState.status}
-            color={columnState.color}
-            on:addTask={() => openAddTask(list)}
-            on:taskClick={handleTaskClick}
-            on:taskMore={handleTaskMore}
-            on:consider={handleColumnConsider}
-            on:finalize={handleColumnFinalize}
-          />
-        {/each}
+            <KanbanColumn
+              title={list.title}
+              listId={list.id}
+              tasks={list.tasks || []}
+              status={columnState.status}
+              color={columnState.color}
+              on:addTask={() => openAddTask(list)}
+              on:taskClick={handleTaskClick}
+              on:taskMore={handleTaskMore}
+              on:consider={handleColumnConsider}
+              on:finalize={handleColumnFinalize}
+            />
+          {/each}
+        </div>
 
         <!-- Add List Block -->
         <div class="w-80 shrink-0">

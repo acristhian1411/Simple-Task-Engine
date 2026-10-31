@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 import { getBoard } from '$lib/api/boards.js';
-import { getListsWithTasks, createList } from '$lib/api/lists.js';
+import { getListsWithTasks, createList, updateList } from '$lib/api/lists.js';
 import { createTask, updateTask, getBlockedBy } from '$lib/api/tasks.js';
 
 function isDoneList(title = '') {
@@ -150,6 +150,38 @@ function createBoardStore() {
     await reloadLists(current.board?.id);
   }
 
+  // Drag & drop de columnas: refleja el orden visual durante el drag
+  function handleListsConsider(detail) {
+    if (!detail || !Array.isArray(detail.items)) return;
+    update((s) => ({ ...s, lists: cleanItems(detail.items) }));
+  }
+
+  // Persiste el nuevo orden de las listas que cambiaron de posición
+  async function handleListsFinalize(detail) {
+    const draggedId = getDraggedId(detail);
+    if (draggedId == null) return;
+    const items = cleanItems(detail.items);
+    if (!items.some((l) => String(l.id) === String(draggedId))) return;
+    update((s) => ({ ...s, lists: items }));
+
+    const current = await new Promise((resolve) => {
+      subscribe((s) => resolve(s))();
+    });
+    const changed = items
+      .map((list, order) => ({ list, order }))
+      .filter(({ list, order }) => list.order !== order);
+    if (changed.length === 0) return;
+    try {
+      await Promise.all(
+        changed.map(({ list, order }) => updateList(list.id, { order })),
+      );
+    } catch (e) {
+      await reloadLists(current.board?.id);
+      throw e;
+    }
+    await reloadLists(current.board?.id);
+  }
+
   function getDraggedId(detail) {
     const raw = detail?.info?.id ?? detail?.info?.draggedId ?? detail?.draggedId;
     if (raw == null) return null;
@@ -192,6 +224,8 @@ function createBoardStore() {
     syncColumnTasks,
     handleConsider,
     handleFinalize,
+    handleListsConsider,
+    handleListsFinalize,
     changeTask,
     reloadLists,
     isDoneList,
