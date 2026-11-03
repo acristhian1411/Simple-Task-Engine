@@ -5,7 +5,7 @@
   import { refreshMe } from "$lib/stores/auth.js";
   import { openAuditSidebar } from "$lib/stores/auditSidebar.svelte.js";
   import { getBug, updateBug, deleteBug } from "$lib/api/bugs.js";
-  import { getComponents } from "$lib/api/components.js";
+  import { getAllComponents } from "$lib/api/components.js";
   import { getTestCases } from "$lib/api/test-cases.js";
   import Comments from "$lib/components/Comments.svelte";
 
@@ -25,6 +25,13 @@
     }),
   );
 
+  // Un test case de otro componente no puede quedar seleccionado
+  function handleComponentChange() {
+    if (!filteredTestCases.some((tc) => tc.id === bug.test_case_id)) {
+      bug.test_case_id = "";
+    }
+  }
+
   async function load() {
     loading = true;
     error = "";
@@ -32,15 +39,17 @@
       const me = await refreshMe();
       if (!me) return goto("/login");
       const id = window.location.pathname.split("/").filter(Boolean).pop();
-      const [bugRes, compRes, tcRes] = await Promise.all([
+      const [bugRes, allComponents, tcRes] = await Promise.all([
         getBug(id),
-        getComponents({ per_page: 100 }),
+        getAllComponents(),
         getTestCases({ per_page: 100 }),
       ]);
       bug = bugRes?.data ?? bugRes;
-      components = compRes?.data ?? compRes ?? [];
+      // Sin esto el select queda vacío en vez de mostrar "Sin caso relacionado"
+      bug.test_case_id ??= "";
+      components = allComponents;
       testCases = tcRes?.data ?? tcRes ?? [];
-      selectedComponentId = bug?.test_case?.component_id ?? "";
+      selectedComponentId = bug?.component_id ?? "";
     } catch (e) {
       error = e?.response?.data?.error ?? e?.message ?? "Error cargando bug";
     } finally {
@@ -61,6 +70,7 @@
         description: bug.description,
         severity: bug.severity,
         status: bug.status,
+        component_id: selectedComponentId || null,
         test_case_id: bug.test_case_id || null,
       });
       goto("/bugs");
@@ -147,8 +157,8 @@
       <div class="grid gap-6 md:grid-cols-2">
         <div class="space-y-2">
           <label for="componentId" class="block text-sm font-medium">Componente</label>
-          <select id="componentId" bind:value={selectedComponentId} class="form-input">
-            <option value="">Todos los componentes</option>
+          <select id="componentId" bind:value={selectedComponentId} onchange={handleComponentChange} class="form-input">
+            <option value="">Sin componente</option>
             {#each components as component}
               <option value={component.id}>{component.name}</option>
             {/each}

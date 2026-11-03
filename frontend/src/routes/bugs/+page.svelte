@@ -222,9 +222,7 @@
               {#if bug.test_case?.title}
                 <span>Caso: {bug.test_case.title}</span>
               {/if}
-              {#if bug.test_case?.component?.name}
-                <span>Componente: {bug.test_case.component.name}</span>
-              {/if}
+              <span>Componente: {bug.component?.name ?? "Sin asignar"}</span>
               {#if bug.created_at}
                 <span
                   >Creado: {new Date(bug.created_at).toLocaleDateString()}</span

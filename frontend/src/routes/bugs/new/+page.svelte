@@ -4,7 +4,7 @@
   import { ArrowLeft, Save } from "lucide-svelte";
   import { refreshMe } from "$lib/stores/auth.js";
   import { createBug } from "$lib/api/bugs.js";
-  import { getComponents } from "$lib/api/components.js";
+  import { getAllComponents } from "$lib/api/components.js";
   import { getTestCases } from "$lib/api/test-cases.js";
 
   let components = $state([]);
@@ -30,21 +30,29 @@
     }),
   );
 
+  // Un test case de otro componente no puede quedar seleccionado
+  function handleComponentChange() {
+    if (!filteredTestCases.some((tc) => tc.id === form.test_case_id)) {
+      form.test_case_id = "";
+    }
+  }
+
   onMount(async () => {
     try {
       const me = await refreshMe();
       if (!me) return goto("/login");
       const params = new URLSearchParams(window.location.search);
-      const [compRes, tcRes] = await Promise.all([
-        getComponents({ per_page: 100 }),
+      const [allComponents, tcRes] = await Promise.all([
+        getAllComponents(),
         getTestCases({ per_page: 100 }),
       ]);
-      components = compRes?.data ?? compRes ?? [];
+      components = allComponents;
       testCases = tcRes?.data ?? tcRes ?? [];
 
-      const tcId = params.get("testCaseId");
+      // Se convierten a número porque las opciones de los select usan el id numérico
+      const tcId = Number(params.get("testCaseId"));
       if (tcId) form.test_case_id = tcId;
-      const compId = params.get("componentId");
+      const compId = Number(params.get("componentId"));
       if (compId) selectedComponentId = compId;
     } catch (e) {
       error = e?.response?.data?.error ?? e?.message ?? "Error cargando datos";
@@ -66,6 +74,7 @@
         description: form.description,
         severity: form.severity,
         status: form.status,
+        component_id: selectedComponentId || null,
         test_case_id: form.test_case_id || null,
       };
       await createBug(payload);
@@ -127,8 +136,8 @@
       <div class="grid gap-6 md:grid-cols-2">
         <div class="space-y-2">
           <label for="componentId" class="block text-sm font-medium">Componente</label>
-          <select id="componentId" bind:value={selectedComponentId} class="form-input">
-            <option value="">Todos los componentes</option>
+          <select id="componentId" bind:value={selectedComponentId} onchange={handleComponentChange} class="form-input">
+            <option value="">Sin componente</option>
             {#each components as component}
               <option value={component.id}>{component.name}</option>
             {/each}

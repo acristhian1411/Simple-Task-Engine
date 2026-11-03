@@ -18,10 +18,16 @@ class Bugs extends Model implements Auditable
         'description',
         'status',
         'severity',
+        'component_id',
         'test_case_id',
         'test_step_id',
         'reported_by_id',
     ];
+
+    public function component(): BelongsTo
+    {
+        return $this->belongsTo(Components::class, 'component_id');
+    }
 
     public function testCase(): BelongsTo
     {

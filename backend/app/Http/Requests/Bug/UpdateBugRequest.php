@@ -18,6 +18,7 @@ class UpdateBugRequest extends FormRequest
             'description' => ['sometimes', 'required', 'string'],
             'severity' => ['sometimes', 'required', 'string', 'max:20'],
             'status' => ['nullable', 'string', 'max:20'],
+            'component_id' => ['nullable', 'integer', 'exists:components,id'],
             'test_case_id' => ['nullable', 'integer', 'exists:test_cases,id'],
             'test_step_id' => ['nullable', 'integer', 'exists:test_steps,id'],
         ];

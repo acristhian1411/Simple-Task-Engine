@@ -176,6 +176,10 @@ class UseCasesImporter
         if (!in_array('canceled_at', $schema->getColumnListing('recordings'), true)) {
             throw new RuntimeException('PostgreSQL target is missing recordings.canceled_at; run migrations first.');
         }
+
+        if (!in_array('component_id', $schema->getColumnListing('bugs'), true)) {
+            throw new RuntimeException('PostgreSQL target is missing bugs.component_id; run migrations first.');
+        }
     }
 
     private function runImport(): void
@@ -235,12 +239,15 @@ class UseCasesImporter
         });
 
         $this->importTable('bugs', 'bugs', function ($row) {
+            $testCaseId = $this->optionalMappedId('test_cases', $row->test_case_id, 'bugs', $row->id);
+
             return $this->target->table('bugs')->insertGetId([
                 'title' => $row->title,
                 'description' => $row->description,
                 'severity' => $row->severity,
                 'status' => $row->status,
-                'test_case_id' => $this->optionalMappedId('test_cases', $row->test_case_id, 'bugs', $row->id),
+                'component_id' => $testCaseId === null ? null : $this->target->table('test_cases')->where('id', $testCaseId)->value('component_id'),
+                'test_case_id' => $testCaseId,
                 'test_step_id' => $this->optionalMappedId('test_steps', $row->test_step_id, 'bugs', $row->id),
                 'reported_by_id' => $this->optionalMappedId('users', $row->reported_by_id, 'bugs', $row->id),
                 'created_at' => $this->timestamp($row->created_at, 'bugs', $row->id),
