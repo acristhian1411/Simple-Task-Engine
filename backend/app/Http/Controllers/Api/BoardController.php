@@ -52,7 +52,7 @@ class BoardController extends ApiController
     public function show(int $id)
     {
         try {
-            $board = $this->service->findOrFail($id);
+            $board = $this->service->findForUserOrFail($id, Auth::id());
             return $this->showOne($board);
         } catch (\Throwable $e) {
             return $this->respondException($e);
@@ -62,7 +62,7 @@ class BoardController extends ApiController
     public function update(UpdateBoardRequest $request, int $id)
     {
         try {
-            $board = $this->service->findOrFail($id);
+            $board = $this->service->findOwnedOrFail($id, Auth::id());
             $board = $this->service->update($board, $request->all());
             return $this->showAfterAction($board, 'update');
         } catch (\Throwable $e) {
@@ -73,9 +73,42 @@ class BoardController extends ApiController
     public function destroy(int $id)
     {
         try {
-            $board = $this->service->findOrFail($id);
+            $board = $this->service->findOwnedOrFail($id, Auth::id());
             $this->service->delete($board);
             return $this->showMessage('Registro eliminado con exito');
+        } catch (\Throwable $e) {
+            return $this->respondException($e);
+        }
+    }
+
+    public function members(int $id)
+    {
+        try {
+            $board = $this->service->findForUserOrFail($id, Auth::id());
+            return response()->json(['data' => $this->service->members($board)]);
+        } catch (\Throwable $e) {
+            return $this->respondException($e);
+        }
+    }
+
+    public function addMember(Request $request, int $id)
+    {
+        try {
+            $data = $request->validate([
+                'email' => ['required', 'email'],
+            ]);
+            $board = $this->service->findOwnedOrFail($id, Auth::id());
+            return response()->json(['data' => $this->service->addMember($board, $data['email'])], 201);
+        } catch (\Throwable $e) {
+            return $this->respondException($e);
+        }
+    }
+
+    public function removeMember(int $id, int $userId)
+    {
+        try {
+            $board = $this->service->findOwnedOrFail($id, Auth::id());
+            return response()->json(['data' => $this->service->removeMember($board, (int) $userId)]);
         } catch (\Throwable $e) {
             return $this->respondException($e);
         }

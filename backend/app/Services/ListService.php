@@ -3,15 +3,21 @@
 namespace App\Services;
 
 use App\Models\ListModel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class ListService
 {
+    public function __construct(private BoardAccessService $access) {}
+
     public function list(array $filters = []): Collection
     {
         $query = ListModel::query();
         if (isset($filters['board_id'])) {
             $query->where('board_id', $filters['board_id']);
+        }
+        if (isset($filters['user_id'])) {
+            $this->scopeAccessible($query, (int) $filters['user_id']);
         }
         if (isset($filters['search'])) {
             $search = $filters['search'];
@@ -31,6 +37,9 @@ class ListService
         if (isset($filters['board_id'])) {
             $query->where('board_id', $filters['board_id']);
         }
+        if (isset($filters['user_id'])) {
+            $this->scopeAccessible($query, (int) $filters['user_id']);
+        }
         if (isset($filters['search'])) {
             $s = $filters['search'];
             $query->where(function ($q) use ($s) {
@@ -39,6 +48,14 @@ class ListService
             });
         }
         return $query->orderBy('order')->get();
+    }
+
+    private function scopeAccessible(Builder $query, int $userId): Builder
+    {
+        return $query->whereHas(
+            'board',
+            fn (Builder $q) => $this->access->scopeAccessible($q, $userId)
+        );
     }
 
     public function create(array $data): ListModel

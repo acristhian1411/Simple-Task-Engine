@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -11,6 +13,16 @@ class Board extends Model implements Auditable
     use SoftDeletes;
     use \OwenIt\Auditing\Auditable;
     protected $fillable = ["title", "description", "user_id"];
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, "user_id");
+    }
+
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, "board_user")->withTimestamps();
+    }
 
     public function lists(): HasMany
     {

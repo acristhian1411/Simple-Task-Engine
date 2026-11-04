@@ -9,6 +9,7 @@ use App\Models\Recordings;
 use App\Models\Task;
 use App\Services\BugService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BugController extends ApiController
 {
@@ -151,7 +152,7 @@ class BugController extends ApiController
     {
         try {
             $bug = $this->service->findOrFail($id);
-            return $this->showAll($this->service->tasks($bug));
+            return $this->showAll($this->service->tasks($bug, Auth::id()));
         } catch (\Throwable $e) {
             return $this->respondException($e);
         }

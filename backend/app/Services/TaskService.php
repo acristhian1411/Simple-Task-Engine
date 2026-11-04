@@ -8,11 +8,19 @@ use Illuminate\Validation\ValidationException;
 
 class TaskService
 {
+    public function __construct(private BoardAccessService $access) {}
+
     public function list(array $filters = []): Collection
     {
         $query = Task::query();
         if (isset($filters['list_id'])) {
             $query->where('list_id', $filters['list_id']);
+        }
+        if (isset($filters['user_id'])) {
+            $query->whereHas(
+                'list.board',
+                fn ($q) => $this->access->scopeAccessible($q, (int) $filters['user_id'])
+            );
         }
         if (isset($filters['status'])) {
             $query->where('status', $filters['status']);

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ComponentService
 {
+    public function __construct(private BoardAccessService $access) {}
+
     public function list(array $filters = []): Collection
     {
         $query = Components::query();
@@ -235,9 +237,16 @@ class ComponentService
         return false;
     }
 
-    public function tasks(Components $component): Collection
+    public function tasks(Components $component, ?int $userId = null): Collection
     {
-        return $component->tasks()->get();
+        $query = $component->tasks();
+        if ($userId !== null) {
+            $query->whereHas(
+                'list.board',
+                fn ($q) => $this->access->scopeAccessible($q, $userId)
+            );
+        }
+        return $query->get();
     }
 
     public function testCases(Components $component): Collection

@@ -3,6 +3,7 @@
 namespace App\Traits;
 //use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
@@ -221,6 +222,9 @@ trait ApiResponser
 	{
 		$url = request()->url();
 		$queryParams = request()->query();
+
+		// La caché es por URL: incluir al usuario evita servir datos de otra cuenta.
+		$queryParams['_auth'] = Auth::id();
 
 		ksort($queryParams);
 

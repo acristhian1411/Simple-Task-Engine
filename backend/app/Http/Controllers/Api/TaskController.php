@@ -5,18 +5,24 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
+use App\Services\BoardAccessService;
 use App\Services\TaskService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends ApiController
 {
-    public function __construct(private TaskService $service) {}
+    public function __construct(
+        private TaskService $service,
+        private BoardAccessService $access,
+    ) {}
 
     public function index(Request $request)
     {
         try {
              $data = $this->service->list([
                 'list_id' => $request->query('list_id'),
+                'user_id' => Auth::id() ?? null,
                 'status' => $request->query('status'),
                 'search' => $request->query('search'),
             ]);
@@ -29,6 +35,7 @@ class TaskController extends ApiController
     public function indexByList(int $listId)
     {
         try {
+            $this->access->assertList($listId, Auth::id());
             $data = $this->service->list([
                 'list_id' => $listId,
             ]);
@@ -41,7 +48,9 @@ class TaskController extends ApiController
     public function store(StoreTaskRequest $request)
     {
         try {
-             $task = $this->service->create($request->validated());
+             $data = $request->validated();
+             $this->access->assertList((int) $data['list_id'], Auth::id());
+             $task = $this->service->create($data);
             return $this->showAfterAction($task, 'create', 201);
         } catch (\Throwable $e) {
             return $this->respondException($e);
@@ -51,7 +60,8 @@ class TaskController extends ApiController
     public function show(int $id)
     {
         try {
-             $task = $this->service->findOrFail($id);
+             $this->access->assertTask($id, Auth::id());
+            $task = $this->service->findOrFail($id);
             return $this->showOne($task);
         } catch (\Throwable $e) {
             return $this->respondException($e);
@@ -61,8 +71,13 @@ class TaskController extends ApiController
     public function update(UpdateTaskRequest $request, int $id)
     {
         try {
-             $task = $this->service->findOrFail($id);
-             $task = $this->service->update($task, $request->all());
+             $this->access->assertTask($id, Auth::id());
+            $task = $this->service->findOrFail($id);
+             $data = $request->all();
+             if (!empty($data['list_id'])) {
+                 $this->access->assertList((int) $data['list_id'], Auth::id());
+             }
+             $task = $this->service->update($task, $data);
             return $this->showAfterAction($task, 'update');
         } catch (\Throwable $e) {
             return $this->respondException($e);
@@ -72,7 +87,8 @@ class TaskController extends ApiController
     public function destroy(int $id)
     {
         try {
-             $task = $this->service->findOrFail($id);
+             $this->access->assertTask($id, Auth::id());
+            $task = $this->service->findOrFail($id);
             $this->service->delete($task);
             return $this->showMessage('Registro eliminado con exito');
         } catch (\Throwable $e) {
@@ -86,6 +102,7 @@ class TaskController extends ApiController
             $data = $request->validate([
                 'component_id' => ['required', 'integer', 'exists:components,id'],
             ]);
+            $this->access->assertTask($id, Auth::id());
             $task = $this->service->findOrFail($id);
             $this->service->attachComponent($task, $data['component_id']);
             return $this->showMessage('Componente vinculado con exito');
@@ -97,6 +114,7 @@ class TaskController extends ApiController
     public function detachComponent(int $id, int $componentId)
     {
         try {
+            $this->access->assertTask($id, Auth::id());
             $task = $this->service->findOrFail($id);
             $this->service->detachComponent($task, $componentId);
             return $this->showMessage('Componente desvinculado con exito');
@@ -112,6 +130,7 @@ class TaskController extends ApiController
                 'component_ids' => ['required', 'array'],
                 'component_ids.*' => ['integer', 'exists:components,id'],
             ]);
+            $this->access->assertTask($id, Auth::id());
             $task = $this->service->findOrFail($id);
             $this->service->syncComponents($task, $data['component_ids']);
             return $this->showMessage('Componentes sincronizados con exito');
@@ -127,6 +146,7 @@ class TaskController extends ApiController
                 'bug_id' => ['required', 'integer', 'exists:bugs,id'],
                 'relation_type' => ['nullable', 'string', 'in:fixes,blocked_by,related'],
             ]);
+            $this->access->assertTask($id, Auth::id());
             $task = $this->service->findOrFail($id);
             $this->service->attachBug($task, $data['bug_id'], $data['relation_type'] ?? 'related');
             return $this->showMessage('Bug vinculado con exito');
@@ -138,6 +158,7 @@ class TaskController extends ApiController
     public function detachBug(int $id, int $bugId)
     {
         try {
+            $this->access->assertTask($id, Auth::id());
             $task = $this->service->findOrFail($id);
             $this->service->detachBug($task, $bugId);
             return $this->showMessage('Bug desvinculado con exito');
@@ -153,6 +174,7 @@ class TaskController extends ApiController
                 'bug_ids' => ['required', 'array'],
                 'bug_ids.*' => ['integer', 'exists:bugs,id'],
             ]);
+            $this->access->assertTask($id, Auth::id());
             $task = $this->service->findOrFail($id);
             $this->service->syncBugs($task, $data['bug_ids']);
             return $this->showMessage('Bugs sincronizados con exito');
@@ -164,6 +186,7 @@ class TaskController extends ApiController
     public function blockedBy(int $id)
     {
         try {
+            $this->access->assertTask($id, Auth::id());
             $task = $this->service->findOrFail($id);
             return $this->showAll($this->service->blockedBy($task));
         } catch (\Throwable $e) {

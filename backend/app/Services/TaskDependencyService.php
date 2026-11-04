@@ -8,6 +8,8 @@ use Illuminate\Validation\ValidationException;
 
 class TaskDependencyService
 {
+    public function __construct(private BoardAccessService $access) {}
+
     public function list(array $filters = []): Collection
     {
         $query = TaskDependency::query();
@@ -16,6 +18,11 @@ class TaskDependencyService
         }
         if (isset($filters['depends_on_task_id'])) {
             $query->where('depends_on_task_id', $filters['depends_on_task_id']);
+        }
+        if (isset($filters['user_id'])) {
+            $userId = (int) $filters['user_id'];
+            $query->whereHas('task.list.board', fn ($q) => $this->access->scopeAccessible($q, $userId))
+                ->whereHas('dependsOn.list.board', fn ($q) => $this->access->scopeAccessible($q, $userId));
         }
         return $query->latest()->get();
     }

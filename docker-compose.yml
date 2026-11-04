@@ -19,11 +19,11 @@ services:
           - backend-php
 
   back-nginx:
-    image: nginx:alpine
+    build:
+      context: ./infra/backend/nginx
     container_name: ste_backend_nginx
     volumes:
       - ./backend:/var/www/html:ro
-      - ./infra/backend/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "18081:80"
     depends_on:
