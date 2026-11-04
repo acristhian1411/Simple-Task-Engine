@@ -48,6 +48,7 @@ class ImportUseCasesCommandTest extends TestCase
 
         $this->assertNotSame('salt:' . str_repeat('a', 128), $user->password);
         $this->assertSame((int) $componentId, (int) DB::table('test_cases')->value('component_id'));
+        $this->assertSame((int) $componentId, (int) DB::table('bugs')->value('component_id'));
         $this->assertSame('App\\Models\\Components', DB::table('comments')->value('commentable_type'));
         $this->assertSame((int) $componentId, (int) DB::table('comments')->value('commentable_id'));
         $this->assertSame('App\\Models\\TestCases', DB::table('audits')->value('auditable_type'));
@@ -180,6 +181,7 @@ class ImportUseCasesCommandTest extends TestCase
             $table->text('description');
             $table->string('severity');
             $table->string('status');
+            $table->foreignId('component_id')->nullable()->constrained('components')->nullOnDelete();
             $table->foreignId('test_case_id')->nullable()->constrained('test_cases')->nullOnDelete();
             $table->foreignId('test_step_id')->nullable()->constrained('test_steps')->nullOnDelete();
             $table->foreignId('reported_by_id')->nullable()->constrained('users')->nullOnDelete();

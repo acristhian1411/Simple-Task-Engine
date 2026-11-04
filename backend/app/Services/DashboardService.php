@@ -40,14 +40,14 @@ class DashboardService
             ->map(fn($value) => (int) $value)
             ->all();
 
-        $recentBugs = Bugs::with('testCase.component')
+        $recentBugs = Bugs::with('component')
             ->latest()
             ->limit(10)
             ->get()
             ->map(fn(Bugs $bug) => [
                 'id' => $bug->id,
                 'title' => $bug->title,
-                'moduleName' => $bug->testCase?->component?->name,
+                'moduleName' => $bug->component?->name,
                 'createdAt' => $bug->created_at,
                 'severity' => $bug->severity,
                 'status' => $bug->status,

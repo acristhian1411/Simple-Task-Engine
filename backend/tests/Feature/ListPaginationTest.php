@@ -50,6 +50,7 @@ class ListPaginationTest extends TestCase
             $table->text('description');
             $table->string('status');
             $table->string('severity');
+            $table->unsignedBigInteger('component_id')->nullable();
             $table->unsignedBigInteger('test_case_id')->nullable();
             $table->unsignedBigInteger('test_step_id')->nullable();
             $table->unsignedBigInteger('reported_by_id')->nullable();
@@ -71,14 +72,14 @@ class ListPaginationTest extends TestCase
         ]);
 
         DB::table('bugs')->insert([
-            ['id' => 1, 'title' => 'Billing bug one', 'description' => '', 'status' => 'open', 'severity' => 'low', 'test_case_id' => 1, 'created_at' => '2026-01-01 00:00:00', 'updated_at' => '2026-01-01 00:00:00'],
-            ['id' => 2, 'title' => 'Catalog bug', 'description' => '', 'status' => 'open', 'severity' => 'low', 'test_case_id' => 2, 'created_at' => '2026-01-02 00:00:00', 'updated_at' => '2026-01-02 00:00:00'],
-            ['id' => 3, 'title' => 'Billing bug two', 'description' => '', 'status' => 'open', 'severity' => 'low', 'test_case_id' => 3, 'created_at' => '2026-01-03 00:00:00', 'updated_at' => '2026-01-03 00:00:00'],
-            ['id' => 4, 'title' => 'Billing bug three', 'description' => '', 'status' => 'open', 'severity' => 'low', 'test_case_id' => 4, 'created_at' => '2026-01-04 00:00:00', 'updated_at' => '2026-01-04 00:00:00'],
+            ['id' => 1, 'title' => 'Billing bug one', 'description' => '', 'status' => 'open', 'severity' => 'low', 'component_id' => 1, 'test_case_id' => 1, 'created_at' => '2026-01-01 00:00:00', 'updated_at' => '2026-01-01 00:00:00'],
+            ['id' => 2, 'title' => 'Catalog bug', 'description' => '', 'status' => 'open', 'severity' => 'low', 'component_id' => 2, 'test_case_id' => 2, 'created_at' => '2026-01-02 00:00:00', 'updated_at' => '2026-01-02 00:00:00'],
+            ['id' => 3, 'title' => 'Billing bug two', 'description' => '', 'status' => 'open', 'severity' => 'low', 'component_id' => 1, 'test_case_id' => 3, 'created_at' => '2026-01-03 00:00:00', 'updated_at' => '2026-01-03 00:00:00'],
+            ['id' => 4, 'title' => 'Billing bug three', 'description' => '', 'status' => 'open', 'severity' => 'low', 'component_id' => 1, 'test_case_id' => null, 'created_at' => '2026-01-04 00:00:00', 'updated_at' => '2026-01-04 00:00:00'],
         ]);
 
         DB::table('component_dependencies')->insert([
-            ['id' => 1, 'component_id' => 1, 'depends_on_id' => 2, 'criticality' => 'critical', 'created_at' => '2026-01-01 00:00:00', 'updated_at' => '2026-01-01 00:00:00'],
+            ['id' => 1, 'component_id' => 1, 'depends_on_id' => 2, 'criticality' => 'critical', 'deleted_at' => null, 'created_at' => '2026-01-01 00:00:00', 'updated_at' => '2026-01-01 00:00:00'],
             ['id' => 2, 'component_id' => 3, 'depends_on_id' => 2, 'criticality' => 'critical', 'deleted_at' => '2026-01-02 00:00:00', 'created_at' => '2026-01-02 00:00:00', 'updated_at' => '2026-01-02 00:00:00'],
         ]);
 
@@ -97,6 +98,40 @@ class ListPaginationTest extends TestCase
             ->assertOk()
             ->assertJsonPath('total', 3)
             ->assertJsonPath('data.0.id', 1);
+    }
+
+    public function test_bug_without_test_case_is_listed_with_its_component(): void
+    {
+        $this->getJson('/api/bugs?component_id=1&per_page=2&page=1')
+            ->assertOk()
+            ->assertJsonPath('data.0.id', 4)
+            ->assertJsonPath('data.0.test_case', null)
+            ->assertJsonPath('data.0.component.name', 'Billing');
+    }
+
+    public function test_bug_keeps_chosen_component_when_created_without_test_case(): void
+    {
+        $this->postJson('/api/bugs', ['title' => 'Sin caso', 'description' => 'x', 'status' => 'open', 'severity' => 'low', 'component_id' => 2])
+            ->assertCreated()
+            ->assertJsonPath('data.component_id', 2);
+    }
+
+    public function test_bug_inherits_test_case_component_when_none_is_chosen(): void
+    {
+        $this->postJson('/api/bugs', ['title' => 'Con caso', 'description' => 'x', 'status' => 'open', 'severity' => 'low', 'test_case_id' => 2])
+            ->assertCreated()
+            ->assertJsonPath('data.component_id', 2);
+
+        $this->putJson('/api/bugs/4', ['component_id' => null, 'test_case_id' => 3])
+            ->assertOk()
+            ->assertJsonPath('data.component_id', 1);
+    }
+
+    public function test_chosen_component_wins_over_test_case_component(): void
+    {
+        $this->postJson('/api/bugs', ['title' => 'Elegido', 'description' => 'x', 'status' => 'open', 'severity' => 'low', 'component_id' => 3, 'test_case_id' => 2])
+            ->assertCreated()
+            ->assertJsonPath('data.component_id', 3);
     }
 
     public function test_components_are_filtered_by_live_critical_dependencies_before_pagination(): void

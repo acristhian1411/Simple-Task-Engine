@@ -21,6 +21,7 @@
   import Pagination from "$lib/components/ui/Pagination.svelte";
   import { unwrapList } from "$lib/api/http.js";
   import ComponentGraph from "$lib/components/flow/ComponentGraph.svelte";
+  import ComponentParentSelect from "$lib/components/ComponentParentSelect.svelte";
   import {
     getComponent,
     getComponents,
@@ -291,12 +292,12 @@
           </div>
           <div class="space-y-2">
             <label for="parent_id" class="block text-sm font-medium">Componente padre</label>
-            <select id="parent_id" bind:value={component.parent_id} class="form-input">
-              <option value="">Sin padre</option>
-              {#each possibleParents as p}
-                <option value={p.id}>{p.name} (#{p.id})</option>
-              {/each}
-            </select>
+            <ComponentParentSelect
+              inputId="parent_id"
+              components={possibleParents}
+              excludeId={component.id}
+              bind:value={component.parent_id}
+            />
           </div>
         </div>
         <div class="space-y-2">

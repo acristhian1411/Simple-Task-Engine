@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Bugs;
 use App\Models\Comments;
+use App\Models\Components;
 use App\Models\Recordings;
 use App\Models\Task;
 use App\Models\TestCases;
@@ -23,6 +24,7 @@ class BugSeeder extends Seeder
 
         $failedCase = TestCases::where('title', 'Login con contraseña incorrecta')->first();
         $step = TestSteps::where('test_case_id', $failedCase?->id)->first();
+        $boardUi = Components::where('name', 'UI de tableros')->first();
 
         $bug1 = Bugs::updateOrCreate(
             ['title' => 'El error de login no se muestra en pantalla'],
@@ -30,6 +32,7 @@ class BugSeeder extends Seeder
                 'description' => 'Al ingresar una contraseña incorrecta la app redirige sin mostrar mensaje.',
                 'severity' => 'high',
                 'status' => 'open',
+                'component_id' => $failedCase?->component_id,
                 'test_case_id' => $failedCase?->id,
                 'test_step_id' => $step?->id,
                 'reported_by_id' => $qa?->id,
@@ -42,6 +45,7 @@ class BugSeeder extends Seeder
                 'description' => 'Al mover tareas y recargar la página, el orden vuelve al original.',
                 'severity' => 'medium',
                 'status' => 'in_progress',
+                'component_id' => $boardUi?->id,
                 'reported_by_id' => $qa?->id,
             ]
         );
@@ -52,6 +56,7 @@ class BugSeeder extends Seeder
                 'description' => 'El uso de memoria crece de forma continua tras varios minutos.',
                 'severity' => 'low',
                 'status' => 'resolved',
+                'component_id' => $boardUi?->id,
                 'reported_by_id' => $qa?->id,
             ]
         );

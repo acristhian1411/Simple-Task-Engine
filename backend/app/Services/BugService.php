@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Bugs;
 use App\Models\Task;
+use App\Models\TestCases;
 use App\Models\Recordings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,9 +23,7 @@ class BugService
             $query->where('test_step_id', $filters['test_step_id']);
         }
         if (isset($filters['component_id'])) {
-            $query->whereHas('testCase', function ($query) use ($filters) {
-                $query->where('component_id', $filters['component_id']);
-            });
+            $query->where('component_id', $filters['component_id']);
         }
         if (isset($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -44,7 +43,7 @@ class BugService
 
     public function listWithRelations(array $filters = []): Collection
     {
-        $query = Bugs::with('testCase.component', 'testStep', 'reportedBy');
+        $query = Bugs::with('component', 'testCase', 'testStep', 'reportedBy');
         if (isset($filters['test_case_id'])) {
             $query->where('test_case_id', $filters['test_case_id']);
         }
@@ -52,9 +51,7 @@ class BugService
             $query->where('test_step_id', $filters['test_step_id']);
         }
         if (isset($filters['component_id'])) {
-            $query->whereHas('testCase', function ($query) use ($filters) {
-                $query->where('component_id', $filters['component_id']);
-            });
+            $query->where('component_id', $filters['component_id']);
         }
         if (isset($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -75,7 +72,7 @@ class BugService
     public function create(array $data): Bugs
     {
         $data['reported_by_id'] = $data['reported_by_id'] ?? Auth::id();
-        return Bugs::create($data);
+        return Bugs::create($this->withTestCaseComponent($data));
     }
 
     public function findOrFail(int $id): Bugs
@@ -85,7 +82,7 @@ class BugService
 
     public function update(Bugs $bug, array $data): Bugs
     {
-        $bug->update($data);
+        $bug->update($this->withTestCaseComponent($data));
         return $bug;
     }
 
@@ -156,5 +153,14 @@ class BugService
         $recording->recordable()->associate($bug);
         $recording->save();
         return $recording;
+    }
+
+    // Si no se eligió componente, el bug hereda el de su test case
+    private function withTestCaseComponent(array $data): array
+    {
+        if (empty($data['component_id']) && !empty($data['test_case_id'])) {
+            $data['component_id'] = TestCases::whereKey($data['test_case_id'])->value('component_id');
+        }
+        return $data;
     }
 }
