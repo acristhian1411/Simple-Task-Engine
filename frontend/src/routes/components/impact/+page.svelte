@@ -3,7 +3,8 @@
   import { goto } from "$app/navigation";
   import { ArrowLeft, Network, List as ListIcon } from "lucide-svelte";
   import { refreshMe } from "$lib/stores/auth.js";
-  import { getComponents, getComponentImpact, getComponentDependents, getComponentDependencies } from "$lib/api/components.js";
+  import { getAllComponents, getComponentImpact, getComponentDependents, getComponentDependencies } from "$lib/api/components.js";
+  import ComponentSelect from "$lib/components/ComponentSelect.svelte";
   import ImpactGraph from "$lib/components/flow/ImpactGraph.svelte";
 
   let components = $state([]);
@@ -46,8 +47,7 @@
     try {
       const me = await refreshMe();
       if (!me) return goto("/login");
-      const res = await getComponents({ per_page: 100 });
-      components = res?.data ?? res ?? [];
+      components = await getAllComponents();
       if (components.length > 0) {
         selectedId = String(components[0].id);
       }
@@ -85,11 +85,14 @@
   {:else}
     <div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-4">
       <div class="flex flex-wrap items-center gap-3">
-        <select bind:value={selectedId} class="form-input w-auto min-w-[240px]">
-          {#each components as comp}
-            <option value={String(comp.id)}>{comp.name} (#{comp.id})</option>
-          {/each}
-        </select>
+        <div class="min-w-[240px]">
+          <ComponentSelect
+            inputId="impact_component"
+            {components}
+            clearable={false}
+            bind:value={selectedId}
+          />
+        </div>
 
         <div class="flex rounded-lg border border-border-light dark:border-border-dark overflow-hidden">
           <button

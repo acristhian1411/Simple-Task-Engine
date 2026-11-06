@@ -20,10 +20,11 @@
     attachTaskBug,
     detachTaskBug,
   } from "$lib/api/tasks.js";
-  import { getComponents } from "$lib/api/components.js";
+  import { getAllComponents } from "$lib/api/components.js";
   import { getBugs } from "$lib/api/bugs.js";
   import { unwrapList } from "$lib/api/http.js";
   import Comments from "$lib/components/Comments.svelte";
+  import ComponentSelect from "$lib/components/ComponentSelect.svelte";
   import { openAuditSidebar } from "$lib/stores/auditSidebar.svelte.js";
 
   export let open = false;
@@ -128,14 +129,14 @@
       const [subs, deps, comps, bugs] = await Promise.all([
         getTaskSubtasks(task.id),
         getTaskDependencies(task.id),
-        getComponents({ per_page: 100 }),
+        getAllComponents(),
         getBugs({ per_page: 100 }),
       ]);
       subtasks = Array.isArray(subs) ? subs : [];
       dependencies = Array.isArray(deps) ? deps : [];
       taskComponents = Array.isArray(task.components) ? task.components : [];
       taskBugs = Array.isArray(task.bugs) ? task.bugs : [];
-      componentsOptions = unwrapList(comps);
+      componentsOptions = comps;
       bugsOptions = unwrapList(bugs);
       titleDraft = task.title || "";
       descDraft = task.description || "";
@@ -840,15 +841,13 @@
               {/if}
 
               <div class="flex items-center gap-2 pt-1">
-                <select
-                  bind:value={selectedComponentId}
-                  class="flex-1 px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                >
-                  <option value="">Seleccionar componente...</option>
-                  {#each componentsOptions as c (c.id)}
-                    <option value={c.id}>{c.name || `#${c.id}`}</option>
-                  {/each}
-                </select>
+                <div class="flex-1">
+                  <ComponentSelect
+                    inputId="task_component"
+                    components={componentsOptions}
+                    bind:value={selectedComponentId}
+                  />
+                </div>
                 <button
                   class="px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors shrink-0"
                   on:click={submitComponent}

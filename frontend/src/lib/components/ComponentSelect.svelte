@@ -2,7 +2,12 @@
   export let components = [];
   export let value = "";
   export let excludeId = null;
-  export let inputId = "parent_id";
+  export let inputId = "component_id";
+  export let placeholder = "Buscar por nombre o ID...";
+  export let clearLabel = "Quitar componente";
+  export let clearable = true;
+  // Se llama con el nuevo valor cada vez que cambia la selección
+  export let onchange = () => {};
 
   let search = "";
   let open = false;
@@ -12,6 +17,10 @@
   );
   $: if (selectedComponent && !open) {
     search = selectedComponent.name;
+  }
+  // Si la página vacía el valor (ej. después de agregar), el texto también se borra
+  $: if (!value && !open) {
+    search = "";
   }
   $: filteredComponents = components
     .filter((component) => String(component.id) !== String(excludeId))
@@ -24,6 +33,12 @@
       );
     });
 
+  function setValue(newValue) {
+    if (String(newValue) === String(value)) return;
+    value = newValue;
+    onchange(newValue);
+  }
+
   function handleInput(event) {
     search = event.currentTarget.value;
     open = true;
@@ -31,18 +46,18 @@
       selectedComponent &&
       search.trim().toLowerCase() !== selectedComponent.name.toLowerCase()
     ) {
-      value = "";
+      setValue("");
     }
   }
 
   function selectComponent(component) {
-    value = String(component.id);
+    setValue(String(component.id));
     search = component.name;
     open = false;
   }
 
   function clearSelection() {
-    value = "";
+    setValue("");
     search = "";
     open = false;
   }
@@ -66,20 +81,20 @@
       oninput={handleInput}
       onfocus={() => (open = true)}
       onblur={closeOptions}
-      placeholder="Buscar por nombre o ID..."
+      {placeholder}
       autocomplete="off"
       class="form-input pr-9"
       aria-autocomplete="list"
       aria-controls="{inputId}-options"
       aria-expanded={open}
     />
-    {#if value}
+    {#if clearable && value}
       <button
         type="button"
         class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-text-sec-light hover:bg-slate-100 dark:text-text-sec-dark dark:hover:bg-slate-800"
         onclick={clearSelection}
-        aria-label="Quitar componente padre"
-        title="Quitar componente padre"
+        aria-label={clearLabel}
+        title={clearLabel}
       >
         ×
       </button>

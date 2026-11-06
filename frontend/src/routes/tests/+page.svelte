@@ -6,6 +6,7 @@
   import { getTestCases } from "$lib/api/test-cases.js";
   import { getAllComponents } from "$lib/api/components.js";
   import Pagination from "$lib/components/ui/Pagination.svelte";
+  import ComponentSelect from "$lib/components/ComponentSelect.svelte";
 
   let testCases = $state([]);
   let components = $state([]);
@@ -18,7 +19,7 @@
     total: 0,
   });
   let searchTerm = $state("");
-  let selectedComponent = $state("all");
+  let selectedComponent = $state("");
   let selectedStatus = $state("all");
   let searchTimer;
 
@@ -37,8 +38,7 @@
         page,
         per_page: pagination.per_page,
         search: searchTerm.trim() || undefined,
-        component_id:
-          selectedComponent === "all" ? undefined : selectedComponent,
+        component_id: selectedComponent || undefined,
         status: selectedStatus === "all" ? undefined : selectedStatus,
       });
       const rows = response?.data ?? response ?? [];
@@ -98,9 +98,9 @@
     </div>
     <!-- Si hay un componente filtrado, el nuevo test case arranca con ese módulo -->
     <a
-      href={selectedComponent === "all"
-        ? "/tests/new"
-        : `/tests/new?componentId=${selectedComponent}&returnTo=${encodeURIComponent("/tests")}`}
+      href={selectedComponent
+        ? `/tests/new?componentId=${selectedComponent}&returnTo=${encodeURIComponent("/tests")}`
+        : "/tests/new"}
       class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
     >
       <Plus size={18} />
@@ -123,16 +123,14 @@
         style="padding-left: 2.5rem"
       />
     </div>
-    <select
+    <ComponentSelect
+      inputId="component_filter"
+      {components}
+      placeholder="Todos los componentes"
+      clearLabel="Mostrar todos los componentes"
       bind:value={selectedComponent}
       onchange={() => load(1)}
-      class="form-input"
-    >
-      <option value="all">Todos los componentes</option>
-      {#each components as component}
-        <option value={component.id}>{component.name}</option>
-      {/each}
-    </select>
+    />
     <select
       bind:value={selectedStatus}
       onchange={() => load(1)}

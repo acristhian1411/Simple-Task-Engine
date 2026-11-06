@@ -6,6 +6,7 @@
   import { createTestCase } from "$lib/api/test-cases.js";
   import { getAllComponents } from "$lib/api/components.js";
   import { getReturnTo } from "$lib/utils/returnTo.js";
+  import ComponentSelect from "$lib/components/ComponentSelect.svelte";
 
   let components = $state([]);
   let loading = $state(true);
@@ -64,6 +65,10 @@
   });
 
   async function handleSubmit() {
+    if (!selectedComponentId) {
+      error = "Elegí un componente";
+      return;
+    }
     if (!form.title) {
       error = "El título es obligatorio";
       return;
@@ -149,12 +154,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-2">
             <label for="componentId" class="block text-sm font-medium">Componente</label>
-            <select id="componentId" bind:value={selectedComponentId} required class="form-input">
-              <option value="" disabled>Seleccioná un componente</option>
-              {#each components as component}
-                <option value={component.id}>{component.name}</option>
-              {/each}
-            </select>
+            <ComponentSelect
+              inputId="componentId"
+              {components}
+              bind:value={selectedComponentId}
+            />
           </div>
           <div class="space-y-2">
             <label for="title" class="block text-sm font-medium">Título del test case</label>

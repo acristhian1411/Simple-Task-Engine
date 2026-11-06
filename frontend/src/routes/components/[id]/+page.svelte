@@ -21,7 +21,7 @@
   import Pagination from "$lib/components/ui/Pagination.svelte";
   import { unwrapList } from "$lib/api/http.js";
   import ComponentGraph from "$lib/components/flow/ComponentGraph.svelte";
-  import ComponentParentSelect from "$lib/components/ComponentParentSelect.svelte";
+  import ComponentSelect from "$lib/components/ComponentSelect.svelte";
   import {
     getComponent,
     getComponents,
@@ -292,10 +292,11 @@
           </div>
           <div class="space-y-2">
             <label for="parent_id" class="block text-sm font-medium">Componente padre</label>
-            <ComponentParentSelect
+            <ComponentSelect
               inputId="parent_id"
               components={possibleParents}
               excludeId={component.id}
+              clearLabel="Quitar componente padre"
               bind:value={component.parent_id}
             />
           </div>
@@ -331,12 +332,11 @@
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1 flex-1 min-w-[200px]">
           <label for="depends_on" class="block text-xs font-medium text-text-sec-light dark:text-text-sec-dark">Depende de</label>
-          <select id="depends_on" bind:value={depDraft.depends_on_id} class="form-input">
-            <option value="">Seleccioná un componente</option>
-            {#each dependencyCandidates as cand}
-              <option value={cand.id}>{cand.name} (#{cand.id})</option>
-            {/each}
-          </select>
+          <ComponentSelect
+            inputId="depends_on"
+            components={dependencyCandidates}
+            bind:value={depDraft.depends_on_id}
+          />
         </div>
         <div class="space-y-1">
           <label for="criticality" class="block text-xs font-medium text-text-sec-light dark:text-text-sec-dark">Criticidad</label>

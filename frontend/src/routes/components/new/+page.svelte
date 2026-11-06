@@ -4,7 +4,7 @@
   import { ArrowLeft, Save } from "lucide-svelte";
   import { refreshMe } from "$lib/stores/auth.js";
   import { createComponent, getComponents } from "$lib/api/components.js";
-  import ComponentParentSelect from "$lib/components/ComponentParentSelect.svelte";
+  import ComponentSelect from "$lib/components/ComponentSelect.svelte";
 
   let loading = $state(true);
   let error = $state("");
@@ -86,9 +86,10 @@
         </div>
         <div class="space-y-2">
           <label for="parent_id" class="block text-sm font-medium">Componente padre</label>
-          <ComponentParentSelect
+          <ComponentSelect
             inputId="parent_id"
             components={components}
+            clearLabel="Quitar componente padre"
             bind:value={form.parent_id}
           />
         </div>

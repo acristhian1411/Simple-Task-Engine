@@ -6,6 +6,7 @@
   import { createBug } from "$lib/api/bugs.js";
   import { getAllComponents } from "$lib/api/components.js";
   import { getTestCases } from "$lib/api/test-cases.js";
+  import ComponentSelect from "$lib/components/ComponentSelect.svelte";
 
   let components = $state([]);
   let testCases = $state([]);
@@ -136,12 +137,12 @@
       <div class="grid gap-6 md:grid-cols-2">
         <div class="space-y-2">
           <label for="componentId" class="block text-sm font-medium">Componente</label>
-          <select id="componentId" bind:value={selectedComponentId} onchange={handleComponentChange} class="form-input">
-            <option value="">Sin componente</option>
-            {#each components as component}
-              <option value={component.id}>{component.name}</option>
-            {/each}
-          </select>
+          <ComponentSelect
+            inputId="componentId"
+            {components}
+            bind:value={selectedComponentId}
+            onchange={handleComponentChange}
+          />
         </div>
         <div class="space-y-2">
           <label for="test_case_id" class="block text-sm font-medium">Test Case relacionado</label>
