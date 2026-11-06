@@ -1,23 +1,12 @@
-import { http, unwrapList } from './http.js';
+import { http, getAllPages } from './http.js';
 
 export async function getComponents(params = {}) {
   const res = await http.get('/components', { params });
   return res.data;
 }
 
-export async function getAllComponents(params = {}) {
-  const components = [];
-  let page = 1;
-  let lastPage = 1;
-
-  do {
-    const response = await getComponents({ ...params, page, per_page: 100 });
-    components.push(...unwrapList(response));
-    lastPage = Math.max(1, Number(response?.last_page) || 1);
-    page += 1;
-  } while (page <= lastPage);
-
-  return components;
+export function getAllComponents(params = {}) {
+  return getAllPages(getComponents, params);
 }
 
 export async function getComponent(id) {

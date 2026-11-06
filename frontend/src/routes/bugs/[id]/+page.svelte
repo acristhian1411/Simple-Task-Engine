@@ -6,8 +6,9 @@
   import { openAuditSidebar } from "$lib/stores/auditSidebar.svelte.js";
   import { getBug, updateBug, deleteBug } from "$lib/api/bugs.js";
   import { getAllComponents } from "$lib/api/components.js";
-  import { getTestCases } from "$lib/api/test-cases.js";
+  import { getAllTestCases } from "$lib/api/test-cases.js";
   import ComponentSelect from "$lib/components/ComponentSelect.svelte";
+  import SearchSelect from "$lib/components/SearchSelect.svelte";
   import Comments from "$lib/components/Comments.svelte";
 
   let loading = $state(true);
@@ -28,7 +29,11 @@
 
   // Un test case de otro componente no puede quedar seleccionado
   function handleComponentChange() {
-    if (!filteredTestCases.some((tc) => tc.id === bug.test_case_id)) {
+    if (
+      !filteredTestCases.some(
+        (tc) => String(tc.id) === String(bug.test_case_id),
+      )
+    ) {
       bug.test_case_id = "";
     }
   }
@@ -40,16 +45,15 @@
       const me = await refreshMe();
       if (!me) return goto("/login");
       const id = window.location.pathname.split("/").filter(Boolean).pop();
-      const [bugRes, allComponents, tcRes] = await Promise.all([
+      const [bugRes, allComponents, allTestCases] = await Promise.all([
         getBug(id),
         getAllComponents(),
-        getTestCases({ per_page: 100 }),
+        getAllTestCases(),
       ]);
       bug = bugRes?.data ?? bugRes;
-      // Sin esto el select queda vacío en vez de mostrar "Sin caso relacionado"
       bug.test_case_id ??= "";
       components = allComponents;
-      testCases = tcRes?.data ?? tcRes ?? [];
+      testCases = allTestCases;
       selectedComponentId = bug?.component_id ?? "";
     } catch (e) {
       error = e?.response?.data?.error ?? e?.message ?? "Error cargando bug";
@@ -167,12 +171,15 @@
         </div>
         <div class="space-y-2">
           <label for="test_case_id" class="block text-sm font-medium">Test Case relacionado</label>
-          <select id="test_case_id" bind:value={bug.test_case_id} class="form-input">
-            <option value="">Sin caso relacionado</option>
-            {#each filteredTestCases as testCase}
-              <option value={testCase.id}>{testCase.title}</option>
-            {/each}
-          </select>
+          <SearchSelect
+            inputId="test_case_id"
+            items={filteredTestCases}
+            getLabel={(testCase) => testCase.title}
+            placeholder="Sin caso relacionado"
+            clearLabel="Quitar test case"
+            emptyText="No se encontraron test cases."
+            bind:value={bug.test_case_id}
+          />
         </div>
       </div>
 

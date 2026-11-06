@@ -1,8 +1,12 @@
-import { http } from './http.js';
+import { http, getAllPages } from './http.js';
 
 export async function getTestCases(params = {}) {
   const res = await http.get('/test-cases', { params });
   return res.data;
+}
+
+export function getAllTestCases(params = {}) {
+  return getAllPages(getTestCases, params);
 }
 
 export async function getTestCase(id) {

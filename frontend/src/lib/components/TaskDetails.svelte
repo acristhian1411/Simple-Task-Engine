@@ -21,10 +21,10 @@
     detachTaskBug,
   } from "$lib/api/tasks.js";
   import { getAllComponents } from "$lib/api/components.js";
-  import { getBugs } from "$lib/api/bugs.js";
-  import { unwrapList } from "$lib/api/http.js";
+  import { getAllBugs } from "$lib/api/bugs.js";
   import Comments from "$lib/components/Comments.svelte";
   import ComponentSelect from "$lib/components/ComponentSelect.svelte";
+  import SearchSelect from "$lib/components/SearchSelect.svelte";
   import { openAuditSidebar } from "$lib/stores/auditSidebar.svelte.js";
 
   export let open = false;
@@ -130,14 +130,14 @@
         getTaskSubtasks(task.id),
         getTaskDependencies(task.id),
         getAllComponents(),
-        getBugs({ per_page: 100 }),
+        getAllBugs(),
       ]);
       subtasks = Array.isArray(subs) ? subs : [];
       dependencies = Array.isArray(deps) ? deps : [];
       taskComponents = Array.isArray(task.components) ? task.components : [];
       taskBugs = Array.isArray(task.bugs) ? task.bugs : [];
       componentsOptions = comps;
-      bugsOptions = unwrapList(bugs);
+      bugsOptions = bugs;
       titleDraft = task.title || "";
       descDraft = task.description || "";
     } catch (e) {
@@ -915,18 +915,19 @@
 
               <div class="flex flex-col gap-2 pt-1">
                 <div class="flex items-center gap-2">
-                  <select
-                    bind:value={selectedBugId}
-                    class="flex-1 px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="">Seleccionar bug...</option>
-                    {#each bugsOptions as b (b.id)}
-                      <option value={b.id}
-                        >{b.title || `Bug #${b.id}`}
-                        {b.severity ? ` · ${b.severity}` : ""}</option
-                      >
-                    {/each}
-                  </select>
+                  <div class="flex-1">
+                    <SearchSelect
+                      inputId="task_bug"
+                      items={bugsOptions}
+                      getLabel={(b) => b.title || `Bug #${b.id}`}
+                      getDetail={(b) =>
+                        b.severity ? `#${b.id} · ${b.severity}` : `#${b.id}`}
+                      placeholder="Buscar bug por título o ID..."
+                      clearLabel="Quitar bug"
+                      emptyText="No se encontraron bugs."
+                      bind:value={selectedBugId}
+                    />
+                  </div>
                   <select
                     bind:value={bugRelation}
                     class="px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"

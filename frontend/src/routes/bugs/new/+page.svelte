@@ -5,8 +5,9 @@
   import { refreshMe } from "$lib/stores/auth.js";
   import { createBug } from "$lib/api/bugs.js";
   import { getAllComponents } from "$lib/api/components.js";
-  import { getTestCases } from "$lib/api/test-cases.js";
+  import { getAllTestCases } from "$lib/api/test-cases.js";
   import ComponentSelect from "$lib/components/ComponentSelect.svelte";
+  import SearchSelect from "$lib/components/SearchSelect.svelte";
 
   let components = $state([]);
   let testCases = $state([]);
@@ -33,7 +34,11 @@
 
   // Un test case de otro componente no puede quedar seleccionado
   function handleComponentChange() {
-    if (!filteredTestCases.some((tc) => tc.id === form.test_case_id)) {
+    if (
+      !filteredTestCases.some(
+        (tc) => String(tc.id) === String(form.test_case_id),
+      )
+    ) {
       form.test_case_id = "";
     }
   }
@@ -43,18 +48,15 @@
       const me = await refreshMe();
       if (!me) return goto("/login");
       const params = new URLSearchParams(window.location.search);
-      const [allComponents, tcRes] = await Promise.all([
+      const [allComponents, allTestCases] = await Promise.all([
         getAllComponents(),
-        getTestCases({ per_page: 100 }),
+        getAllTestCases(),
       ]);
       components = allComponents;
-      testCases = tcRes?.data ?? tcRes ?? [];
+      testCases = allTestCases;
 
-      // Se convierten a número porque las opciones de los select usan el id numérico
-      const tcId = Number(params.get("testCaseId"));
-      if (tcId) form.test_case_id = tcId;
-      const compId = Number(params.get("componentId"));
-      if (compId) selectedComponentId = compId;
+      form.test_case_id = params.get("testCaseId") ?? "";
+      selectedComponentId = params.get("componentId") ?? "";
     } catch (e) {
       error = e?.response?.data?.error ?? e?.message ?? "Error cargando datos";
     } finally {
@@ -146,12 +148,15 @@
         </div>
         <div class="space-y-2">
           <label for="test_case_id" class="block text-sm font-medium">Test Case relacionado</label>
-          <select id="test_case_id" bind:value={form.test_case_id} class="form-input">
-            <option value="">Sin caso relacionado</option>
-            {#each filteredTestCases as testCase}
-              <option value={testCase.id}>{testCase.title}</option>
-            {/each}
-          </select>
+          <SearchSelect
+            inputId="test_case_id"
+            items={filteredTestCases}
+            getLabel={(testCase) => testCase.title}
+            placeholder="Sin caso relacionado"
+            clearLabel="Quitar test case"
+            emptyText="No se encontraron test cases."
+            bind:value={form.test_case_id}
+          />
         </div>
       </div>
 
