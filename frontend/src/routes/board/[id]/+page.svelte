@@ -25,6 +25,8 @@
   // Array local para el dndzone de listas: mismo patrón que las columnas
   let localLists = [];
   let listsDragging = false;
+  // Mientras se edita el nombre de una lista se desactiva el drag de columnas (si no, seleccionar texto arrastra)
+  let editingListId = null;
 
   $: if (!listsDragging) {
     localLists = lists;
@@ -143,6 +145,25 @@
       await boardStore.handleListsFinalize(e.detail);
     } catch (err) {
       alert(err?.message ?? "No se pudo reordenar la lista");
+    }
+  }
+
+  function handleListEditing(e) {
+    const { listId, active } = e.detail;
+    if (active) editingListId = listId;
+    else if (editingListId === listId) editingListId = null;
+  }
+
+  async function handleListRename(e) {
+    const { listId, title } = e.detail;
+    try {
+      await boardStore.renameList(listId, title);
+    } catch (err) {
+      alert(
+        err?.response?.data?.message ??
+          err?.message ??
+          "No se pudo renombrar la lista",
+      );
     }
   }
 
@@ -346,7 +367,11 @@
       <div class="flex h-full gap-6 min-w-max pb-2">
         <div
           class="flex h-full gap-6"
-          use:dndzone={{ items: localLists, type: "list" }}
+          use:dndzone={{
+            items: localLists,
+            type: "list",
+            dragDisabled: editingListId != null,
+          }}
           on:consider={handleListsConsider}
           on:finalize={handleListsFinalize}
         >
@@ -363,6 +388,8 @@
               status={columnState.status}
               color={columnState.color}
               on:addTask={() => openAddTask(list)}
+              on:rename={handleListRename}
+              on:editing={handleListEditing}
               on:taskClick={handleTaskClick}
               on:taskMore={handleTaskMore}
               on:consider={handleColumnConsider}

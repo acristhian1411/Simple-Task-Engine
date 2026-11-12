@@ -1,8 +1,12 @@
-import { http } from './http.js';
+import { http, getAllPages } from './http.js';
 
 export async function getBugs(params = {}) {
   const res = await http.get('/bugs', { params });
   return res.data;
+}
+
+export function getAllBugs(params = {}) {
+  return getAllPages(getBugs, params);
 }
 
 export async function getBug(id) {

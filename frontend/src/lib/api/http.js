@@ -17,6 +17,25 @@ export function unwrapList(res) {
   return [];
 }
 
+/**
+ * Pide todas las páginas de un listado paginado (de a 100, el máximo de la API)
+ * y devuelve un solo array con todos los registros.
+ */
+export async function getAllPages(getPage, params = {}) {
+  const rows = [];
+  let page = 1;
+  let lastPage = 1;
+
+  do {
+    const response = await getPage({ ...params, page, per_page: 100 });
+    rows.push(...unwrapList(response));
+    lastPage = Math.max(1, Number(response?.last_page) || 1);
+    page += 1;
+  } while (page <= lastPage);
+
+  return rows;
+}
+
 export function getToken() {
 	if (typeof window === 'undefined') return null;
 	return localStorage.getItem('token');

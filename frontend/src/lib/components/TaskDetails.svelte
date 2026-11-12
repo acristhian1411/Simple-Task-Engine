@@ -20,10 +20,11 @@
     attachTaskBug,
     detachTaskBug,
   } from "$lib/api/tasks.js";
-  import { getComponents } from "$lib/api/components.js";
-  import { getBugs } from "$lib/api/bugs.js";
-  import { unwrapList } from "$lib/api/http.js";
+  import { getAllComponents } from "$lib/api/components.js";
+  import { getAllBugs } from "$lib/api/bugs.js";
   import Comments from "$lib/components/Comments.svelte";
+  import ComponentSelect from "$lib/components/ComponentSelect.svelte";
+  import SearchSelect from "$lib/components/SearchSelect.svelte";
   import { openAuditSidebar } from "$lib/stores/auditSidebar.svelte.js";
 
   export let open = false;
@@ -37,6 +38,10 @@
   let addingSubtask = false;
   let subtaskBusy = false;
   let subtaskError = "";
+  let editingSubtaskId = null;
+  let subtaskDraft = "";
+  // Se mantiene entre tareas (no se resetea en resetState) para respetar la preferencia del usuario
+  let subtasksOpen = false;
   let dependencyTaskId = "";
   let dependencyBusy = false;
   let dependencyError = "";
@@ -106,6 +111,8 @@
     newSubtaskTitle = "";
     addingSubtask = false;
     subtaskError = "";
+    editingSubtaskId = null;
+    subtaskDraft = "";
     dependencyTaskId = "";
     dependencyError = "";
     depSearch = "";
@@ -128,15 +135,15 @@
       const [subs, deps, comps, bugs] = await Promise.all([
         getTaskSubtasks(task.id),
         getTaskDependencies(task.id),
-        getComponents({ per_page: 100 }),
-        getBugs({ per_page: 100 }),
+        getAllComponents(),
+        getAllBugs(),
       ]);
       subtasks = Array.isArray(subs) ? subs : [];
       dependencies = Array.isArray(deps) ? deps : [];
       taskComponents = Array.isArray(task.components) ? task.components : [];
       taskBugs = Array.isArray(task.bugs) ? task.bugs : [];
-      componentsOptions = unwrapList(comps);
-      bugsOptions = unwrapList(bugs);
+      componentsOptions = comps;
+      bugsOptions = bugs;
       titleDraft = task.title || "";
       descDraft = task.description || "";
     } catch (e) {
@@ -191,6 +198,40 @@
       await updateSubtask(st.id, { is_completed: next });
       st.is_completed = next;
     } catch (e) {
+      saveError =
+        e?.response?.data?.message ?? e?.message ?? "Error al actualizar";
+    }
+  }
+
+  function focusOnMount(node) {
+    node.focus();
+    node.select?.();
+  }
+
+  function startEditSubtask(st) {
+    editingSubtaskId = st.id;
+    subtaskDraft = st.title;
+  }
+
+  function cancelEditSubtask() {
+    editingSubtaskId = null;
+    subtaskDraft = "";
+  }
+
+  async function saveSubtaskTitle(st) {
+    // Evita doble guardado: Enter guarda y luego el blur del input que desaparece vuelve a llamar
+    if (editingSubtaskId !== st.id) return;
+    const next = subtaskDraft.trim();
+    editingSubtaskId = null;
+    if (!next || next === st.title) return;
+    const prev = st.title;
+    st.title = next;
+    subtasks = subtasks;
+    try {
+      await updateSubtask(st.id, { title: next });
+    } catch (e) {
+      st.title = prev;
+      subtasks = subtasks;
       saveError =
         e?.response?.data?.message ?? e?.message ?? "Error al actualizar";
     }
@@ -566,19 +607,39 @@
 
           <!-- Subtareas -->
           <div>
-            <div class="flex items-center justify-between">
+            <button
+              type="button"
+              class="w-full flex items-center justify-between gap-3 text-left"
+              on:click={() => (subtasksOpen = !subtasksOpen)}
+              aria-expanded={subtasksOpen}
+            >
               <h2
                 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
               >
-                <span class="material-symbols-outlined text-gray-400"
-                  >check_box</span
+                <span
+                  class="material-symbols-outlined text-gray-400 transition-transform {subtasksOpen
+                    ? 'rotate-90'
+                    : ''}">chevron_right</span
                 >Subtareas
               </h2>
-              <span class="text-xs text-gray-500"
-                >{completedCount}/{subtasks.length}</span
-              >
-            </div>
+              <div class="flex items-center gap-2">
+                {#if subtasks.length}
+                  <div
+                    class="w-20 h-1.5 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="h-full bg-primary transition-all"
+                      style="width: {(completedCount / subtasks.length) * 100}%"
+                    ></div>
+                  </div>
+                {/if}
+                <span class="text-xs text-gray-500"
+                  >{completedCount}/{subtasks.length}</span
+                >
+              </div>
+            </button>
 
+            {#if subtasksOpen}
             <div class="mt-3 space-y-2">
               {#if loadingDetails}
                 <div class="text-sm text-gray-500 italic">
@@ -597,13 +658,34 @@
                         class="w-5 h-5"
                       />
                     </div>
-                    <div
-                      class="flex-1 text-sm {st.is_completed
-                        ? 'line-through text-gray-400'
-                        : ''}"
-                    >
-                      {st.title}
-                    </div>
+                    {#if editingSubtaskId === st.id}
+                      <input
+                        type="text"
+                        bind:value={subtaskDraft}
+                        use:focusOnMount
+                        on:keydown={(e) => {
+                          if (e.key === "Enter") saveSubtaskTitle(st);
+                          else if (e.key === "Escape") {
+                            e.stopPropagation();
+                            cancelEditSubtask();
+                          }
+                        }}
+                        on:blur={() => saveSubtaskTitle(st)}
+                        maxlength="255"
+                        class="flex-1 -my-1 px-2 py-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                    {:else}
+                      <button
+                        type="button"
+                        class="flex-1 text-left text-sm cursor-text {st.is_completed
+                          ? 'line-through text-gray-400'
+                          : ''}"
+                        title="Clic para editar"
+                        on:click={() => startEditSubtask(st)}
+                      >
+                        {st.title}
+                      </button>
+                    {/if}
                     <button
                       class="p-1 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-colors"
                       on:click={() => removeSubtask(st)}
@@ -658,6 +740,7 @@
                 </button>
               {/if}
             </div>
+            {/if}
           </div>
 
           <!-- Dependencias -->
@@ -840,15 +923,13 @@
               {/if}
 
               <div class="flex items-center gap-2 pt-1">
-                <select
-                  bind:value={selectedComponentId}
-                  class="flex-1 px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                >
-                  <option value="">Seleccionar componente...</option>
-                  {#each componentsOptions as c (c.id)}
-                    <option value={c.id}>{c.name || `#${c.id}`}</option>
-                  {/each}
-                </select>
+                <div class="flex-1">
+                  <ComponentSelect
+                    inputId="task_component"
+                    components={componentsOptions}
+                    bind:value={selectedComponentId}
+                  />
+                </div>
                 <button
                   class="px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors shrink-0"
                   on:click={submitComponent}
@@ -916,18 +997,19 @@
 
               <div class="flex flex-col gap-2 pt-1">
                 <div class="flex items-center gap-2">
-                  <select
-                    bind:value={selectedBugId}
-                    class="flex-1 px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="">Seleccionar bug...</option>
-                    {#each bugsOptions as b (b.id)}
-                      <option value={b.id}
-                        >{b.title || `Bug #${b.id}`}
-                        {b.severity ? ` · ${b.severity}` : ""}</option
-                      >
-                    {/each}
-                  </select>
+                  <div class="flex-1">
+                    <SearchSelect
+                      inputId="task_bug"
+                      items={bugsOptions}
+                      getLabel={(b) => b.title || `Bug #${b.id}`}
+                      getDetail={(b) =>
+                        b.severity ? `#${b.id} · ${b.severity}` : `#${b.id}`}
+                      placeholder="Buscar bug por título o ID..."
+                      clearLabel="Quitar bug"
+                      emptyText="No se encontraron bugs."
+                      bind:value={selectedBugId}
+                    />
+                  </div>
                   <select
                     bind:value={bugRelation}
                     class="px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"

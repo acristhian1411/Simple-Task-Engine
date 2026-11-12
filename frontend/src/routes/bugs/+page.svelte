@@ -6,6 +6,7 @@
   import { getBugs } from "$lib/api/bugs.js";
   import { getAllComponents } from "$lib/api/components.js";
   import Pagination from "$lib/components/ui/Pagination.svelte";
+  import ComponentSelect from "$lib/components/ComponentSelect.svelte";
 
   let bugs = $state([]);
   let components = $state([]);
@@ -21,7 +22,7 @@
   let searchTerm = $state("");
   let selectedStatus = $state("all");
   let selectedSeverity = $state("all");
-  let selectedComponent = $state("all");
+  let selectedComponent = $state("");
   let searchTimer;
 
   const statusMap = {
@@ -48,8 +49,7 @@
         search: searchTerm.trim() || undefined,
         status: selectedStatus === "all" ? undefined : selectedStatus,
         severity: selectedSeverity === "all" ? undefined : selectedSeverity,
-        component_id:
-          selectedComponent === "all" ? undefined : selectedComponent,
+        component_id: selectedComponent || undefined,
       });
       const rows = response?.data ?? response ?? [];
 
@@ -160,16 +160,14 @@
         <option {value}>{meta.label}</option>
       {/each}
     </select>
-    <select
+    <ComponentSelect
+      inputId="component_filter"
+      {components}
+      placeholder="Todos los componentes"
+      clearLabel="Mostrar todos los componentes"
       bind:value={selectedComponent}
       onchange={() => load(1)}
-      class="form-input"
-    >
-      <option value="all">Todos los componentes</option>
-      {#each components as component}
-        <option value={component.id}>{component.name}</option>
-      {/each}
-    </select>
+    />
   </div>
 
   {#if loading}

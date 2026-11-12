@@ -65,6 +65,27 @@ function createBoardStore() {
     return created;
   }
 
+  // Optimista: muestra el nuevo título al instante y lo revierte si el backend falla
+  async function renameList(listId, title) {
+    let prevTitle = null;
+    const setTitle = (value) =>
+      update((s) => ({
+        ...s,
+        lists: s.lists.map((l) => (l.id === listId ? { ...l, title: value } : l)),
+      }));
+    update((s) => {
+      prevTitle = findList(s, listId)?.title ?? null;
+      return s;
+    });
+    setTitle(title);
+    try {
+      await updateList(listId, { title });
+    } catch (e) {
+      if (prevTitle != null) setTitle(prevTitle);
+      throw e;
+    }
+  }
+
   async function addTask({ listId, title, description = null, status = 'todo' }) {
     const current = await new Promise((resolve) => {
       subscribe((s) => resolve(s))();
@@ -220,6 +241,7 @@ function createBoardStore() {
     update,
     loadBoard,
     addList,
+    renameList,
     addTask,
     syncColumnTasks,
     handleConsider,

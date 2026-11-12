@@ -15,6 +15,35 @@
   let localTasks = [];
   let dragging = false;
 
+  // Edición inline del título de la lista
+  let editingTitle = false;
+  let titleDraft = "";
+
+  function focusOnMount(node) {
+    node.focus();
+    node.select();
+  }
+
+  function startEditTitle() {
+    titleDraft = title;
+    editingTitle = true;
+    // Avisa al padre para desactivar el drag de columnas mientras se edita
+    dispatch("editing", { listId, active: true });
+  }
+
+  function stopEditTitle() {
+    editingTitle = false;
+    dispatch("editing", { listId, active: false });
+  }
+
+  function saveTitle() {
+    // Evita doble guardado: Enter guarda y luego el blur del input que desaparece vuelve a llamar
+    if (!editingTitle) return;
+    const next = titleDraft.trim();
+    stopEditTitle();
+    if (next && next !== title) dispatch("rename", { listId, title: next });
+  }
+
   // Sincroniza desde la prop SOLO cuando no hay drag en curso
   $: if (!dragging) {
     localTasks = tasks;
@@ -113,8 +142,31 @@
 <div class={getColumnClasses()}>
   <!-- Column Header -->
   <div class={getHeaderClasses()}>
-    <div class="flex items-center gap-2">
-      <h3 class={getTitleClasses()}>{title}</h3>
+    <div class="flex items-center gap-2 min-w-0 flex-1 mr-2">
+      {#if editingTitle}
+        <input
+          type="text"
+          bind:value={titleDraft}
+          use:focusOnMount
+          on:keydown={(e) => {
+            if (e.key === "Enter") saveTitle();
+            else if (e.key === "Escape") stopEditTitle();
+          }}
+          on:blur={saveTitle}
+          maxlength="255"
+          aria-label="Nombre de la lista"
+          class="flex-1 min-w-0 px-2 py-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-md text-sm font-bold focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      {:else}
+        <button
+          type="button"
+          class="{getTitleClasses()} truncate text-left cursor-text hover:bg-slate-200/70 dark:hover:bg-slate-700/70 rounded px-1 -mx-1"
+          title="Clic para editar"
+          on:click={startEditTitle}
+        >
+          {title}
+        </button>
+      {/if}
       <span class={getBadgeClasses()}>{localTasks.length}</span>
     </div>
     <button
