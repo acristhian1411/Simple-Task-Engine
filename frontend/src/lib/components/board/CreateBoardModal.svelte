@@ -13,6 +13,11 @@
 	let error = '';
 	let loading = false;
 
+	function focusOnMount(node) {
+		node.focus();
+		node.select?.();
+	}
+
 	function close() {
 		title = '';
 		description = '';
@@ -60,6 +65,7 @@
 					class="form-input mt-1"
 					type="text"
 					bind:value={title}
+					use:focusOnMount
 					placeholder="Ej: Sprint de Agosto"
 					required
 				/>

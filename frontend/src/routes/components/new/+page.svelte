@@ -12,6 +12,11 @@
   let components = $state([]);
   let form = $state({ name: "", type: "", description: "", parent_id: "" });
 
+  function focusOnMount(node) {
+    node.focus();
+    node.select?.();
+  }
+
   const typeOptions = ["module", "controller", "model", "view", "function", "service", "other"];
 
   onMount(async () => {
@@ -71,7 +76,7 @@
     >
       <div class="space-y-2">
         <label for="name" class="block text-sm font-medium">Nombre del componente</label>
-        <input type="text" id="name" required placeholder="ej. Autenticación, Procesamiento de pagos" bind:value={form.name} class="form-input" />
+        <input type="text" id="name" required placeholder="ej. Autenticación, Procesamiento de pagos" bind:value={form.name} use:focusOnMount class="form-input" />
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

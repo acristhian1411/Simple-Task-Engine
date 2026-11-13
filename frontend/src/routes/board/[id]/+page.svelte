@@ -38,6 +38,11 @@
   let addListBusy = false;
   let addListError = "";
 
+  function focusOnMount(node) {
+    node.focus();
+    node.select?.();
+  }
+
   // Add-task modal state
   let addingTask = false;
   let taskListId = null;
@@ -311,6 +316,7 @@
               type="text"
               placeholder="Introduce el nombre de la lista..."
               bind:value={newListTitle}
+              use:focusOnMount
               on:keydown={(e) => e.key === "Enter" && submitAddList()}
               class="w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
             />
@@ -408,6 +414,7 @@
                 type="text"
                 placeholder="Introduce el nombre de la lista..."
                 bind:value={newListTitle}
+                use:focusOnMount
                 on:keydown={(e) => e.key === "Enter" && submitAddList()}
                 class="w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
               />
@@ -506,6 +513,7 @@
             type="text"
             placeholder="Título de la tarjeta"
             bind:value={newTaskTitle}
+            use:focusOnMount
             on:keydown={(e) => e.key === "Enter" && submitAddTask()}
             class="mt-1 w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
           />

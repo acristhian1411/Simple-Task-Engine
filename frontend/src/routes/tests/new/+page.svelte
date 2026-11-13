@@ -27,15 +27,33 @@
   let returnTo = $state("/tests");
   let steps = $state([{ step_number: 1, action: "", expected: "", type: "normal" }]);
   let actors = $state([{ actor_name: "" }]);
+  let focusActorIndex = $state(-1);
+  let focusStepIndex = $state(-1);
+
+  function focusWhenRequested(node, shouldFocus) {
+    function focus() {
+      node.focus();
+      node.select?.();
+    }
+
+    if (shouldFocus) focus();
+    return {
+      update(nextShouldFocus) {
+        if (nextShouldFocus) focus();
+      },
+    };
+  }
 
   function addStep() {
     steps = [...steps, { step_number: steps.length + 1, action: "", expected: "", type: "normal" }];
+    focusStepIndex = steps.length - 1;
   }
   function removeStep(index) {
     steps = steps.filter((_, i) => i !== index).map((s, i) => ({ ...s, step_number: i + 1 }));
   }
   function addActor() {
     actors = [...actors, { actor_name: "" }];
+    focusActorIndex = actors.length - 1;
   }
   function removeActor(index) {
     actors = actors.filter((_, i) => i !== index);
@@ -218,7 +236,7 @@
         <div class="space-y-3">
           {#each actors as actor, i}
             <div class="flex gap-3">
-              <input type="text" bind:value={actor.actor_name} placeholder="Nombre del actor (ej. Admin)" class="form-input flex-1" />
+              <input type="text" bind:value={actor.actor_name} use:focusWhenRequested={focusActorIndex === i} placeholder="Nombre del actor (ej. Admin)" class="form-input flex-1" />
               <button
                 type="button"
                 onclick={() => removeActor(i)}
@@ -249,7 +267,7 @@
               <div class="flex-1 space-y-3">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div class="md:col-span-2">
-                    <input type="text" bind:value={step.action} placeholder="Acción" class="form-input text-sm" />
+                    <input type="text" bind:value={step.action} use:focusWhenRequested={focusStepIndex === i} placeholder="Acción" class="form-input text-sm" />
                   </div>
                   <div>
                     <select bind:value={step.type} class="form-input text-sm">

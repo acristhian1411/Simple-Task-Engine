@@ -25,6 +25,11 @@
 
   let selectedComponentId = $state("");
 
+  function focusOnMount(node) {
+    node.focus();
+    node.select?.();
+  }
+
   let filteredTestCases = $derived(
     testCases.filter((tc) => {
       if (!selectedComponentId) return true;
@@ -118,7 +123,7 @@
       <div class="grid gap-6 md:grid-cols-2">
         <div class="space-y-2">
           <label for="title" class="block text-sm font-medium">Título</label>
-          <input id="title" type="text" required placeholder="ej. El botón de login no responde" bind:value={form.title} class="form-input" />
+          <input id="title" type="text" required placeholder="ej. El botón de login no responde" bind:value={form.title} use:focusOnMount class="form-input" />
         </div>
         <div class="space-y-2">
           <label for="severity" class="block text-sm font-medium">Severidad</label>
