@@ -8,6 +8,7 @@ use App\Models\Subtask;
 use App\Models\Task;
 use App\Models\TaskDependency;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Centraliza el control de acceso a los recursos que cuelgan de un tablero.
@@ -48,6 +49,23 @@ class BoardAccessService
         Task::whereKey($taskId)
             ->whereHas('list.board', fn (Builder $q) => $this->scopeAccessible($q, $userId))
             ->firstOrFail();
+    }
+
+    /**
+     * Solo se puede asignar una tarea a quien tenga acceso al tablero de su lista
+     * (dueño o miembro). Responde 422 en lugar de 404 porque el error está en el dato enviado.
+     */
+    public function assertAssignable(int $listId, int $assigneeId): void
+    {
+        $isMember = ListModel::whereKey($listId)
+            ->whereHas('board', fn (Builder $q) => $this->scopeAccessible($q, $assigneeId))
+            ->exists();
+
+        if (!$isMember) {
+            throw ValidationException::withMessages([
+                'assignee_id' => ['El responsable tiene que ser miembro del tablero.'],
+            ]);
+        }
     }
 
     public function assertSubtask(int $subtaskId, int $userId): void

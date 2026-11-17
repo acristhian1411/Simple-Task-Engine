@@ -1,8 +1,9 @@
 import { writable } from 'svelte/store';
 import { SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
-import { getBoard } from '$lib/api/boards.js';
+import { getBoard, getBoardMembers } from '$lib/api/boards.js';
 import { getListsWithTasks, createList, updateList } from '$lib/api/lists.js';
 import { createTask, updateTask, getBlockedBy } from '$lib/api/tasks.js';
+import { assigneePayload } from '$lib/utils/assignee.js';
 
 function isDoneList(title = '') {
   const t = title.toLowerCase();
@@ -20,6 +21,8 @@ function createBoardStore() {
   const { subscribe, set, update } = writable({
     board: null,
     lists: [],
+    // Dueño + miembros compartidos: son los que se pueden asignar a las tareas
+    members: [],
     loading: false,
     error: '',
   });
@@ -34,10 +37,15 @@ function createBoardStore() {
       const boardsRes = await getBoard(boardId);
       const board = boardsRes?.data ?? boardsRes;
       if (!board) throw new Error('Tablero no encontrado');
-      const lists = await getListsWithTasks({ board_id: boardId, per_page: 100 });
+      const [lists, members] = await Promise.all([
+        getListsWithTasks({ board_id: boardId, per_page: 100 }),
+        // Si fallan los miembros el tablero igual se muestra, solo sin poder asignar
+        getBoardMembers(boardId).catch(() => []),
+      ]);
       set({
         board,
         lists: Array.isArray(lists) ? lists : [],
+        members: Array.isArray(members) ? members : [],
         loading: false,
         error: '',
       });
@@ -86,7 +94,7 @@ function createBoardStore() {
     }
   }
 
-  async function addTask({ listId, title, description = null, status = 'todo' }) {
+  async function addTask({ listId, title, description = null, status = 'todo', assigneeId = '' }) {
     const current = await new Promise((resolve) => {
       subscribe((s) => resolve(s))();
     });
@@ -98,6 +106,7 @@ function createBoardStore() {
       description,
       status,
       order: (list.tasks || []).length,
+      ...assigneePayload(assigneeId),
     });
     const created = res?.data ?? res;
     update((s) => ({
@@ -222,6 +231,11 @@ function createBoardStore() {
     }
   }
 
+  // Se llama cuando el dueño agrega o quita miembros desde el modal de compartir
+  function setMembers(members) {
+    update((s) => ({ ...s, members: Array.isArray(members) ? members : [] }));
+  }
+
   async function changeTask(taskId, data) {
     const res = await updateTask(taskId, data);
     const updated = res?.data ?? res;
@@ -249,6 +263,7 @@ function createBoardStore() {
     handleListsConsider,
     handleListsFinalize,
     changeTask,
+    setMembers,
     reloadLists,
     isDoneList,
   };

@@ -9,9 +9,25 @@
   import KanbanColumn from "$lib/components/kanban/KanbanColumn.svelte";
   import TaskDetails from "$lib/components/TaskDetails.svelte";
   import ShareBoardModal from "$lib/components/board/ShareBoardModal.svelte";
+  import AssigneeSelect from "$lib/components/AssigneeSelect.svelte";
+  import { assigneeError } from "$lib/utils/assignee.js";
+  import { TASK_FILTERS, matchesFilters } from "$lib/utils/taskFilters.js";
 
   $: board = $boardStore.board;
   $: lists = $boardStore.lists;
+  $: members = $boardStore.members;
+
+  // Filtros activos (ids de TASK_FILTERS): las tarjetas que no los cumplen se atenúan
+  let activeFilters = [];
+  $: filterContext = { userId: $auth.user?.id };
+  $: isTaskDimmed = (task) =>
+    activeFilters.length > 0 && !matchesFilters(task, activeFilters, filterContext);
+
+  function toggleFilter(id) {
+    activeFilters = activeFilters.includes(id)
+      ? activeFilters.filter((f) => f !== id)
+      : [...activeFilters, id];
+  }
   $: loading = $boardStore.loading;
   $: error = $boardStore.error;
 
@@ -48,6 +64,7 @@
   let taskListId = null;
   let newTaskTitle = "";
   let newTaskDescription = "";
+  let newTaskAssignee = "";
   let addTaskBusy = false;
   let addTaskError = "";
 
@@ -100,6 +117,7 @@
     taskListId = list.id;
     newTaskTitle = "";
     newTaskDescription = "";
+    newTaskAssignee = "";
     addTaskError = "";
     addingTask = true;
   }
@@ -113,11 +131,15 @@
         listId: taskListId,
         title: newTaskTitle.trim(),
         description: newTaskDescription.trim() || null,
+        assigneeId: newTaskAssignee,
       });
       addingTask = false;
     } catch (e) {
       addTaskError =
-        e?.response?.data?.message ?? e?.message ?? "Error al crear la tarea";
+        assigneeError(e) ??
+        e?.response?.data?.message ??
+        e?.message ??
+        "Error al crear la tarea";
     } finally {
       addTaskBusy = false;
     }
@@ -185,6 +207,13 @@
   function closeTask() {
     showTask = false;
     selectedTaskId = null;
+  }
+
+  // Al quitar un miembro el backend lo desasigna de sus tareas: se recargan para sacar su avatar
+  function handleMembersChange(e) {
+    const { members: updated, removed } = e.detail;
+    boardStore.setMembers(updated);
+    if (removed) boardStore.reloadLists(board?.id);
   }
 
   onMount(loadBoard);
@@ -272,16 +301,34 @@
               "Gestioná tus tareas en este tablero Kanban."}
           </p>
         </div>
-        {#if isOwner}
-          <button
-            class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium backdrop-blur transition-colors"
-            type="button"
-            on:click={() => (shareOpen = true)}
-          >
-            <span class="material-symbols-outlined text-[18px]">group_add</span>
-            Compartir
-          </button>
-        {/if}
+        <div class="flex flex-wrap items-center justify-end gap-2">
+          {#each TASK_FILTERS as filter (filter.id)}
+            {@const active = activeFilters.includes(filter.id)}
+            <button
+              class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium backdrop-blur transition-colors {active
+                ? 'bg-white text-primary hover:bg-white/90'
+                : 'bg-white/10 hover:bg-white/20 text-white'}"
+              type="button"
+              aria-pressed={active}
+              on:click={() => toggleFilter(filter.id)}
+            >
+              <span class="material-symbols-outlined text-[18px]"
+                >{filter.icon}</span
+              >
+              {filter.label}
+            </button>
+          {/each}
+          {#if isOwner}
+            <button
+              class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium backdrop-blur transition-colors"
+              type="button"
+              on:click={() => (shareOpen = true)}
+            >
+              <span class="material-symbols-outlined text-[18px]">group_add</span>
+              Compartir
+            </button>
+          {/if}
+        </div>
       </div>
     </div>
   </div>
@@ -393,6 +440,7 @@
               tasks={list.tasks || []}
               status={columnState.status}
               color={columnState.color}
+              {isTaskDimmed}
               on:addTask={() => openAddTask(list)}
               on:rename={handleListRename}
               on:editing={handleListEditing}
@@ -471,7 +519,7 @@
     on:click={(e) => e.target === e.currentTarget && (addingTask = false)}
   >
     <div
-      class="w-full max-w-md rounded-xl bg-surface-light dark:bg-surface-dark shadow-2xl overflow-hidden"
+      class="w-full max-w-md rounded-xl bg-surface-light dark:bg-surface-dark shadow-2xl"
     >
       <div
         class="flex items-center justify-between px-5 py-4 border-b border-border-light dark:border-border-dark"
@@ -530,6 +578,20 @@
             class="mt-1 w-full px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
           ></textarea>
         </div>
+        <div>
+          <label
+            for="new_task_assignee"
+            class="text-xs font-semibold text-text-sec-light dark:text-text-sec-dark uppercase"
+            >Responsable</label
+          >
+          <div class="mt-1">
+            <AssigneeSelect
+              {members}
+              bind:value={newTaskAssignee}
+              inputId="new_task_assignee"
+            />
+          </div>
+        </div>
         {#if addTaskError}
           <p class="text-xs text-red-500">{addTaskError}</p>
         {/if}
@@ -559,4 +621,5 @@
   show={shareOpen}
   {board}
   on:close={() => (shareOpen = false)}
+  on:membersChange={handleMembersChange}
 />

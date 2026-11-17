@@ -25,6 +25,12 @@
   import Comments from "$lib/components/Comments.svelte";
   import ComponentSelect from "$lib/components/ComponentSelect.svelte";
   import SearchSelect from "$lib/components/SearchSelect.svelte";
+  import AssigneeSelect from "$lib/components/AssigneeSelect.svelte";
+  import {
+    getAssigneeValue,
+    assigneePayload,
+    assigneeError as getAssigneeError,
+  } from "$lib/utils/assignee.js";
   import { openAuditSidebar } from "$lib/stores/auditSidebar.svelte.js";
 
   export let open = false;
@@ -69,6 +75,12 @@
 
   // Reactivo: el modal se monta antes de que cargue el tablero, así que hay que seguir los cambios del store
   $: lists = $boardStore.lists;
+  $: members = $boardStore.members;
+
+  // Responsable: se sincroniza con la tarea cada vez que cambia (otra tarea o respuesta del backend)
+  let assigneeValue = "";
+  let assigneeError = "";
+  $: assigneeValue = getAssigneeValue(task);
 
   $: allTasks = lists.flatMap((l) =>
     (l.tasks || []).map((t) => ({
@@ -125,6 +137,7 @@
     editingTitle = false;
     editingDesc = false;
     saveError = "";
+    assigneeError = "";
     loadingDetails = false;
   }
 
@@ -174,6 +187,31 @@
     editingTitle = false;
   }
 
+  // Al escribir en el buscador el selector primero se vacía y después elige otro miembro:
+  // se guardan en orden para que la última elección sea la que queda
+  let assigneeQueue = Promise.resolve();
+  function saveAssignee(value) {
+    const taskId = task.id;
+    assigneeQueue = assigneeQueue.then(() => persistAssignee(taskId, value));
+  }
+
+  async function persistAssignee(taskId, value) {
+    assigneeError = "";
+    try {
+      const updated = await boardStore.changeTask(taskId, assigneePayload(value));
+      if (task?.id === taskId) task.assignee = updated.assignee ?? null;
+    } catch (e) {
+      if (task?.id !== taskId) return;
+      // Vuelve el selector al responsable que sigue guardado
+      assigneeValue = getAssigneeValue(task);
+      assigneeError =
+        getAssigneeError(e) ??
+        e?.response?.data?.message ??
+        e?.message ??
+        "No se pudo asignar el responsable";
+    }
+  }
+
   function startEditDesc() {
     editingDesc = true;
     descDraft = task.description || "";
@@ -192,12 +230,20 @@
     editingDesc = false;
   }
 
-  async function toggleSubtask(st) {
-    const next = !st.is_completed;
+  async function toggleSubtask(st, event) {
+    // Se guarda antes del await: después currentTarget ya es null
+    const checkbox = event.currentTarget;
+    const next = checkbox.checked;
     try {
       await updateSubtask(st.id, { is_completed: next });
-      st.is_completed = next;
+      // Hay que reasignar el array: cambiar st.is_completed no avisa a Svelte
+      // y no se actualizaban el tachado ni el contador
+      subtasks = subtasks.map((s) =>
+        s.id === st.id ? { ...s, is_completed: next } : s,
+      );
     } catch (e) {
+      // El checkbox ya cambió en pantalla: se vuelve al estado guardado
+      checkbox.checked = !next;
       saveError =
         e?.response?.data?.message ?? e?.message ?? "Error al actualizar";
     }
@@ -545,6 +591,29 @@
             {/if}
           </div>
 
+          <!-- Responsable -->
+          <div>
+            <label
+              for="task_assignee"
+              class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
+            >
+              <span class="material-symbols-outlined text-gray-400"
+                >person</span
+              >Responsable
+            </label>
+            <div class="mt-3 max-w-sm">
+              <AssigneeSelect
+                {members}
+                bind:value={assigneeValue}
+                inputId="task_assignee"
+                onchange={saveAssignee}
+              />
+              {#if assigneeError}
+                <p class="mt-2 text-xs text-red-500">{assigneeError}</p>
+              {/if}
+            </div>
+          </div>
+
           <!-- Descripción editable -->
           <div>
             <h2
@@ -654,7 +723,7 @@
                       <input
                         type="checkbox"
                         checked={st.is_completed}
-                        on:change={() => toggleSubtask(st)}
+                        on:change={(e) => toggleSubtask(st, e)}
                         class="w-5 h-5"
                       />
                     </div>

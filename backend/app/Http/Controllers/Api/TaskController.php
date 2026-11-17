@@ -73,7 +73,7 @@ class TaskController extends ApiController
         try {
              $this->access->assertTask($id, Auth::id());
             $task = $this->service->findOrFail($id);
-             $data = $request->all();
+             $data = $request->validated();
              if (!empty($data['list_id'])) {
                  $this->access->assertList((int) $data['list_id'], Auth::id());
              }

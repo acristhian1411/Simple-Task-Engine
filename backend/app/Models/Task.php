@@ -25,9 +25,26 @@ class Task extends Model implements Auditable
         "assigned_to",
     ];
 
+    /**
+     * La API expone el responsable solo a través de la relación "assignee";
+     * la columna queda oculta para que el front no dependa de cómo se guarda.
+     */
+    protected $hidden = ["assigned_to"];
+
+    /**
+     * Relación del responsable con las columnas que se exponen en la API.
+     * Usar esta constante en cada eager load para no repetir la lista de campos.
+     */
+    public const ASSIGNEE_RELATION = "assignee:id,name,email";
+
     public function list(): BelongsTo
     {
         return $this->belongsTo(ListModel::class, "list_id");
+    }
+
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, "assigned_to");
     }
 
     public function subtasks(): HasMany

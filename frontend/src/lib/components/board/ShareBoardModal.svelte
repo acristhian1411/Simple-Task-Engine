@@ -44,6 +44,7 @@
     try {
       members = await addBoardMember(board.id, email.trim());
       email = "";
+      dispatch("membersChange", { members, removed: false });
     } catch (e) {
       error =
         e?.response?.data?.errors?.email?.[0] ??
@@ -60,6 +61,8 @@
     error = "";
     try {
       members = await removeBoardMember(board.id, member.id);
+      // removed: el backend lo desasignó de sus tareas, el tablero tiene que recargarlas
+      dispatch("membersChange", { members, removed: true });
     } catch (e) {
       error =
         e?.response?.data?.error ?? e?.message ?? "No se pudo quitar el usuario";

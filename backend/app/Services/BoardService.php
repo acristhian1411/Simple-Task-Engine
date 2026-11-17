@@ -17,7 +17,10 @@ class BoardService
      */
     private const DEFAULT_LISTS = ['Por Hacer', 'En Progreso', 'Hecho'];
 
-    public function __construct(private BoardAccessService $access) {}
+    public function __construct(
+        private BoardAccessService $access,
+        private TaskService $tasks,
+    ) {}
 
     public function list(array $filters = []): Collection
     {
@@ -138,9 +141,15 @@ class BoardService
         return $this->members($board);
     }
 
+    /**
+     * Quita al usuario del tablero y deja sin responsable sus tareas de este tablero.
+     */
     public function removeMember(Board $board, int $userId): array
     {
-        $board->members()->detach($userId);
+        DB::transaction(function () use ($board, $userId) {
+            $board->members()->detach($userId);
+            $this->tasks->unassignFromBoard($board->id, $userId);
+        });
 
         return $this->members($board);
     }

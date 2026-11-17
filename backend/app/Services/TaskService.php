@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ListModel;
 use App\Models\Task;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
@@ -12,7 +13,7 @@ class TaskService
 
     public function list(array $filters = []): Collection
     {
-        $query = Task::query();
+        $query = Task::with(Task::ASSIGNEE_RELATION);
         if (isset($filters['list_id'])) {
             $query->where('list_id', $filters['list_id']);
         }
@@ -37,12 +38,14 @@ class TaskService
 
     public function create(array $data): Task
     {
-        return Task::create($data);
+        $data = $this->applyAssignee($data, (int) $data['list_id']);
+        $task = Task::create($data);
+        return $task->load(Task::ASSIGNEE_RELATION);
     }
 
     public function findOrFail(int $id): Task
     {
-        return Task::findOrFail($id);
+        return Task::with(Task::ASSIGNEE_RELATION)->findOrFail($id);
     }
 
     public function update(Task $task, array $data): Task
@@ -51,8 +54,46 @@ class TaskService
             $this->assertCompletable($task);
         }
 
+        $data = $this->applyAssignee($data, (int) ($data['list_id'] ?? $task->list_id), $task);
         $task->update($data);
-        return $task;
+        return $task->load(Task::ASSIGNEE_RELATION);
+    }
+
+    /**
+     * Traduce el "assignee_id" de la API a la columna donde se guarda el responsable
+     * y valida que sea miembro del tablero. Junto con unassignFromBoard es lo único
+     * que conoce la columna: si se pasa a varios responsables, se cambia acá.
+     */
+    private function applyAssignee(array $data, int $listId, ?Task $task = null): array
+    {
+        if (array_key_exists('assignee_id', $data)) {
+            $assigneeId = $data['assignee_id'] === null ? null : (int) $data['assignee_id'];
+            unset($data['assignee_id']);
+            $data['assigned_to'] = $assigneeId;
+        } elseif ($task !== null && $listId !== (int) $task->list_id) {
+            // Si la tarea cambia de lista, el responsable actual tiene que tener acceso al destino
+            $assigneeId = $task->assigned_to;
+        } else {
+            return $data;
+        }
+
+        if ($assigneeId !== null) {
+            $this->access->assertAssignable($listId, $assigneeId);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Deja sin responsable las tareas del tablero asignadas al usuario
+     * (incluidas las eliminadas, para que no vuelvan asignadas si se restauran).
+     */
+    public function unassignFromBoard(int $boardId, int $userId): void
+    {
+        Task::withTrashed()
+            ->where('assigned_to', $userId)
+            ->whereIn('list_id', ListModel::withTrashed()->where('board_id', $boardId)->select('id'))
+            ->update(['assigned_to' => null]);
     }
 
     /**

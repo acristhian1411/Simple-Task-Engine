@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ListModel;
+use App\Models\Task;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -33,6 +34,7 @@ class ListService
         $query = ListModel::with([
             'tasks.components',
             'tasks.bugs',
+            'tasks.' . Task::ASSIGNEE_RELATION,
         ]);
         if (isset($filters['board_id'])) {
             $query->where('board_id', $filters['board_id']);

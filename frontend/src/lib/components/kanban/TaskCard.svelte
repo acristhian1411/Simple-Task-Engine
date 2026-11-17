@@ -1,7 +1,10 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { getTaskAssignees } from "$lib/utils/assignee.js";
 
   export let task = {};
+  // La tarjeta no cumple los filtros activos del tablero: se atenúa pero sigue arrastrable
+  export let dimmed = false;
 
   const dispatch = createEventDispatcher();
 
@@ -93,9 +96,9 @@
 
   function getAvatarInitials(name) {
     if (!name) return "";
-    const parts = name.trim().split(" ");
+    const parts = name.trim().split(/\s+/);
     if (parts.length >= 2) {
-      return parts[0][0] + parts[parts.length - 1][0];
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
     return parts[0].substring(0, 2).toUpperCase();
   }
@@ -138,17 +141,16 @@
 
   $: tagColors = task.tags?.[0] ? getTagColor(task.tags[0]) : null;
   $: priorityBadge = getPriorityBadge(task.priority);
-  $: avatarInitials = task.assignee
-    ? getAvatarInitials(task.assignee.name || task.assignee.email)
-    : "";
-  $: avatarColor = task.assignee
-    ? getAvatarColor(task.assignee.name || task.assignee.email)
-    : "slate";
+  $: assignees = getTaskAssignees(task);
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class={getCardClasses(visualStatus)} on:click={() => dispatch("click", { task })}>
+<div
+  class={getCardClasses(visualStatus)}
+  style:opacity={dimmed ? 0.35 : null}
+  on:click={() => dispatch("click", { task })}
+>
   <!-- Task Header -->
   <div class="flex justify-between items-start mb-2">
     <div class="flex gap-2">
@@ -313,64 +315,36 @@
       {/if}
     </div>
 
-    <!-- Assignee Avatar -->
-    <div class="flex items-center gap-2">
-      {#if task.assignees && task.assignees.length > 1}
-        <!-- Multiple assignees -->
-        <div class="flex -space-x-2">
-          {#each task.assignees.slice(0, 2) as assignee}
-            {#if assignee.avatar}
-              <div
-                class="size-6 rounded-full bg-cover bg-center ring-2 ring-white dark:ring-[#1e293b]"
-                data-alt="Avatar {assignee.name}"
-                style="background-image: url('{assignee.avatar}')"
-              ></div>
-            {:else}
-              <div
-                class="size-6 rounded-full bg-{getAvatarColor(
-                  assignee.name || assignee.email,
-                )}-500 flex items-center justify-center text-[10px] text-white font-bold ring-2 ring-white dark:ring-[#1e293b]"
-              >
-                {getAvatarInitials(assignee.name || assignee.email)}
-              </div>
-            {/if}
-          {/each}
-          {#if task.assignees.length > 2}
-            <div
-              class="size-6 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white font-medium ring-2 ring-white dark:ring-[#1e293b]"
-            >
-              +{task.assignees.length - 2}
-            </div>
-          {/if}
-        </div>
-      {:else if task.assignee || (task.assignees && task.assignees.length === 1)}
-        <!-- Single assignee -->
-        {#if task.assignee ? task.assignee.avatar : task.assignees[0]?.avatar}
+    <!-- Responsables (hoy uno solo; el bloque ya soporta varios) -->
+    {#if assignees.length > 0}
+      <div
+        class="flex -space-x-2 {visualStatus === 'completed' ? 'grayscale' : ''}"
+      >
+        {#each assignees.slice(0, 2) as assignee (assignee.id)}
+          {@const label = assignee.name || assignee.email || ""}
           <div
-            class="size-6 rounded-full bg-cover bg-center {visualStatus ===
-            'completed'
-              ? 'grayscale'
-              : ''}"
-            data-alt="User avatar {task.assignee
-              ? task.assignee.name
-              : task.assignees[0].name}"
-            style="background-image: url('{task.assignee
-              ? task.assignee.avatar
-              : task.assignees[0].avatar}')"
-          ></div>
-        {:else}
-          <div
-            class="size-6 rounded-full {avatarColorClasses[avatarColor] ||
-              'bg-slate-500'} flex items-center justify-center text-[10px] text-white font-bold {visualStatus ===
-            'completed'
-              ? 'grayscale'
-              : ''}"
+            class="size-6 rounded-full {avatarColorClasses[
+              getAvatarColor(label)
+            ] ||
+              'bg-slate-500'} flex items-center justify-center text-[10px] text-white font-bold ring-2 ring-white dark:ring-[#1e293b]"
+            title={label}
           >
-            {avatarInitials}
+            {getAvatarInitials(label)}
+          </div>
+        {/each}
+        {#if assignees.length > 2}
+          <div
+            class="size-6 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white font-medium ring-2 ring-white dark:ring-[#1e293b]"
+            title={assignees
+              .slice(2)
+              .map((a) => a.name || a.email)
+              .join(", ")}
+          >
+            +{assignees.length - 2}
           </div>
         {/if}
-      {/if}
-    </div>
+      </div>
+    {/if}
   </div>
 
   <!-- Blocker Reason (if blocked) -->

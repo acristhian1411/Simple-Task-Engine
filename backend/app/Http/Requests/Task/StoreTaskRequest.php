@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Task;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreTaskRequest extends FormRequest
 {
@@ -19,6 +20,8 @@ class StoreTaskRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'status' => ['nullable', 'string', 'max:50'],
             'order' => ['nullable', 'integer', 'min:0'],
+            // Que sea miembro del tablero lo valida TaskService
+            'assignee_id' => ['nullable', 'integer', Rule::exists('users', 'id')->whereNull('deleted_at')],
         ];
     }
 }

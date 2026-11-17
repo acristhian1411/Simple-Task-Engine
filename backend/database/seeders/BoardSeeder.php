@@ -28,6 +28,11 @@ class BoardSeeder extends Seeder
             ['description' => 'Tablero principal del sprint 1', 'user_id' => $admin?->id]
         );
 
+        // Solo se puede asignar tareas a miembros del tablero: dev tiene que estar compartido
+        if ($dev && $dev->id !== $board->user_id) {
+            $board->members()->syncWithoutDetaching([$dev->id]);
+        }
+
         $todo = ListModel::updateOrCreate(
             ['board_id' => $board->id, 'title' => 'Por hacer'],
             ['order' => 1]

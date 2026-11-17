@@ -8,6 +8,8 @@
   export let listId = null;
   export let status = "default"; // default, active, blocked, completed
   export let color = "default"; // default, primary, red, green
+  // Filtros del tablero: devuelve true para las tarjetas que se muestran atenuadas
+  export let isTaskDimmed = () => false;
 
   const dispatch = createEventDispatcher();
 
@@ -188,6 +190,7 @@
     {#each localTasks as task (task.id)}
       <TaskCard
         {task}
+        dimmed={isTaskDimmed(task)}
         on:click={() => dispatch("taskClick", { task })}
         on:more={() => dispatch("taskMore", { task })}
       />
