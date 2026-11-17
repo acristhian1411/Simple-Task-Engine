@@ -39,7 +39,9 @@ class SubtaskController extends ApiController
             $data = $this->service->list([
                 'task_id' => $taskId,
             ]);
-            return $this->showAll($data);
+            // Sin paginar: showAll corta en 10 por página y el detalle de la tarea
+            // mostraba solo las primeras 10 subtareas (y el contador como x/10)
+            return response()->json(['data' => $data]);
         } catch (\Throwable $e) {
             return $this->respondException($e);
         }

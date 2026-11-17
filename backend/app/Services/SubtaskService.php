@@ -28,7 +28,10 @@ class SubtaskService
             $s = $filters['search'];
             $query->where('title', 'ILIKE', "%$s%");
         }
-        return $query->latest()->get();
+        return $query
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
     }
 
     public function create(array $data): Subtask
