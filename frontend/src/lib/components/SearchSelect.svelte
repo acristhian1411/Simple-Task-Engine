@@ -134,3 +134,11 @@
     </div>
   {/if}
 </div>
+
+<style>
+  /* El navegador agrega su propia X a los input type="search"; ya tenemos el botón para quitar la selección */
+  input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+</style>
