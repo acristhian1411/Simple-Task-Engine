@@ -11,7 +11,9 @@
 
   // Navigation activation based on current path
   $: pathname = $page.url.pathname;
-  $: activeNavItem = pathname.startsWith("/components/explorer")
+  $: activeNavItem = pathname.startsWith("/members")
+    ? "members"
+    : pathname.startsWith("/components/explorer")
     ? "explorer"
     : pathname.startsWith("/components/impact")
       ? "impact"

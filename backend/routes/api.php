@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Audits\AuditController;
 use App\Http\Controllers\Api\BoardController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ListController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\SubtaskController;
@@ -25,11 +26,15 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/auth/login', [AuthController::class, 'login']);
-Route::post('/auth/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'me']);
+
+    Route::middleware('admin')->group(function () {
+        Route::apiResource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword']);
+    });
 
     Route::group(['prefix' => 'audits'], function (): void {
         Route::get('/auditable/{auditableId}', [AuditController::class, 'getAuditByAuditableId']);

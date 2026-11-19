@@ -51,7 +51,7 @@
       id: "members",
       label: "Miembros",
       icon: "group",
-      href: null,
+      href: "/members",
     },
     {
       id: "reports",
@@ -132,6 +132,7 @@
     <!-- Navigation Items -->
     <div class="flex flex-col gap-1">
       {#each navItems as item}
+        {#if item.id !== "members" || user?.is_admin}
         <button
           class={activeItem === item.id ? "nav-item-active" : "nav-item"}
           on:click={() => handleNavClick(item)}
@@ -151,6 +152,7 @@
             {item.label}
           </p>
         </button>
+        {/if}
       {/each}
     </div>
   </div>

@@ -37,6 +37,11 @@ class User extends Authenticatable implements Auditable
         'remember_token',
     ];
 
+    protected $auditExclude = [
+        'password',
+        'remember_token',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -47,6 +52,7 @@ class User extends Authenticatable implements Auditable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 }

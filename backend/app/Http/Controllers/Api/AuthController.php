@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -46,15 +45,6 @@ class AuthController extends ApiController
     {
         try {
             return $this->showOne($request->user());
-        } catch (\Throwable $e) {
-            return $this->respondException($e);
-        }
-    }
-
-    public function register(Request $request){
-        try {
-            $user = User::create($request->all()); 
-            return $this->showOne($user);  
         } catch (\Throwable $e) {
             return $this->respondException($e);
         }

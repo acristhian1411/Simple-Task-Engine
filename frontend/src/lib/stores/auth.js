@@ -30,7 +30,7 @@ export async function refreshMe() {
 	}
 	try {
 		const data = await apiMe();
-		const user = data?.data ?? data;
+		const user = data?.data?.data ?? data?.data ?? data;
 		auth.update((s) => ({ ...s, user, token }));
 		return user;
 	} catch (e) {
