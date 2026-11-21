@@ -8,6 +8,7 @@ use App\Models\Task;
 use App\Models\TestCases;
 use App\Services\RecordingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class RecordingController extends ApiController
 {
@@ -33,14 +34,8 @@ class RecordingController extends ApiController
             $data = $request->validate([
                 'title' => ['nullable', 'string', 'max:150'],
                 'status' => ['nullable', 'string', 'in:recording,processing,completed,failed'],
-                'file_path' => ['nullable', 'string'],
-                'mime_type' => ['nullable', 'string', 'max:50'],
                 'duration_ms' => ['nullable', 'integer', 'min:0'],
                 'file_size_bytes' => ['nullable', 'integer', 'min:0'],
-                'console_log_path' => ['nullable', 'string'],
-                'network_log_path' => ['nullable', 'string'],
-                'recordable_type' => ['nullable', 'string'],
-                'recordable_id' => ['nullable', 'integer'],
             ]);
             $recording = $this->service->create($data);
             return $this->showAfterAction($recording, 'create', 201);
@@ -59,20 +54,44 @@ class RecordingController extends ApiController
         }
     }
 
+    public function file(int $id)
+    {
+        $recording = $this->service->findOrFail($id);
+        abort_unless($recording->file_path && Storage::disk('local')->exists($recording->file_path), 404);
+
+        return response()->file(
+            Storage::disk('local')->path($recording->file_path),
+            [
+                'Content-Type' => $recording->mime_type ?? 'application/octet-stream',
+                'Content-Disposition' => 'inline; filename="' . basename($recording->file_path) . '"',
+                'Cache-Control' => 'private, no-store',
+            ],
+        );
+    }
+
+    public function logs(int $id)
+    {
+        $recording = $this->service->findOrFail($id);
+        $disk = Storage::disk('local');
+
+        return response()->json([
+            'console' => $recording->console_log_path && $disk->exists($recording->console_log_path)
+                ? json_decode($disk->get($recording->console_log_path), true)
+                : [],
+            'network' => $recording->network_log_path && $disk->exists($recording->network_log_path)
+                ? json_decode($disk->get($recording->network_log_path), true)
+                : [],
+        ])->header('Cache-Control', 'private, no-store');
+    }
+
     public function update(Request $request, int $id)
     {
         try {
             $data = $request->validate([
                 'title' => ['nullable', 'string', 'max:150'],
                 'status' => ['nullable', 'string', 'in:recording,processing,completed,failed'],
-                'file_path' => ['nullable', 'string'],
-                'mime_type' => ['nullable', 'string', 'max:50'],
                 'duration_ms' => ['nullable', 'integer', 'min:0'],
                 'file_size_bytes' => ['nullable', 'integer', 'min:0'],
-                'console_log_path' => ['nullable', 'string'],
-                'network_log_path' => ['nullable', 'string'],
-                'recordable_type' => ['nullable', 'string'],
-                'recordable_id' => ['nullable', 'integer'],
             ]);
             $recording = $this->service->findOrFail($id);
             $recording = $this->service->update($recording, $data);
@@ -103,6 +122,18 @@ class RecordingController extends ApiController
             $recording = $this->service->findOrFail($id);
             $model = $this->resolveRecordable($data['recordable_type'], $data['recordable_id']);
             $recording = $this->service->attachTo($recording, $model);
+            return $this->showAfterAction($recording, 'update');
+        } catch (\Throwable $e) {
+            return $this->respondException($e);
+        }
+    }
+
+    public function detach(int $id)
+    {
+        try {
+            $recording = $this->service->findOrFail($id);
+            $recording->recordable()->dissociate();
+            $recording->save();
             return $this->showAfterAction($recording, 'update');
         } catch (\Throwable $e) {
             return $this->respondException($e);

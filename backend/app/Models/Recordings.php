@@ -11,6 +11,12 @@ class Recordings extends Model implements Auditable
 {
     use \OwenIt\Auditing\Auditable;
 
+    protected $hidden = [
+        'file_path',
+        'console_log_path',
+        'network_log_path',
+    ];
+
     protected $fillable = [
         'title',
         'status',

@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\TestCaseController;
 use App\Http\Controllers\Api\TestStepController;
 use App\Http\Controllers\Api\TestCaseActorController;
 use App\Http\Controllers\Api\RecordingController;
+use App\Http\Controllers\Api\ExtensionController;
 use App\Http\Controllers\Api\MetricsController;
 use App\Http\Controllers\Comments\CommentsController;
 Route::get('/user', function (Request $request) {
@@ -96,7 +97,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Recordings
     Route::apiResource('recordings', RecordingController::class);
+    Route::get('recordings/{id}/file', [RecordingController::class, 'file']);
+    Route::get('recordings/{id}/logs', [RecordingController::class, 'logs']);
     Route::post('recordings/{id}/attach', [RecordingController::class, 'attachTo']);
+    Route::post('recordings/{id}/detach', [RecordingController::class, 'detach']);
     Route::post('recordings/{id}/complete', [RecordingController::class, 'markCompleted']);
     Route::post('recordings/{id}/failed', [RecordingController::class, 'markFailed']);
 
@@ -114,6 +118,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('test-steps', TestStepController::class);
     Route::apiResource('test-case-actors', TestCaseActorController::class);
+});
+
+Route::middleware('auth.extension')->prefix('extension')->group(function () {
+    Route::get('session', [ExtensionController::class, 'session']);
+    Route::get('bugs', [ExtensionController::class, 'bugs']);
+    Route::post('bugs', [ExtensionController::class, 'createBug']);
+    Route::post('recordings', [ExtensionController::class, 'storeRecording']);
 });
 
 // Dashboard

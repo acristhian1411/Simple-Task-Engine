@@ -6,12 +6,14 @@ use App\Models\Recordings;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class RecordingService
 {
     public function list(array $filters = []): Collection
     {
-        $query = Recordings::query();
+        $query = Recordings::with(['recordable', 'recordedBy']);
         if (isset($filters['status'])) {
             $query->where('status', $filters['status']);
         }
@@ -43,7 +45,15 @@ class RecordingService
 
     public function delete(Recordings $recording): void
     {
-        $recording->delete();
+        $paths = array_filter([
+            $recording->file_path,
+            $recording->console_log_path,
+            $recording->network_log_path,
+        ], fn ($path) => is_string($path)
+            && str_starts_with($path, 'recordings/')
+            && !str_contains($path, '..'));
+        DB::transaction(fn () => $recording->delete());
+        Storage::disk('local')->delete($paths);
     }
 
     public function attachTo(Recordings $recording, Model $model): Recordings
