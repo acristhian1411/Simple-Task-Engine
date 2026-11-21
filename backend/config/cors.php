@@ -22,7 +22,10 @@ return [
         explode(',', env('CORS_ALLOWED_ORIGINS', 'https://tareas.daemon-lab.duckdns.org')),
     ))),
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        '#^chrome-extension://[a-p]{32}$#',
+        '#^moz-extension://[a-zA-Z0-9-]+$#',
+    ],
 
     'allowed_headers' => ['*'],
 

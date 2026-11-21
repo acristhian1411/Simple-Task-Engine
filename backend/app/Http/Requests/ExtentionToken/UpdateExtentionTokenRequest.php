@@ -14,11 +14,7 @@ class UpdateExtentionTokenRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'token' => ['nullable', 'string'],
-            'token_hash' => ['sometimes', 'required', 'string', 'max:64'],
             'label' => ['nullable', 'string', 'max:100'],
-            'last_used_at' => ['nullable', 'date'],
-            'revoked_at' => ['nullable', 'date'],
         ];
     }
 }

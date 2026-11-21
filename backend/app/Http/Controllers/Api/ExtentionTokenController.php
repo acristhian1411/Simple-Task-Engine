@@ -39,7 +39,7 @@ class ExtentionTokenController extends ApiController
     public function show(int $id)
     {
         try {
-            $token = $this->service->findOrFail($id);
+            $token = $this->service->findForUserOrFail($id, Auth::id());
             return $this->showOne($token);
         } catch (\Throwable $e) {
             return $this->respondException($e);
@@ -49,8 +49,8 @@ class ExtentionTokenController extends ApiController
     public function update(UpdateExtentionTokenRequest $request, int $id)
     {
         try {
-            $token = $this->service->findOrFail($id);
-            $token = $this->service->update($token, $request->all());
+            $token = $this->service->findForUserOrFail($id, Auth::id());
+            $token = $this->service->update($token, $request->validated());
             return $this->showAfterAction($token, 'update');
         } catch (\Throwable $e) {
             return $this->respondException($e);
@@ -60,7 +60,7 @@ class ExtentionTokenController extends ApiController
     public function destroy(int $id)
     {
         try {
-            $token = $this->service->findOrFail($id);
+            $token = $this->service->findForUserOrFail($id, Auth::id());
             $this->service->delete($token);
             return $this->showMessage('Registro eliminado con exito');
         } catch (\Throwable $e) {
@@ -84,7 +84,7 @@ class ExtentionTokenController extends ApiController
     public function revoke(int $id)
     {
         try {
-            $token = $this->service->findOrFail($id);
+            $token = $this->service->findForUserOrFail($id, Auth::id());
             $token = $this->service->revoke($token);
             return $this->showAfterAction($token, 'update');
         } catch (\Throwable $e) {
@@ -95,7 +95,7 @@ class ExtentionTokenController extends ApiController
     public function touchLastUsed(int $id)
     {
         try {
-            $token = $this->service->findOrFail($id);
+            $token = $this->service->findForUserOrFail($id, Auth::id());
             $token = $this->service->touchLastUsed($token);
             return $this->showAfterAction($token, 'update');
         } catch (\Throwable $e) {

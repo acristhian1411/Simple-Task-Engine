@@ -47,6 +47,11 @@ class ExtentionTokenService
         return ExtentionTokens::findOrFail($id);
     }
 
+    public function findForUserOrFail(int $id, int $userId): ExtentionTokens
+    {
+        return ExtentionTokens::where('user_id', $userId)->findOrFail($id);
+    }
+
     public function update(ExtentionTokens $token, array $data): ExtentionTokens
     {
         $token->update($data);
