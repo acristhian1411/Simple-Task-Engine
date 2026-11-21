@@ -14,20 +14,22 @@
   $: activeNavItem = pathname.startsWith("/members")
     ? "members"
     : pathname.startsWith("/components/explorer")
-    ? "explorer"
-    : pathname.startsWith("/components/impact")
-      ? "impact"
-      : pathname.startsWith("/board")
-        ? "boards"
-        : pathname.startsWith("/bugs")
-          ? "bugs"
-          : pathname.startsWith("/components")
-            ? "components"
-            : pathname.startsWith("/tests")
-              ? "tests"
-              : pathname === "/"
-                ? "dashboard"
-                : "boards";
+      ? "explorer"
+      : pathname.startsWith("/components/impact")
+        ? "impact"
+        : pathname.startsWith("/board")
+          ? "boards"
+          : pathname.startsWith("/bugs")
+            ? "bugs"
+            : pathname.startsWith("/recordings")
+              ? "recordings"
+              : pathname.startsWith("/components")
+                ? "components"
+                : pathname.startsWith("/tests")
+                  ? "tests"
+                  : pathname === "/"
+                    ? "dashboard"
+                    : "boards";
 
   function closeCreateBoard() {
     createBoardOpen.set(false);

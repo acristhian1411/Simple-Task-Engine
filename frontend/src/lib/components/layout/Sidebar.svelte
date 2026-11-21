@@ -23,6 +23,7 @@
       href: "/boards",
     },
     { id: "bugs", label: "Bugs", icon: "bug_report", href: "/bugs" },
+    { id: "recordings", label: "Grabaciones", icon: "videocam", href: "/recordings" },
     {
       id: "components",
       label: "Componentes",
