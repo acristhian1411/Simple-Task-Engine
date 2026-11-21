@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Maius Bug Recorder",
+  "version": "1.0.0",
+  "description": "Graba pantalla, consola y actividad de red para reportar bugs en Maius.",
+  "permissions": ["storage", "tabs", "scripting", "webRequest"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "scripts": ["worker.js"]
+  },
+  "action": {
+    "default_title": "Maius Bug Recorder",
+    "default_popup": "popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "maius-bug-recorder@daemon-lab",
+      "strict_min_version": "128.0"
+    }
+  }
+}

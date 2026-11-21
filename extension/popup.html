@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Maius Bug Recorder</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main>
+      <h1>Maius Bug Recorder</h1>
+      <label for="api">URL de la API</label>
+      <input id="api" type="url" placeholder="https://tu-app/api">
+      <label for="token">Token de extensión</label>
+      <input id="token" type="password" autocomplete="off" placeholder="Pégalo desde Grabaciones en Maius">
+      <button id="connect">Guardar y verificar conexión</button>
+      <p id="status" role="status"></p>
+      <button id="start" class="primary" disabled>Grabar pestaña actual</button>
+      <p class="hint">Al iniciar, el navegador pedirá permiso para compartir pantalla.</p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

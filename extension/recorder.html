@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nueva grabación · Maius</title>
+    <link rel="stylesheet" href="recorder.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">MAIUS BUG RECORDER</p>
+        <h1>Grabar reporte</h1>
+        <p id="target" class="muted"></p>
+      </header>
+
+      <label for="title">Título de la grabación</label>
+      <input id="title" maxlength="150" placeholder="Descripción breve del problema">
+
+      <label for="bug">Asociar a un bug</label>
+      <select id="bug">
+        <option value="">Sin asociación</option>
+      </select>
+      <button id="newBugToggle" class="secondary">Crear bug nuevo</button>
+
+      <section id="newBug" hidden>
+        <label for="bugTitle">Título del bug</label>
+        <input id="bugTitle" maxlength="150">
+        <label for="bugDescription">Descripción</label>
+        <textarea id="bugDescription" rows="4"></textarea>
+        <label for="severity">Severidad</label>
+        <select id="severity">
+          <option value="low">Baja</option>
+          <option value="medium" selected>Media</option>
+          <option value="high">Alta</option>
+          <option value="critical">Crítica</option>
+        </select>
+      </section>
+
+      <label class="check-row" for="includeMic">
+        <input id="includeMic" type="checkbox">
+        Incluir micrófono
+      </label>
+      <button id="start" class="primary">Elegir pantalla y empezar</button>
+      <button id="stop" class="danger" hidden>Detener y guardar</button>
+      <button id="retry" class="primary" hidden>Reintentar carga</button>
+      <p id="status" role="status" aria-live="polite">Cargando sesión…</p>
+    </main>
+    <script src="recorder.js"></script>
+  </body>
+</html>

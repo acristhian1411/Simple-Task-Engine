@@ -1,0 +1,19 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #f1f5f9; color: #172033; font: 14px system-ui, sans-serif; }
+main { width: min(100% - 32px, 560px); margin: 40px auto; padding: 28px; display: grid; gap: 12px; background: white; border: 1px solid #dbe3ef; border-radius: 16px; box-shadow: 0 15px 40px #0f172a12; }
+h1 { margin: 0; font-size: 28px; }
+.eyebrow { margin: 0 0 5px; color: #4f46e5; font-size: 11px; font-weight: 800; letter-spacing: .13em; }
+.muted { margin: 5px 0 8px; color: #64748b; overflow-wrap: anywhere; }
+label { margin-top: 4px; font-size: 12px; font-weight: 700; }
+input, select, textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; background: white; color: inherit; font: inherit; }
+textarea { resize: vertical; }
+button { border: 0; border-radius: 8px; padding: 12px; font: inherit; font-weight: 700; cursor: pointer; }
+button:disabled { opacity: .55; cursor: wait; }
+.primary { background: #4f46e5; color: white; }
+.secondary { background: #e2e8f0; color: #172033; }
+.danger { background: #dc2626; color: white; }
+.check-row { display: flex; align-items: center; gap: 8px; }
+.check-row input { width: auto; }
+#newBug { display: grid; gap: 8px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; }
+#status { min-height: 18px; margin: 2px 0 0; color: #475569; }
+#status.error { color: #b91c1c; }
